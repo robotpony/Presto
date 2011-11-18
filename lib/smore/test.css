@@ -1,0 +1,20 @@
+/*
+	grid { 
+		w = 1000px;
+		h = 1000px;
+		
+		x = 40px;
+		y = 50px;
+	}
+	
+	
+*/
+
+#include "main.css"
+#include "widgets.css"
+
+
+body {
+	width: p.w;
+	margin: 0;
+}

@@ -1,0 +1,5 @@
+Presto is a small library of tools and scripts for hacking together simple PHP things. It's minimalistic, decoupled, and focused on making web apps the right way (encouraging nice URLs, RESTfulness, documentation, testing, and so on).
+
+For more info, see:
+
+http://napkinware.com/presto

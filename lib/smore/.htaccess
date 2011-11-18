@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+
+AddType text/css .css
+
+RewriteEngine On
+RewriteCond $1 !^(index\.php|public|tmp|robots\.txt)
+RewriteRule ^(.*)$ ./index.php?/$1 [L]
+
+</IfModule>
+
+<IfModule mod_expires.c>
+# 2 days
+<FilesMatch "\.(css)$">
+Header set Cache-Control "max-age=172800, public, must-revalidate"
+</FilesMatch>
+
+</IfModule>
