@@ -1,4 +1,4 @@
-<?php 
+<?php // Presto global helper functions
 
 // Dump output for debugging
 function dump() { 
