@@ -10,10 +10,17 @@
 				
 
 */
-if (phpversion() != '5.3.6') { print 'Unsupported version of PHP. (' . phpversion() . ')'; die; };
 
-include_once('_config.php');
-include_once('_helpers.php');
+$ver = explode('.', phpversion());
+
+if ($ver[0] != '5' && $ver[1] < 3) { 
+	print 'Unsupported version of PHP. (' . phpversion() . ')'; die; 
+};
+
+define('PRESTO_BASE', basename(dirname(__FILE__)));
+
+include_once(PRESTO_BASE.'/_config.php');
+include_once(PRESTO_BASE.'/_helpers.php');
 
 class Presto extends REST {
 	public $call;
