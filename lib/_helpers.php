@@ -16,9 +16,8 @@ function dump() {
 
 // Load classes automatically
 function __autoload($c) {
-	$in = '';
 	try {
-		include_once($in . $c . '.php'); 
+		include_once($c . '.php'); 
 	} catch (Exception $e) {
 		dump('Failed to auto-load', $e, $c);
 	}

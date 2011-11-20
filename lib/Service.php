@@ -33,7 +33,7 @@ class Service {
 	public function __construct($options, $urlBuilder = NULL) {
 	
 		if (!function_exists('curl_init'))
-			throw new Exception('cURL required by the Service lib.');
+			throw new Exception('cURL required by the Presto::Service lib.');
 		 
 		// set up the service options
 		$this->options = (object)array_merge(

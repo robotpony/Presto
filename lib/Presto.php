@@ -12,12 +12,11 @@
 */
 
 $ver = explode('.', phpversion());
-
 if ($ver[0] != '5' && $ver[1] < 3) { 
-	print 'Unsupported version of PHP. (' . phpversion() . ')'; die; 
+	print 'Unsupported version of PHP. (' . phpversion() . '). '; die; 
 };
 
-define('PRESTO_BASE', basename(dirname(__FILE__)));
+define('PRESTO_BASE', dirname(__FILE__));
 
 include_once(PRESTO_BASE.'/_config.php');
 include_once(PRESTO_BASE.'/_helpers.php');
@@ -29,8 +28,6 @@ class Presto extends REST {
 		$this->_base = $_SERVER['DOCUMENT_ROOT'];
 		
 		self::$req = new request();
-		
-		set_include_path($this->_base);		
 		
 		try {
 
