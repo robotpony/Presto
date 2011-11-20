@@ -47,33 +47,39 @@ class Presto {
 	private function filter() {	
 	}
 	
+	/* Dispatch requests to classes and class methods */
 	private function dispatch() {
 		
 		$obj = $this->req->uri->component('error');
 		$thing = $this->req->uri->component('');
 		$action = $this->req->action;
+		$params;
 		
-		$method = (strlen($thing)) ? "{$thing}_{$action}" : $action;
+		$o = new $obj();
+		
+		if (!$o->validConcept($thing)) {
+			$params[] = $thing;
+			$thing = '';
+		}
+		
+		$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;
 		
 		$this->call = (object) array(
 			'class' => $obj,
 			'method' => $method, 
 			'res' => $this->req->uri->type(), 
-			'params' => $this->req->uri->parameters,
+			'params' => array_merge($this->req->uri->parameters, $params),
 			'exists' => false); 
 			
 		$this->resp = new response($this->call);
-		
 
 		if ($obj == 'error')
 			throw new Exception('Root access not allowed');
 		
 		if (!method_exists($obj, $method))
-			throw new Exception("Can't find $obj->$method()");
+			throw new Exception("Can't find $obj->$method()");	
 		
 		$this->call->exists = true; 
-		
-		$o = new $obj($this->req, $this->sess, $this->call);
 		
 		$call->data = $o->$method($this->call);
 
@@ -88,6 +94,23 @@ class Presto {
 			
 		return true;
 	}	
+}
+
+/** REST base class
+
+	Handy constants and base methods
+*/
+class REST {
+
+	public static $METHODS = array(
+		'get', 'put', 'post', 'delete', 'options', 'head');
+	public static $TYPES = array(
+		'json', 'xml');
+		
+	public static $req;
+	public static $resp; 
+	public static $sess; 
+	
 }
 
 ?>
