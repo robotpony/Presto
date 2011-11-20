@@ -58,7 +58,8 @@ class Presto {
 			'res' => $this->req->uri->type(), 'params' => $this->req->uri->parameters,
 			'exists' => false); 
 
-		if ($obj == 'error') die('Root access not allowed');
+		if ($obj == 'error')
+			throw new exception('Root access not allowed');
 		
 		if (!method_exists($obj, $method))
 			throw new Exception("Can't find $obj->$method()");
@@ -67,7 +68,17 @@ class Presto {
 		
 		$o = new $obj($this->req, $this->sess);
 
-		$o->$method($this->call);
+		$this->data = $o->$method($this->call);
+		
+		// TODO - setup header response items (content-type, etc.)
+		
+		if (is_object($this->data) || is_array($this->data))
+			print json_encode($this->data);
+		else
+			print $this->data;
+			
+			
+		return true;
 	}	
 }
 
