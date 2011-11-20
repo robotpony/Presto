@@ -15,16 +15,13 @@ if (phpversion() != '5.3.6') { print 'Unsupported version of PHP. (' . phpversio
 include_once('_config.php');
 include_once('_helpers.php');
 
-class Presto {
-	public $req;
-	public $resp;
-	public $sess;
+class Presto extends REST {
 	public $call;
 	
 	public function __construct() { 	
 		$this->_base = $_SERVER['DOCUMENT_ROOT'];
 		
-		$this->req = new request();
+		self::$req = new request();
 		
 		set_include_path($this->_base);		
 		
@@ -42,22 +39,24 @@ class Presto {
 	public function __toString() { return print_r($this, true); }
 	
 	private function authenticate() {
+		// TODO
 	}
 
 	private function filter() {	
+		// TODO
 	}
 	
 	/* Dispatch requests to classes and class methods */
 	private function dispatch() {
 		
-		$obj = $this->req->uri->component('error');
+		$obj = self::$req->uri->component('error');
 		$o = new $obj();
 
-		$action = $this->req->action;
-		$thing = $this->req->uri->component('');
+		$action = self::$req->action;
+		$thing = self::$req->uri->component('');
 
 		if (!$o->validConcept($thing)) {
-			$this->req->uri->parameters[] = $thing;	
+			self::$req->uri->parameters[] = $thing;	
 			$thing = '';
 		}
 
@@ -66,12 +65,12 @@ class Presto {
 		$this->call = (object) array(
 			'class' => $obj,
 			'method' => $method, 
-			'res' => $this->req->uri->type(), 
-			'params' => $this->req->uri->parameters,
+			'res' => self::$req->uri->type(), 
+			'params' => self::$req->uri->parameters,
 			'exists' => false); 
 			
 
-		$this->resp = new response($this->call);
+		self::$resp = new response($this->call);
 
 		if ($obj == 'error')
 			throw new Exception('Root access not allowed');
@@ -81,20 +80,22 @@ class Presto {
 		
 		$this->call->exists = true; 
 		
-		// $this->trace("Dispatching to $obj :: $method");
+		self::_trace("Dispatching to $obj :: $method");
 		
 		try {
 		
 			$call->data = $o->$method($this->call);
 			
 		} catch (Exception $e) {			
-			$this->resp->hdr($e->getCode());
+			
+			self::$resp->hdr($e->getCode());
 			print $e->getMessage() . "\n";
+			
 			return false;
 		}
 	
 		// basic output (TODO: move)
-		$this->resp->hdr();
+		self::$resp->hdr();
 		
 		// TODO - setup header response items (content-type, etc.)
 		
@@ -121,6 +122,12 @@ class REST {
 	public static $req;
 	public static $resp; 
 	public static $sess; 
+	
+	public static function _trace() {
+		if (PRESTO_DEBUG == 0) return;
+		
+		print "TRACE: \n\t".implode("\n\t", func_get_args()) . "\n\n";
+	}
 	
 }
 
