@@ -50,8 +50,5 @@ class Request {
 	public function __toString() { return print_r($this, true); }
 }
 
-class Response {
-
-}
 
 ?>
