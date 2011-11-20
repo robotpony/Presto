@@ -16,12 +16,14 @@ include_once('_config.php');
 include_once('_helpers.php');
 
 class Presto {
-	public $req = array();
-	public $sess = array();
+	public $req;
+	public $resp;
+	public $sess;
 	public $call;
 	
 	public function __construct() { 	
-		$this->_base = $_SERVER['DOCUMENT_ROOT'];		
+		$this->_base = $_SERVER['DOCUMENT_ROOT'];
+		
 		$this->req = new request();
 		
 		set_include_path($this->_base);		
@@ -53,30 +55,36 @@ class Presto {
 		
 		$method = (strlen($thing)) ? "{$thing}_{$action}" : $action;
 		
-		$this->call = array(
-			'class' => $obj, 'method' => $method, 
-			'res' => $this->req->uri->type(), 'params' => $this->req->uri->parameters,
+		$this->call = (object) array(
+			'class' => $obj,
+			'method' => $method, 
+			'res' => $this->req->uri->type(), 
+			'params' => $this->req->uri->parameters,
 			'exists' => false); 
+			
+		$this->resp = new response($this->call);
+		
 
 		if ($obj == 'error')
-			throw new exception('Root access not allowed');
+			throw new Exception('Root access not allowed');
 		
 		if (!method_exists($obj, $method))
 			throw new Exception("Can't find $obj->$method()");
 		
-		$this->call['exists'] = true; 
+		$this->call->exists = true; 
 		
-		$o = new $obj($this->req, $this->sess);
+		$o = new $obj($this->req, $this->sess, $this->call);
+		
+		$call->data = $o->$method($this->call);
 
-		$this->data = $o->$method($this->call);
+		$this->resp->hdr();
 		
 		// TODO - setup header response items (content-type, etc.)
 		
-		if (is_object($this->data) || is_array($this->data))
-			print json_encode($this->data);
+		if (is_object($call->data) || is_array($call->data))
+			print json_encode($call->data);
 		else
-			print $this->data;
-			
+			print $call->data;
 			
 		return true;
 	}	
