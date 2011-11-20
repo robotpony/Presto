@@ -12,9 +12,9 @@ class URI {
 		$this->raw = $uri;		
 		$uri = (object) parse_url(ltrim($uri, '/'));		
 		$this->type = coalesce(strstr($uri->path, '.'), DEFAULT_RES_TYPE);
-		$uri->path = str_replace($this->type, '', $uri->path);
-		$this->parameters = explode('/', $uri->path);
-		parse_str($uri->query, $this->options);
+		$this->path = str_replace($this->type, '', $uri->path);
+		$this->parameters = explode('/', $this->path);
+		parse_str($_SERVER['QUERY_STRING'], $this->options);
 	}
 	
 	public function type() { return ltrim($this->type, '.'); }
@@ -32,16 +32,17 @@ class Request {
 	public $action;
 	public $service;	
 	public $uri;
+	public $query;
 	
 	public function __construct() {
 	
 		// bootstrap request parameters
 		$this->uri = new URI($_SERVER['REQUEST_URI']);
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
-		$this->action = coalesce($this->headers[ACTION_HEADER], $this->method);
+		$this->action = coalesce($this->method, 'get');
 		$this->host = $_SERVER['HTTP_HOST'];
 		$this->service = strstr($this->host, '.', -1);
-		
+
 		// reset wrapped globals
 		$_GET = array();	
 	}
