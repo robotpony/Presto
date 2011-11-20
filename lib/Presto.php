@@ -51,26 +51,26 @@ class Presto {
 	private function dispatch() {
 		
 		$obj = $this->req->uri->component('error');
-		$thing = $this->req->uri->component('');
-		$action = $this->req->action;
-		$params;
-		
 		$o = new $obj();
-		
+
+		$action = $this->req->action;
+		$thing = $this->req->uri->component('');
+
 		if (!$o->validConcept($thing)) {
-			$params[] = $thing;
+			$this->req->uri->parameters[] = $thing;	
 			$thing = '';
 		}
-		
+
 		$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;
 		
 		$this->call = (object) array(
 			'class' => $obj,
 			'method' => $method, 
 			'res' => $this->req->uri->type(), 
-			'params' => array_merge($this->req->uri->parameters, $params),
+			'params' => $this->req->uri->parameters,
 			'exists' => false); 
 			
+
 		$this->resp = new response($this->call);
 
 		if ($obj == 'error')
@@ -81,8 +81,19 @@ class Presto {
 		
 		$this->call->exists = true; 
 		
-		$call->data = $o->$method($this->call);
-
+		// $this->trace("Dispatching to $obj :: $method");
+		
+		try {
+		
+			$call->data = $o->$method($this->call);
+			
+		} catch (Exception $e) {			
+			$this->resp->hdr($e->getCode());
+			print $e->getMessage() . "\n";
+			return false;
+		}
+	
+		// basic output (TODO: move)
 		$this->resp->hdr();
 		
 		// TODO - setup header response items (content-type, etc.)
