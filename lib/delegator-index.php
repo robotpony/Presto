@@ -1,10 +1,8 @@
-<?php include_once('./lib/Presto.php'); ?>
+<?php include_once('./lib/Presto.php'); 
 
-<?php if (PRESTO_DEBUG) { ?>
+if (PRESTO_DEBUG) { ?>
 <h1>Presto debug mode</h1>
-<?php } ?>
-
-<?php 
+<?php } 
 
 try {
 	
