@@ -1,18 +1,28 @@
 <?php 
 
-class API {
+class API extends REST {
+		
+	private $concepts;
+	private $types;
+	
+	
+	public function __construct($c) {	
+		
+		// guess valid REST concepts from class members
+		
+		foreach (get_class_methods($c) as $fn) {
+		
+			$method = strtok($fn, '_');
+			$concept = strtok('');
 
-	public static $req;
-	public static $resp; 
-	public static $sess; 
-
-	public function __construct($req, $sess, $resp) {	
-		self::$req = $req;
-		self::$resp = $resp;
-		self::$sess = $sess;
+			if (!empty($concept) && in_array($method, self::$METHODS))
+				$this->concepts[] = $concept;
+		
+		}
 	}
 	
-	public function status() {}
+	public function validConcept($c) { return in_array($c, $this->concepts); }
+
 }
 
 ?>
