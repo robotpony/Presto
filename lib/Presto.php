@@ -15,8 +15,6 @@ if (phpversion() != '5.3.6') { print 'Unsupported version of PHP. (' . phpversio
 include_once('_config.php');
 include_once('_helpers.php');
 
-$p = new Presto();
-
 class Presto {
 	public $req = array();
 	public $sess = array();
@@ -53,7 +51,7 @@ class Presto {
 		$thing = $this->req->uri->component('');
 		$action = $this->req->action;
 		
-		$method = "{$thing}_{$action}";
+		$method = (strlen($thing)) ? "{$thing}_{$action}" : $action;
 		
 		$this->call = array(
 			'class' => $obj, 'method' => $method, 
