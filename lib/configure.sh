@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 if [ -f index.php ]; then
 	echo "Refusing to overwrite existing files."
 	exit 1 
