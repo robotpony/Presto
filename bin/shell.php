@@ -10,6 +10,8 @@ $options = array(
 	'log' => 'req'
 );
 
+
+
 // Run a simple Presto shell
 function shellinate() {
 	print PROMPT;
@@ -19,6 +21,11 @@ function shellinate() {
     	global $api;
     	$service = '';
 
+    	$line = $cmd;
+    	
+    	$history = fopen('hist.log', "a+");
+    	fwrite($history, $line);
+    	fclose($history);
     	
 		$cmd = strtok(trim($cmd), ' ');
 		$method = strtok(' ');
@@ -57,6 +64,7 @@ function shellinate() {
 					
 					if (!isset($api)) $api = new Service( $options );
 					
+					$params = array();
 					$pairs = explode(',', $value);
 					foreach ($pairs as $v) {
 						$p = explode('=', $v);
@@ -65,7 +73,8 @@ function shellinate() {
 					}
 					
 					$call = "{$cmd}_{$method}";
-					print_r($api->$call($params));
+					$data = $api->$call($params);
+					print_r($data);
 					print "\n";
 				
 				} catch (Exception $e) {
