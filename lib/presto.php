@@ -20,6 +20,8 @@ class Presto extends REST {
 	public function __construct() { 	
 		$this->_base = $_SERVER['DOCUMENT_ROOT'];
 		
+		set_error_handler(array($this, 'fail'));
+		
 		self::$req = new request();
 		
 		try {
@@ -102,7 +104,18 @@ class Presto extends REST {
 			print $call->data;
 			
 		return true;
-	}	
+	}
+	
+	static public function fail($n, $text, $file, $line, $ctx) {
+		self::$resp = new response();
+		$codes = array(2 => '404');	
+
+		self::$resp->hdr(coalesce(@$codes[$n], '500'));
+
+		$extra = !empty($ctx) ? "\n\nParameters:\n" . print_r($ctx, true) : '';
+		die("#$n\n$text\n$file:$line$extra\n");
+	
+	}
 }
 
 /** REST base class
