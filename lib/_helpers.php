@@ -16,14 +16,10 @@ function dump() {
 
 // Load classes automatically
 function __autoload($c) {
-	try {
-		include_once($c . '.php'); 
-	} catch (Exception $e) {
-		dump('Failed to auto-load', $e, $c);
-	}
+		require_once($c . '.php'); 
 }
 
 function coalesce() {
-  return array_shift(array_filter(func_get_args()));
+  return array_shift(@array_filter(func_get_args()));
 }
 ?>
