@@ -12,11 +12,6 @@
 */
 
 include_once('_config.php');
-
-$ver = explode('.', phpversion());
-if ($ver[0] != '5' && $ver[1] < 3) { 
-	print 'Unsupported version of PHP. (' . phpversion() . '). '; die; 
-};
 include_once(PRESTO_BASE.'/_helpers.php');
 
 class Presto extends REST {
