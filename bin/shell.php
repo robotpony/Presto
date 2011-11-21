@@ -1,11 +1,13 @@
 <?php
-include(dirname(__FILE__).'/Service.php');
+include(dirname(__FILE__).'/../lib/Service.php');
 
 define('PROMPT', '> ');
 $api = null;
 $options = array(
-	'service' => 'http://app.rubrix.local/',
-	'extra' => 'v2'
+	'service' => 'http://dev.rubrix.local/',
+	'extra' => 'v2',
+	'debug' => 0,
+	'log' => 'req'
 );
 
 // Run a simple Presto shell
@@ -58,14 +60,16 @@ function shellinate() {
 					$pairs = explode(',', $value);
 					foreach ($pairs as $v) {
 						$p = explode('=', $v);
-						if (count($p) == 2) $params[$v[0]] = $v[1]; 
+						if (count($p) == 2) $params[$p[0]] = $p[1]; 
 						else $params[] = $p;
 					}
-										
-					print $api->$method($p);
+					
+					$call = "{$cmd}_{$method}";
+					print_r($api->$call($params));
+					print "\n";
 				
 				} catch (Exception $e) {
-					print $e->getCode() . "\n" . $e->getMessage() . "\n";
+					print $e->getCode() . " : " . $e->getMessage() . "\n";
 				}
 				
 				
