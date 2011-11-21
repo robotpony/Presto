@@ -83,7 +83,11 @@ class Service {
 	
 		$urlFn = $this->urlBuilderFn;
 		$this->call->uri = $urlFn($fn, $this->options, $this->call);
-		
+	
+		$this->result = (object) array(
+			'body'		=> '',
+			'data'	=> array()
+		);	
 		$this->debug(__FUNCTION__, func_get_args());
 		
 	    return $this->request();
@@ -161,6 +165,8 @@ class Service {
 			CURLOPT_HEADERFUNCTION 	=> array($this, 'header')
 		));
 
+		$this->log('req', "{$this->call->method}: {$this->call->uri}");
+
 		$this->result->body = curl_exec($c);
 		$this->call->info = (object)curl_getinfo($c);
 
@@ -192,7 +198,7 @@ class Service {
 			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 			
 		if ($this->call->info->http_code != 200)
-			throw new Exception("Error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
+			throw new Exception("HTTP Error\n{$this->call->method} {$this->call->uri}\n{$this->result->body}", $this->call->info->http_code);
 		
 		return  $this->data();
 	}
