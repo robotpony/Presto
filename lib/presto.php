@@ -83,7 +83,7 @@ class Presto extends REST {
 		
 		try {
 		
-			$call->data = $o->$method($this->call);
+			$this->call->data = $o->$method($this->call);
 			
 		} catch (Exception $e) {			
 			
@@ -98,10 +98,10 @@ class Presto extends REST {
 		
 		// TODO - setup header response items (content-type, etc.)
 		
-		if (is_object($call->data) || is_array($call->data))
-			print json_encode($call->data);
+		if (is_object($this->call->data) || is_array($this->call->data))
+			print json_encode($this->call->data);
 		else
-			print $call->data;
+			print $this->call->data;
 			
 		return true;
 	}
