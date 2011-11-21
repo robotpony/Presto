@@ -32,7 +32,7 @@ class Response {
 	);
 	
 	
-	public function __construct(&$ctx) {
+	public function __construct($ctx = null) {
 		$this->call = $ctx;	
 	}
 	
@@ -54,7 +54,11 @@ class Response {
 		
 		if (in_array($c, array('201', '204'), true)) return false; 
 
-		header('Content-type: application/' . $this->call->res);
+		$type = (!isset($this->call) || empty($this->call->res)) ?
+			'text/plain'
+			: 'application/' . $this->call->res;
+
+		header('Content-type: ' . $type);
 
 		if (!empty($this->call->modified))
 			header('Last-Modified: '.$this->call->modified);
