@@ -1,0 +1,9 @@
+
+
+## Notes
+
+### Installing on a DH PS
+
+You will need to enable the JSON extension using a custom RC (not a custom .ini). Read the instructions here:
+
+* http://wiki.dreamhost.com/PHP.ini#Loading_PHP_5.3_extensions_on_all_domains_.28on_VPS_or_dedicated.29
