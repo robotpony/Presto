@@ -64,6 +64,8 @@ function shellinate() {
 					
 					if (!isset($api)) $api = new Service( $options );
 					
+					// grab parameters (parse if they look like key=value,...
+					
 					$params = array();
 					$pairs = explode(',', $value);
 					foreach ($pairs as $v) {
@@ -72,18 +74,24 @@ function shellinate() {
 						else $params[] = $p;
 					}
 					
+					// make call
 					$call = "{$cmd}_{$method}";
 					$data = $api->$call($params);
 					print_r($data);
 					print "\n";
 				
 				} catch (Exception $e) {
-					print $e->getCode() . " : " . $e->getMessage() . "\n";
+					print "\n" . $e->getCode() . " : " . $e->getMessage() . "\n";
 				}
 				
 				
 			break;
 			
+			case 'quit':
+			case 'end':
+			case 'die':
+				die("Done.\n");	
+				
 			default:
 				print "Not sure how to '$cmd'.\n";
 			
