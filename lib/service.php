@@ -55,7 +55,7 @@ class Service {
 			'params'	=> array(),
 			'args'		=> array(),
 			'method' 	=> 'get',
-			'cookie'	=> end($_COOKIE),
+			'cookie'	=> implode(';',array_walk($_COOKIE, function($k,$v) {return "$k=$v";})),
 			'type'		=> $this->options->type,
 			'ext'		=> ''
 		);
