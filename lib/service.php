@@ -88,6 +88,7 @@ class Service {
 			'body'		=> '',
 			'data'	=> array()
 		);	
+		
 		$this->debug(__FUNCTION__, func_get_args());
 		
 	    return $this->request();
@@ -141,7 +142,7 @@ class Service {
 					
 			case 'head':
 			case 'delete':
-				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 
+				curl_setopt($c, CURLOPT_CUSTOMREQUEST, 
 					strtoupper($this->call->method));
 				break;
 				
