@@ -49,13 +49,13 @@ class Service {
 			),
 			$options
 		);
-		
+
 		$this->call = (object) array(
 			'uri'		=> '',
 			'params'	=> array(),
 			'args'		=> array(),
 			'method' 	=> 'get',
-			'cookie'	=> implode(';',array_walk($_COOKIE, function($k,$v) {return "$k=$v";})),
+			'cookie'	=> $_SERVER['HTTP_COOKIE'],
 			'type'		=> $this->options->type,
 			'ext'		=> ''
 		);
@@ -206,6 +206,7 @@ class Service {
 
 	// Get the call data (raw or processed)
 	private function data() { return !empty($this->result->data) ? $this->result->data : $this->result->body; }
+	public function payload() { return $this->result->body; }
 	
 	// Store the response headers
 	private function header($h, $line) {
