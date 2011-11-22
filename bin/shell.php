@@ -16,18 +16,28 @@ $options = array(
 function shellinate() {
 	print PROMPT;
 	
+	$last = '';
     while ($cmd = fgets(STDIN)) {
     	global $options;
     	global $api;
     	$service = '';
-
-    	$line = $cmd;
+    	$cmd = trim($cmd);   	
     	
-    	$history = fopen('hist.log', "a+");
-    	fwrite($history, $line);
-    	fclose($history);
+    	if (empty($cmd))
+    		/* reuse last command (and do not log) */
+	   		$cmd = $last;
+	   	else {
     	
-		$cmd = strtok(trim($cmd), ' ');
+	    	$last = $cmd;
+	    	
+    		// log command (handy for testing)
+	    	$history = fopen('hist.log', "a+");	
+			fwrite($history, $last."\n");
+	    	fclose($history);
+	    	
+	    }	    	
+    	
+		$cmd = strtok($cmd, ' ');
 		$method = strtok(' ');
 		$value = strtok('');
     		
