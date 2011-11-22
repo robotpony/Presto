@@ -55,7 +55,7 @@ class Service {
 			'params'	=> array(),
 			'args'		=> array(),
 			'method' 	=> 'get',
-			'cookie'	=> array_shift($_COOKIE),
+			'cookie'	=> end($_COOKIE),
 			'type'		=> $this->options->type,
 			'ext'		=> ''
 		);
