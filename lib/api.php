@@ -21,7 +21,8 @@ class API extends REST {
 		}
 	}
 	
-	public function validConcept($c) { return in_array($c, $this->concepts); }
+	public function validConcept($c) { return !empty($this->concepts) 
+		&& in_array($c, $this->concepts); }
 
 }
 
