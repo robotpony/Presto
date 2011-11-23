@@ -1,7 +1,7 @@
 <?php
 include(dirname(__FILE__).'/../lib/Service.php');
 
-define('PROMPT', '> ');
+define('PROMPT', "\n> ");
 $api = null;
 $options = array(
 	'service' => 'http://dev.rubrix.local/',
@@ -46,6 +46,24 @@ function shellinate() {
 				show_help();
 			break;
 			
+			case 'debug':
+			case 'dump':
+
+				print "\n";
+				
+				switch ($method) {
+				
+					case 'call':
+						print_r($api->info());
+					break;
+					
+					case '':
+					default:
+						print "Don't know how to dump '$method'.\n";	
+				}
+				
+			break;
+			
 			case 'show':
 				print "\n";
 				if (in_array($method, array('', '*', 'all')) || !array_key_exists($method, $options))
@@ -77,21 +95,30 @@ function shellinate() {
 					// grab parameters (parse if they look like key=value,...
 					
 					$params = array();
-					$pairs = explode(',', $value);
-					foreach ($pairs as $v) {
-						$p = explode('=', $v);
-						if (count($p) == 2) $params[$p[0]] = $p[1]; 
-						else $params[] = $p;
+					if (strlen($value) && in_array($value[0], array('[', '{'))) {
+						// attempt to decode as JSON
+						$params = json_decode($value);
+						if (empty($params))	throw new Exception('Invalid JSON parameters : ' . $value);
+					} else {
+						// attempt to decode as key/value set
+						$pairs = explode(',', $value);
+						foreach ($pairs as $v) {
+							$p = explode('=', $v);
+							if (count($p) == 2) $params[$p[0]] = $p[1]; 
+							else $params[] = $p;
+						}
 					}
 					
+					$method = trim($method, "/ \n"); // clean up the method string
+										
 					// make call
 					$call = "{$cmd}_{$method}";
+					
 					$data = $api->$call($params);
-					print_r($data);
-					print "\n";
+					var_dump($data);
 				
 				} catch (Exception $e) {
-					print "\n" . $e->getCode() . " : " . $e->getMessage() . "\n";
+					print $e->getCode() . " : " . $e->getMessage() . "\n\n";
 				}
 				
 				
@@ -115,14 +142,19 @@ function show_help() {
 
 Commands
 
-  set service [service]
+  show [option]
+  set [option] [value]
+  dump [thing]
   [get|post|put|etc] [uri] [data]
-	
 	
 Examples
 
   set service http://localhost/
+  
   get test.json
+  
+  # show the details of the last call
+  dump call
 	
 
 	
@@ -131,8 +163,6 @@ Examples
 ?>
 The Presto shell
 ("help" for some options)
-
 <?php
-shellinate();
-    
+shellinate();    
 ?>
