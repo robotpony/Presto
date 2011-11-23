@@ -55,7 +55,7 @@ class Service {
 			'params'	=> array(),
 			'args'		=> array(),
 			'method' 	=> 'get',
-			'cookie'	=> $_SERVER['HTTP_COOKIE'],
+			'cookie'	=> @$_SERVER['HTTP_COOKIE'],
 			'type'		=> $this->options->type,
 			'ext'		=> ''
 		);
@@ -77,8 +77,7 @@ class Service {
 	/* Map service calls to service requests */
 	public function __call($fn, $args) {
 
-		$this->popArgs($args);
-					
+		$this->popArgs($args);					
 		$fn = $this->parseCall($fn);
 	
 		$urlFn = $this->urlBuilderFn;
@@ -121,6 +120,7 @@ class Service {
 
 		$c = curl_init();
 		$this->call->headers = array();
+		$this->call->info = null;
 		
 		// set up options specific to each HTTP method
 		switch ($this->call->method) {
@@ -199,7 +199,7 @@ class Service {
 			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 			
 		if ($this->call->info->http_code != 200)
-			throw new Exception("HTTP Error\n{$this->call->method} {$this->call->uri}\n{$this->result->body}", $this->call->info->http_code);
+			throw new Exception("HTTP Error\n{$this->call->method} {$this->call->uri}\n\n{$this->result->body}", $this->call->info->http_code);
 		
 		return  $this->data();
 	}
@@ -207,7 +207,8 @@ class Service {
 	// Get the call data (raw or processed)
 	private function data() { return !empty($this->result->data) ? $this->result->data : $this->result->body; }
 	public function payload() { return $this->result->body; }
-	
+	public function info() { return $this->call; }
+			
 	// Store the response headers
 	private function header($h, $line) {
 	
@@ -231,25 +232,28 @@ class Service {
 	// parse the call into a useful request
 	private function parseCall($fn) {
 		
-		$parts = explode('_', $fn);
-		
+		// reset call extension/type to defaults
 		$this->call->ext = '';
 		$this->call->type = $this->options->type;
+
+		// parse the fn call
+		$method = strtolower(strtok($fn, '_'));
+		$path = strtok('.');
+		$type = strtolower(strtok(''));
 		
-		if (count($parts) == 1) return $fn;
-		
-		if (in_array(strtolower($parts[0]), Service::$METHODS))
-			$this->call->method = array_shift($parts);
-			
-		if (in_array($parts[count($parts) - 1], Service::$TYPES)) {
-			$t = trim(array_pop($parts));
-			if (!empty($t)) {
-				$this->call->type = $t;
+		// validate the method
+		if (in_array($method, Service::$METHODS))
+			$this->call->method = $method;
+
+		// validate the type
+		if (in_array($type, Service::$TYPES)) {
+			if (!empty($type)) {
+				$this->call->type = $type;
 				$this->call->ext = ".{$this->call->type}";
 			}
 		}
-		
-		return implode($this->options->glue, $parts);
+
+		return $path;
 	}
 	
 	// render the parameters for the request
