@@ -3,14 +3,21 @@ include(dirname(__FILE__).'/../lib/Service.php');
 
 define('PROMPT', "\n> ");
 $api = null;
-$options = array(
-	'service' => 'http://dev.rubrix.local/',
-	'extra' => 'v2',
-	'debug' => 0,
-	'log' => 'req'
+
+$options = array_merge(
+	array(
+		'service' => 'http://localhost/',
+		'extra' => '',
+		'debug' => 0,
+		'log' => 'req'
+	),
+	getopt('', array(
+		'service:',
+		'extra:',
+		'debug',
+		'log:')
+	)
 );
-
-
 
 // Run a simple Presto shell
 function shellinate() {
@@ -33,8 +40,7 @@ function shellinate() {
     		// log command (handy for testing)
 	    	$history = fopen('hist.log', "a+");	
 			fwrite($history, $last."\n");
-	    	fclose($history);
-	    	
+	    	fclose($history);	    	
 	    }	    	
     	
 		$cmd = strtok($cmd, ' ');
@@ -113,7 +119,7 @@ function shellinate() {
 										
 					// make call
 					$call = "{$cmd}_{$method}";
-					
+					print_r(array($call, $params)); // TODO shell bug here post_history/x/y/z
 					$data = $api->$call($params);
 					var_dump($data);
 				
@@ -149,8 +155,6 @@ Commands
 	
 Examples
 
-  set service http://localhost/
-  
   get test.json
   
   # show the details of the last call
@@ -163,6 +167,10 @@ Examples
 ?>
 The Presto shell
 ("help" for some options)
+
+Connecting to <?= $options['service'] ?> ...
+Connected.
+
 <?php
 shellinate();    
 ?>
