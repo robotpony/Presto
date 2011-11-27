@@ -55,6 +55,7 @@ function shellinate() {
 				
 					case 'call':
 						print_r($api->info());
+						print_r($api->payload());
 					break;
 					
 					case '':
