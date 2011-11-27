@@ -63,36 +63,41 @@ class Service {
 		// set up the default URL builder
 		$this->urlBuilderFn = isset($urlBuilder) ? $urlBuilder 
 			: function(&$fn, &$o, &$call) {
-		 
-		 		if (empty($fn)) return false; 		
-		 		
-		 		return "{$o->service}{$o->extra}/{$fn}{$call->ext}"; 
+		 		if (empty($fn)) return false; 	
+		 		return "{$o->service}{$o->extra}/{$fn}{$call->id}{$call->ext}"; 
 		 	};
-			
+	
 	}
-
-	// get the details of the last request
-	public function details() { return print "{$this->call->method} {$this->call->uri}{$this->call->id}"; }	
 	
 	/* Map service calls to service requests */
 	public function __call($fn, $args) {
 
+		// setup call object
+		$this->call->ext = '';
+		$this->call->type = $this->options->type;
+		$this->call->args = $args;
+		
+		// build arguments
 		$this->popArgs($args);					
+		// determine function call name
 		$fn = $this->parseCall($fn);
 	
+		// build a url from the call parameters
 		$urlFn = $this->urlBuilderFn;
 		$this->call->uri = $urlFn($fn, $this->options, $this->call);
 	
+		// set up the result object
 		$this->result = (object) array(
 			'body'		=> '',
 			'data'	=> array()
 		);	
-		
-		$this->debug(__FUNCTION__, func_get_args());
-		
+
+		$this->debug(__FUNCTION__, func_get_args()); // trace
+
+		// make the actual request
 	    return $this->request();
 	}
-	// get the call arguments	
+	// process the call arguments	
 	private function popArgs($args) {
 	
 		$this->call->params = array();
@@ -111,10 +116,39 @@ class Service {
 					break;
 					
 				default:
+					$parts = explode('.', $arg);
+					$t = end($parts);
+					if (in_array($t, Service::$TYPES)) {
+						$this->type(array_pop($parts));
+						$arg = str_replace(".$t", '', $arg);
+					}
+	
 					$this->call->id .= "/$arg";
 			}
 		}
+
 	}
+	// parse the call into a useful request
+	private function parseCall($fn) {
+		
+		// parse the fn call
+		$parts = explode('_', $fn);
+		
+		$t = end($parts);
+		$m = reset($parts);
+
+		// validate the method
+		if (in_array($m, Service::$METHODS))
+			$this->call->method = array_shift($parts);
+
+		// validate the type
+		if (in_array($t, Service::$TYPES))
+			$this->type(array_pop($parts));
+
+		$path = implode('_', $parts); // reassemble the remaining path components
+
+		return $path;
+	}	
 	// perform the http request
 	private function request() {
 
@@ -139,12 +173,13 @@ class Service {
 				curl_setopt($c, CURLOPT_POST, 1);
 				curl_setopt($c, CURLOPT_POSTFIELDS, $this->params());
 				$this->call->headers[] = $this->contentType();
-					
+			break;					
+
 			case 'head':
 			case 'delete':
 				curl_setopt($c, CURLOPT_CUSTOMREQUEST, 
 					strtoupper($this->call->method));
-				break;
+			break;
 				
 			default:
 				throw new Exception('Unsupported HTTP method ' 
@@ -153,7 +188,7 @@ class Service {
 
 		// set other HTTP otions
 		curl_setopt_array($c, array(
-			CURLOPT_URL 			=> $this->call->uri . $this->call->id,
+			CURLOPT_URL 			=> $this->call->uri,
 			CURLOPT_RETURNTRANSFER	=> 1,
 			CURLOPT_TIMEOUT 		=> 100,
 			CURLOPT_FOLLOWLOCATION 	=> 1,
@@ -208,7 +243,17 @@ class Service {
 	private function data() { return !empty($this->result->data) ? $this->result->data : $this->result->body; }
 	public function payload() { return $this->result->body; }
 	public function info() { return $this->call; }
-			
+	// get the details of the last request
+	public function details() { return print "{$this->call->method} {$this->call->uri}{$this->call->id}"; }	
+	public function type($t = null) {	
+		if (!empty($t)) {
+			$this->call->type = $t;
+			$this->call->ext = ".$t";
+		}		
+		return $this->call->type;
+	}
+	
+	
 	// Store the response headers
 	private function header($h, $line) {
 	
@@ -229,32 +274,6 @@ class Service {
 		return strlen($line);
 	}
 	
-	// parse the call into a useful request
-	private function parseCall($fn) {
-		
-		// reset call extension/type to defaults
-		$this->call->ext = '';
-		$this->call->type = $this->options->type;
-
-		// parse the fn call
-		$method = strtolower(strtok($fn, '_'));
-		$path = strtok('.');
-		$type = strtolower(strtok(''));
-		
-		// validate the method
-		if (in_array($method, Service::$METHODS))
-			$this->call->method = $method;
-
-		// validate the type
-		if (in_array($type, Service::$TYPES)) {
-			if (!empty($type)) {
-				$this->call->type = $type;
-				$this->call->ext = ".{$this->call->type}";
-			}
-		}
-
-		return $path;
-	}
 	
 	// render the parameters for the request
 	private function params() {
@@ -271,7 +290,8 @@ class Service {
 				$d = http_build_query($this->call->params);
 				break;
 			
-			case 'xml': // nyi
+			/* TODO: xml encoding for send payload not handled */
+			case 'xml':
 			default:
 				throw new Exception('Unknown data format for send ' 
 					. $this->call->type);			
