@@ -98,10 +98,24 @@ function shellinate() {
 				try {
 					
 					if (!isset($api)) $api = new Service( $options );
-					
-					// grab parameters (parse if they look like key=value,...
-					
+										
 					$params = array();
+					$uri = null;
+					
+					$method = trim($method, "/ \n"); // clean up the method string
+					
+					// split the method parameter for complex queries 
+					
+					$m1 = strtok($method, '/');
+					$p1 = strtok('');
+					
+					if (!empty($p1)) {
+						$uri = $p1;
+						$method = $m1;
+					}
+					
+					// process the call parameters
+					
 					if (strlen($value) && in_array($value[0], array('[', '{'))) {
 						// attempt to decode as JSON
 						$params = json_decode($value);
@@ -116,12 +130,14 @@ function shellinate() {
 						}
 					}
 					
-					$method = trim($method, "/ \n"); // clean up the method string
-										
-					// make call
+					// make the service call
+					
 					$call = "{$cmd}_{$method}";
-					print_r(array($call, $params)); // TODO shell bug here post_history/x/y/z
-					$data = $api->$call($params);
+					
+					$data = empty($uri) ?
+						$api->$call($params) :
+						$api->$call($uri, $params);
+						
 					var_dump($data);
 				
 				} catch (Exception $e) {
