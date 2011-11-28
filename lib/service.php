@@ -207,36 +207,23 @@ class Service {
 		$this->call->info = (object)curl_getinfo($c);
 
 		$this->log('data', $this->result->body);
+
+		$this->parseResults();
 						
 		if ($this->result->error = curl_error($c))
 		    throw new Exception($this->result->error);
-
-		switch ($this->call->info->content_type) {
-
-			case 'application/json':
-			case 'json':
-				$this->result->data = json_decode($this->result->body);
-			break;
-			
-			case 'xml':
-			case 'application/xml':
-				$this->result->data = simplexml_load_string(
-					$this->result->body);
-			break;
-			
-			default:
-				$this->result->data = NULL;				
-		}
 
 		curl_close($c);
 				
 		if ($this->result->data === false)
 			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
-			
-		if ($this->call->info->http_code != 200)
-			throw new Exception("HTTP Error\n{$this->call->method} {$this->call->uri}\n\n{$this->result->body}", $this->call->info->http_code);
+
+		if ($this->call->info->http_code != 200) {
+			$dump = print_r(array($this->call, $this->result), true);
+			throw new Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n\n" , $this->call->info->http_code);
+		}
 		
-		return  $this->data();
+		return $this->data();
 	}
 
 	// Get the call data (raw or processed)
@@ -274,7 +261,31 @@ class Service {
 		return strlen($line);
 	}
 	
+	// Process the results 
+	private	function parseResults() {
 	
+		if (empty($this->result->body)) return false;
+		
+		switch ($this->call->info->content_type) {
+
+			case 'application/json':
+			case 'json':
+				$this->result->data = json_decode($this->result->body);
+			break;
+			
+			case 'xml':
+			case 'application/xml':
+				$this->result->data = simplexml_load_string(
+					$this->result->body);
+			break;
+			
+			default:
+				$this->result->data = NULL;
+				return false;
+		}
+		return false;
+	}
+		
 	// render the parameters for the request
 	private function params() {
 
