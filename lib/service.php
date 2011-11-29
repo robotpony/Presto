@@ -276,8 +276,17 @@ class Service {
 			
 			case 'xml':
 			case 'application/xml':
-				$this->result->data = simplexml_load_string(
-					$this->result->body);
+				libxml_use_internal_errors(true);
+					
+				if (!($this->result->data = simplexml_load_string($this->result->body))) {
+					$detail = '';
+				    foreach(libxml_get_errors() as $e) {
+				    	$detail .= $e->message . "\n" 
+				    	. $this->result->body . "\n";
+				    }
+				    throw new Exception("XML parse error:\n" . $detail, '500');
+				}
+				
 			break;
 			
 			default:
