@@ -138,12 +138,11 @@ function shellinate() {
 						$api->$call($params) :
 						$api->$call($uri, $params);
 						
-					var_dump($data);
+					if (!empty($data)) print_r($data);
 				
 				} catch (Exception $e) {
 					print $e->getCode() . " : " . $e->getMessage() . "\n\n";
 				}
-				
 				
 			break;
 			
