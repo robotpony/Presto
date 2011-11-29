@@ -204,6 +204,7 @@ class Service {
 		$this->log('req', "{$this->call->method}: {$this->call->uri}");
 
 		$this->result->body = curl_exec($c);
+		$this->result->uri = $this->call->uri;
 		$this->call->info = (object)curl_getinfo($c);
 
 		$this->log('data', $this->result->body);
@@ -219,7 +220,7 @@ class Service {
 			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 
 		if ($this->call->info->http_code != 200) {
-			$dump = print_r(array($this->call, $this->result), true);
+			$dump = print_r($this->result, true);
 			throw new Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n\n" , $this->call->info->http_code);
 		}
 		
