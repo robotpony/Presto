@@ -220,7 +220,8 @@ class Service {
 			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 
 		if ($this->call->info->http_code != 200) {
-			$dump = print_r($this->result, true);
+			$dump = ($this->options->debug) ? print_r($this->result, true) 
+				: print_r($this->result->data, true);
 			throw new Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n\n" , $this->call->info->http_code);
 		}
 		
