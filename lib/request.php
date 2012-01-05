@@ -23,7 +23,11 @@ class URI {
 	public function opt($k) { return (array_key_exists($k, $this->options)) 
 		? $this->options[$k] : NULL ; }
 		
-	public function component($d) { return coalesce( str_replace('-', '_', array_shift($this->parameters)), $d ); }
+	public function component($d) { 
+		return coalesce( 
+			str_replace('-', '_', reset($this->parameters)), $d ); 
+	}
+	public function bump() { return array_pop($this->parameters); }
 }
 class Request {
 
