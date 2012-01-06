@@ -1,5 +1,6 @@
 <?php
 
+include_once('_config.php');
 include_once('_helpers.php');
 
 class URI {
@@ -12,8 +13,9 @@ class URI {
 	public function __construct($uri) {
 		
 		$this->raw = $uri;		
-		$uri = (object) parse_url(ltrim($uri, '/'));		
-		$this->type = coalesce(strstr($uri->path, '.'), DEFAULT_RES_TYPE);
+		$uri = (object) parse_url(ltrim($uri, '/'));	
+		$this->type = pathinfo($uri->path, PATHINFO_EXTENSION);	
+		$uri->path = str_replace('.'.$this->type, '', $uri->path);
 		$this->path = str_replace($this->type, '', $uri->path);
 		$this->parameters = explode('/', $this->path);
 		parse_str($_SERVER['QUERY_STRING'], $this->options);
