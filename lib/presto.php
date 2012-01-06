@@ -63,7 +63,7 @@ class Presto extends REST {
 		
 		$this->call = (object) array(
 			'class' => $obj,
-			'method' => $method, 
+			'method' => $method,
 			'res' => self::$req->uri->type(), 
 			'params' => self::$req->uri->parameters,
 			'exists' => false);			
