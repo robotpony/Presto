@@ -44,8 +44,10 @@ class Service {
 				'agent' 	=> 'PHP/Presto - Using cURL',
 				'type' 		=> 'x-www-form-urlencoded',
 				'debug' 	=> NULL,
+				'extra'		=> '',
 				'log'		=> '',
-				'glue'		=> '/'
+				'glue'		=> '/',
+				'headers'	=> array()
 			),
 			$options
 		);
@@ -153,7 +155,7 @@ class Service {
 	private function request() {
 
 		$c = curl_init();
-		$this->call->headers = array();
+		$this->call->headers = $this->options->headers;
 		$this->call->info = null;
 		
 		// set up options specific to each HTTP method
@@ -233,7 +235,9 @@ class Service {
 	public function payload() { return $this->result->body; }
 	public function info() { return $this->call; }
 	// get the details of the last request
-	public function details() { return print "{$this->call->method} {$this->call->uri}{$this->call->id}"; }	
+	public function details() { return print "{$this->call->method} {$this->call->uri}{$this->call->id}"; }
+	public function opt($k,$v) { $this->options->$k = $v; }
+	public function addHeader($k, $v) { $this->options->headers[] = "$k: $v"; }
 	public function type($t = null) {	
 		if (!empty($t)) {
 			$this->call->type = $t;
