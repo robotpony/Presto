@@ -57,7 +57,7 @@ class Service {
 			'params'	=> array(),
 			'args'		=> array(),
 			'method' 	=> 'get',
-			'cookie'	=> @$_SERVER['HTTP_COOKIE'],
+			'cookie'	=> '',
 			'type'		=> $this->options->type,
 			'ext'		=> ''
 		);
@@ -196,6 +196,7 @@ class Service {
 			CURLOPT_FOLLOWLOCATION 	=> 1,
 			CURLOPT_VERBOSE	 		=> $this->options->debug == 1,
 			CURLOPT_COOKIE			=> $this->call->cookie,
+			CURLOPT_COOKIESESSION	=> 1,
 			CURLOPT_HTTPHEADER 		=> $this->call->headers,
 			CURLOPT_REFERER 		=> $this->options->referer,
 			CURLOPT_USERAGENT 		=> $this->options->agent,
@@ -238,6 +239,10 @@ class Service {
 	public function details() { return print "{$this->call->method} {$this->call->uri}{$this->call->id}"; }
 	public function opt($k,$v) { $this->options->$k = $v; }
 	public function addHeader($k, $v) { $this->options->headers[] = "$k: $v"; }
+	public function setCookie($k,$v) { 
+		$this->call->cookie .= (empty($this->call->cookie) ? '' : '; ') . $k.'='.urlencode($v); 
+	}
+	public function cookie() { return $this->call->cookie; }
 	public function type($t = null) {	
 		if (!empty($t)) {
 			$this->call->type = $t;
@@ -254,13 +259,13 @@ class Service {
 			
 			$hdr = trim($parts[1]);
 			$v = trim($parts[2]);
-			
-			$this->result->header[ $hdr ] = $v;
-			
+						
 			switch (strtolower($hdr)) {
 				case 'set-cookie':
 					$this->call->cookie = $v;
 				break;
+				default:
+					$this->result->header[ $hdr ] = $v;	
 			}
 		}
 		

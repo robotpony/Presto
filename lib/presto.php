@@ -23,7 +23,7 @@ class Presto extends REST {
 		set_error_handler(array($this, 'fail'));
 		
 		self::$req = new request();
-		
+
 		try {
 
 			$this->filter();
@@ -54,10 +54,10 @@ class Presto extends REST {
 		$action = self::$req->action;
 		$thing = self::$req->uri->component('');
 
-		if (!$o->validConcept($thing)) {
-			self::$req->uri->parameters[] = $thing;	
-			$thing = '';
-		}
+		if ($o->validConcept($thing))
+			self::$req->bump(); // using as delegation, remove from call
+		else 
+			$thing = ''; // don't use param as concept
 
 		$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;
 		
@@ -66,8 +66,7 @@ class Presto extends REST {
 			'method' => $method, 
 			'res' => self::$req->uri->type(), 
 			'params' => self::$req->uri->parameters,
-			'exists' => false); 
-			
+			'exists' => false);			
 
 		self::$resp = new response($this->call);
 
@@ -94,6 +93,7 @@ class Presto extends REST {
 		}
 	
 		// basic output (TODO: move)
+		
 		self::$resp->hdr();
 		
 		// TODO - setup header response items (content-type, etc.)
