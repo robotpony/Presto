@@ -1,5 +1,7 @@
 <?php
 
+include_once('_helpers.php');
+
 class URI {
 	
 	public $raw 	= '';
