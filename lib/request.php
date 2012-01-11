@@ -5,24 +5,34 @@ include_once('_helpers.php');
 
 class URI {
 	
-	public $raw 	= '';
+	public $raw 		= '';
 	public $parameters 	= array();
-	private $type	= '';
-	private $options = array();
+	
+	private $type		= '';
+	private $path		= '';
+	private $options 	= array();
 	
 	public function __construct($uri) {
-		
+
 		$this->raw = $uri;		
-		$uri = (object) parse_url(ltrim($uri, '/'));	
-		$this->type = pathinfo($uri->path, PATHINFO_EXTENSION);	
+
+		$uri = (object) parse_url(ltrim($uri, '/'));
+
+		if (empty($uri->path)) $uri->path = '';
+		
+		$this->type = pathinfo($uri->path, PATHINFO_EXTENSION);
+		
 		$uri->path = str_replace('.'.$this->type, '', $uri->path);
 		$this->path = str_replace($this->type, '', $uri->path);
+
 		$this->parameters = explode('/', $this->path);
-		parse_str($_SERVER['QUERY_STRING'], $this->options);
+
+		if (!empty($uri->query)) parse_str($uri->query, $this->options);
 	}
 	
-	public function type() { return ltrim($this->type, '.'); }
-	public function res() { return implode('/', $this->parameters) . $this->type; }
+	public function type() { return $this->type; }
+	public function ext() { return !empty($this->type) ? '.'.$this->type : ''; }
+	public function res() { return implode('/', $this->parameters) . $this->ext(); }
 	public function flag($f) { return $this->opt($f) !== NULL; }
 	public function opt($k) { return (array_key_exists($k, $this->options)) 
 		? $this->options[$k] : NULL ; }
