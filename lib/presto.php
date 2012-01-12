@@ -88,7 +88,7 @@ class Presto extends REST {
 			
 			self::$resp->hdr($e->getCode());
 			print $e->getMessage() . "\n";
-			
+
 			return false;
 		}
 	
