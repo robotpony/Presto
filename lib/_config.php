@@ -56,6 +56,6 @@ class PrestoException extends Exception {
 assert_options(ASSERT_WARNING, 0);
 ini_set('html_errors',false);
 error_reporting(E_ALL);
-set_error_handler(array("CustomException", "errorHandlerCallback"), E_ALL);
+set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
 
 ?>
