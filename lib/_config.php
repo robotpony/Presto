@@ -33,7 +33,7 @@ function presto_check_install() {
 		throw new Exception('cURL required by Presto.lib.');
 
 	if (!function_exists('json_encode'))
-		throw new Exception('JSON extension required by.');
+		throw new Exception('JSON extension required by Presto.lib.');
 		 
 }
 
