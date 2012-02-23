@@ -31,7 +31,7 @@ class Presto extends REST {
 			$this->dispatch();
 			
 		} catch (Exception $e) {
-			dump('ERROR', $e);
+			throw $e;
 		}
 	}
 	
@@ -71,10 +71,10 @@ class Presto extends REST {
 		self::$resp = new response($this->call);
 
 		if ($obj == 'error')
-			throw new Exception('Root access not allowed');
+			throw new Exception('Root access not allowed', 403);
 		
 		if (!method_exists($obj, $method))
-			throw new Exception("Can't find $obj->$method()");	
+			throw new Exception("Can't find $obj->$method()", 404);	
 		
 		$this->call->exists = true; 
 		
@@ -87,9 +87,7 @@ class Presto extends REST {
 		} catch (Exception $e) {			
 			
 			self::$resp->hdr($e->getCode());
-			print $e->getMessage() . "\n";
-
-			return false;
+			throw $e;
 		}
 	
 		// basic output (TODO: move)
