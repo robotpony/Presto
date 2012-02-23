@@ -27,7 +27,6 @@ class Presto extends REST {
 		try {
 
 			$this->filter();
-			$this->authenticate();
 			$this->dispatch();
 			
 		} catch (Exception $e) {
@@ -37,10 +36,6 @@ class Presto extends REST {
 	
 	public function __toString() { return print_r($this, true); }
 	
-	private function authenticate() {
-		// TODO
-	}
-
 	private function filter() {	
 		// TODO
 	}
