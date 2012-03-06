@@ -47,15 +47,13 @@ class Presto extends REST {
 		$o = new $obj();
 
 		$action = self::$req->action;
-		$thing = self::$req->uri->component('');
+		$thing = self::$req->uri->thing();
 
-		if ($o->validConcept($thing))
-			self::$req->bump(); // using as delegation, remove from call
-		else 
+		if (!$o->validConcept($thing))
 			$thing = ''; // don't use param as concept
 
 		$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;
-		
+
 		$this->call = (object) array(
 			'class' => $obj,
 			'method' => $method,
@@ -77,7 +75,7 @@ class Presto extends REST {
 		
 		try {
 		
-			$this->call->data = $o->$method($this->call);
+			$this->call->data = $o->$method($this->call, self::$req->body() );
 			
 		} catch (Exception $e) {			
 			
@@ -98,6 +96,7 @@ class Presto extends REST {
 			
 		return true;
 	}
+
 	
 	static public function fail($n, $text, $file, $line, $ctx) {
 		self::$resp = new response();
