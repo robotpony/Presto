@@ -36,12 +36,13 @@ class URI {
 	public function flag($f) { return $this->opt($f) !== NULL; }
 	public function opt($k) { return (array_key_exists($k, $this->options)) 
 		? $this->options[$k] : NULL ; }
-		
+	public function thing() { return !empty($this->parameters[1]) ? str_replace('-', '_', $this->parameters[1]): ''; }
 	public function component($d) { 
 		return coalesce( 
 			str_replace('-', '_', reset($this->parameters)), $d ); 
 	}
 	public function bump() { return array_pop($this->parameters); }
+	
 }
 class Request {
 
@@ -51,6 +52,7 @@ class Request {
 	public $service;	
 	public $uri;
 	public $query;
+	public $post;
 	
 	public function __construct() {
 	
@@ -62,11 +64,69 @@ class Request {
 		$this->service = strstr($this->host, '.', -1);
 
 		// reset wrapped globals
-		$_GET = array();	
+		$_GET = array();
+		
+		
 	}
 	
 	public function __toString() { return print_r($this, true); }
+
+	/** Get a post value (or values)
+	
+	Relies on PHP's built in filtering mechanics. These are a reliable, thourough set
+	of filters. Learn them. Use them.
+		
+		$f	- Either the parameter to get, or the set of parameters and filters (based
+				on the filter_input* APIs)
+	
+	Returns the value or values requested. Caches them for debugging.
+	*/
+	public function post($f = null) {
+		
+		if (is_array($f)) {
+			$this->post = filter_input_array(INPUT_POST, $f);
+			return $this->post;
+		} elseif (is_string($f)) {
+			$this->post[$f] = filter_input(INPUT_POST, $f);
+			return $this->post[$f];
+		} else {
+			foreach ($_POST as $k => $v)
+				$this->post($k);
+			
+			return $this->post;
+		}
+	}
+	
+	
+	/** Get a request body 
+	
+	Currently hardcoded to interpret as a JSON body. Add other types in the future, 
+	based on the request.
+		
+	*/
+	public function body() {
+		$json = false;		
+
+		if ( ($body = @file_get_contents('php://input')) ) {
+			if (empty($body)) return $json; // no data, not an error
+			
+			if ( ! ($json = json_decode($body)) ) {
+				
+				$errors = array(
+					JSON_ERROR_NONE => 'No errors.',
+					JSON_ERROR_DEPTH  => 'Maximum stack depth exceeded',
+					JSON_ERROR_STATE_MISMATCH  => 'Underflow or the modes mismatch',
+					JSON_ERROR_CTRL_CHAR  => 'Unexpected control character found',
+					JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
+					JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
+				);
+			
+				throw new Exception('Invalid request payload. ' 
+						. $errors[json_last_error()], 500);
+			}
+		}		
+		
+		return $json;
+	}
 }
-
-
 ?>
