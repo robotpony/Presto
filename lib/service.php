@@ -233,6 +233,7 @@ class Service {
 
 	// Get the call data (raw or processed)
 	private function data() { return !empty($this->result->data) ? $this->result->data : $this->result->body; }
+	public function code() { return $this->call->info->http_code; }
 	public function payload() { return $this->result->body; }
 	public function info() { return $this->call; }
 	// get the details of the last request
