@@ -36,6 +36,7 @@ class URI {
 	public function flag($f) { return $this->opt($f) !== NULL; }
 	public function opt($k) { return (array_key_exists($k, $this->options)) 
 		? $this->options[$k] : NULL ; }
+	public function options() { return (object) $this->options; }
 	public function thing() { return !empty($this->parameters[1]) ? str_replace('-', '_', $this->parameters[1]): ''; }
 	public function component($d) { 
 		return coalesce( 
