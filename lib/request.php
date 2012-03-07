@@ -76,25 +76,33 @@ class Request {
 	Relies on PHP's built in filtering mechanics. These are a reliable, thourough set
 	of filters. Learn them. Use them.
 		
-		$f	- Either the parameter to get, or the set of parameters and filters (based
-				on the filter_input* APIs)
+	$f
+	: Either the parameter to get, or the set of parameters and filters (based
+		on the filter_input* APIs)
 	
-	Returns the value or values requested. Caches them for debugging.
+	Returns the value or values requested. Caches values for debugging and other 
+		
+	See parameter definitions for:
+	
+		http://php.net/manual/en/function.filter-input-array.php
+		http://www.php.net/manual/en/function.filter-input.php
 	*/
 	public function post($f = null) {
-		
 		if (is_array($f)) {
 			$this->post = filter_input_array(INPUT_POST, $f);
-			return $this->post;
 		} elseif (is_string($f)) {
 			$this->post[$f] = filter_input(INPUT_POST, $f);
 			return $this->post[$f];
 		} else {
 			foreach ($_POST as $k => $v)
 				$this->post($k);
-			
-			return $this->post;
 		}
+		
+		if ( $this->post )
+			return (object)  $this->post;
+		
+		throw new Exception('Missing or invalid POST parameter', 400);
+		
 	}
 	
 	
