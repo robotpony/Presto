@@ -3,6 +3,10 @@
 include_once('_config.php');
 include_once('_helpers.php');
 
+/* A URI wrapper/decoder
+
+	Treats a URI as a resource, decoding it into useful parts.
+*/
 class URI {
 	
 	public $raw 		= '';
@@ -11,11 +15,11 @@ class URI {
 	private $type		= '';
 	private $path		= '';
 	private $options 	= array();
-	
+
+	/* Decode a URI into parts */	
 	public function __construct($uri) {
 
-		$this->raw = $uri;		
-
+		$this->raw = $uri;
 		$uri = (object) parse_url(ltrim($uri, '/'));
 
 		if (empty($uri->path)) $uri->path = '';
@@ -30,21 +34,40 @@ class URI {
 		if (!empty($uri->query)) parse_str($uri->query, $this->options);
 	}
 	
+	// get the resource type
 	public function type() { return $this->type; }
+	// get the resource extension
 	public function ext() { return !empty($this->type) ? '.'.$this->type : ''; }
+	// get the resource name
 	public function res() { return implode('/', $this->parameters) . $this->ext(); }
+	// get a URI flag (returns true/false)
 	public function flag($f) { return $this->opt($f) !== NULL; }
+	// get a URI option (a GET parameter)
 	public function opt($k) { return (array_key_exists($k, $this->options)) 
 		? $this->options[$k] : NULL ; }
+	// get all of the URI optins as an object
 	public function options() { return (object) $this->options; }
+	// get the thing that this URI refers to
 	public function thing() { return !empty($this->parameters[1]) ? str_replace('-', '_', $this->parameters[1]): ''; }
+	// get the component that this URI refers to
 	public function component($d) { 
 		return coalesce( 
 			str_replace('-', '_', reset($this->parameters)), $d ); 
 	}
+	// bump a parameter off this URI
 	public function bump() { return array_pop($this->parameters); }
 	
 }
+
+/** A RESTful request
+
+Decodes and makes available various portions of a request, including:
+
+* URI
+* POST
+* encoded bodies
+
+*/
 class Request {
 
 	public $host;
@@ -54,7 +77,8 @@ class Request {
 	public $uri;
 	public $query;
 	public $post;
-	
+
+	/* Set up  a request object (from PHP builtins) */	
 	public function __construct() {
 	
 		// bootstrap request parameters
@@ -70,8 +94,6 @@ class Request {
 		
 	}
 	
-	public function __toString() { return print_r($this, true); }
-
 	/** Get a post value (or values)
 	
 	Relies on PHP's built in filtering mechanics. These are a reliable, thourough set
@@ -103,10 +125,8 @@ class Request {
 			return (object)  $this->post;
 		
 		throw new Exception('Missing or invalid POST parameter', 400);
-		
 	}
-	
-	
+
 	/** Get a request body 
 	
 	Currently hardcoded to interpret as a JSON body. Add other types in the future, 
@@ -130,12 +150,14 @@ class Request {
 					JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
 				);
 			
-				throw new Exception('Invalid request payload. ' 
-						. $errors[json_last_error()], 500);
+				throw new Exception('Invalid request payload. ' . $errors[json_last_error()], 500);
 			}
 		}		
 		
 		return $json;
 	}
+	
+	// dump the object to a string
+	public function __toString() { return print_r($this, true); }
 }
 ?>
