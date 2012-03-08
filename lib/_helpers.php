@@ -6,7 +6,11 @@ function dump() {
 	print(
 		implode("\n", 
 			array_map(
-				function ($o) { if (is_array($o)) print_r($o); else print "$o\n";  }, 
+				function ($o) { 
+					if (is_array($o)) print_r($o); 
+					if (is_object($o)) var_dump($o);
+					else print "$o\n";  
+				}, 
 				func_get_args()
 			)
 		)
