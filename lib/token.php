@@ -7,7 +7,10 @@ validated with a hash value, and can contain a few Kb of key/value pairs.
 
 Note:
 
-* You must define TOKEN_ENCRYPTION, TOKEN_SIGNING_KEY, and SIGNING_INIT before
+1. You must define:
+
+* TOKEN_HASH_SECRET
+* TOKEN_ENCRYPTION, TOKEN_SIGNING_KEY, and SIGNING_INIT before
   working with a token
   
 TODO:
@@ -44,7 +47,7 @@ class token {
 	private function checked_parts() {
 		if (empty($this->p)) throw new Exception('Token is not initialized.', 500);
 		$elements = array($this->p->name, $this->p->email, $this->p->id, $this->p->acct, 
-						AUTH_SECRET, $this->p->t);	
+						TOKEN_HASH_SECRET, $this->p->t);	
 		
 		foreach ($elements as &$e) $e = urlencode($e);
 
