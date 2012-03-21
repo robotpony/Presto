@@ -1,21 +1,22 @@
 <?php 
-/** An authentication token 
+/** Authentication tokens
 
 Useful as a GET parameter, header value, or cookie value. Tokens are both encryped and
 validated with a hash value, and can contain a few Kb of key/value pairs.
 
-
-Note:
+## Notes
 
 1. You must define:
 
-* TOKEN_HASH_SECRET
-* TOKEN_ENCRYPTION, TOKEN_SIGNING_KEY, and SIGNING_INIT before
-  working with a token
+	* TOKEN_HASH_SECRET
+	* TOKEN_ENCRYPTION, TOKEN_SIGNING_KEY, and SIGNING_INIT before
+	  working with a token
   
-TODO:
+## Yet TODO
+
 	* support for W rollover
 	* expose R parameters (and define structure) ... pass off to second class?
+
 */
 class token {
 	private $t;

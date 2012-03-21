@@ -75,7 +75,7 @@ class Presto extends REST {
 		
 		try {
 		
-			$this->call->data = $o->$method($this->call, self::$req->body() );
+			$this->call->data = $o->$method( $this->call, self::$req->body() );
 			
 		} catch (Exception $e) {			
 			
@@ -83,14 +83,8 @@ class Presto extends REST {
 			throw $e;
 		}
 	
-		// basic output (TODO: move)
-		
-		self::$resp->hdr();
-		
-		// TODO - setup header response items (content-type, etc.)
-		
 		if (is_object($this->call->data) || is_array($this->call->data))
-			print json_encode($this->call->data);
+			return self::$resp->ok($this->call->data, self::$req);
 		else
 			print $this->call->data;
 			

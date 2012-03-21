@@ -31,14 +31,32 @@ class Response {
 			'506' => 'Variant Also Negotiates'
 	);
 	
+	/** Set up the response class
 	
+	*/	
 	public function __construct($ctx = null) {
 		$this->call = $ctx;	
 	}
 	
-	public function send() {
+	/** Respond to a request positively 
 	
-	
+	*/	
+	public function ok($d) {
+
+		if (!$this->hdr()) return false; // no data sent to client
+		
+		switch ($this->call->res) {
+			case 'json': 
+				print json_encode($d); break;
+
+			case 'htm': 
+			case 'html': 
+				encode_html($d); break;
+			
+			default: throw new Exception('Unknown resource type: ' . $this->call->res, 500);
+		}
+		
+		return true;
 	}
 	public function __toString() { return print_r($this, true); }
 	
@@ -51,31 +69,52 @@ class Response {
 		
 		header("HTTP/1.0 {$c} {$this->codes[$c]}");
 		header(VERSION_HEADER . ': ' . API_VERSION);
-		
-		if (in_array($c, array('201', '204'), true)) return false; 
+		header('Cache-Control: no-cache');
+				
+		if (in_array($c, array('201', '204'), true))
+			return false; // no body allowed
 
-		$type = (!isset($this->call) || empty($this->call->res)) ?
-			'text/plain'
-			: 'application/' . $this->call->res;
-
-		header('Content-type: ' . $type);
+		header('Content-type: ' . $this->content_type());
 
 		if (!empty($this->call->modified))
 			header('Last-Modified: '.$this->call->modified);
-				
-		header('Cache-Control: no-cache');
-		
-		if (empty($this->call->data)) return;
-	
-		if ($this->call->res !== 'xml') return;
-	print <<<XML
-<?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet href="/styles/xml.css" type="text/css"?>
 
-XML;
+		return true;
+	}
+	
+	/***/
+	function content_type() {
+		if (!isset($this->call) || empty($this->call->res))
+			return 'text/plain';
+		
+		switch ($this->call->res) {
+			case 'html':
+			case 'htm':
+				return 'text/html';
+			
+			default:
+				return 'application/' . $this->call->res;
+		}
 	}
 	
 }
 
+/* */
+function encode_html($d) {
+	if (is_string($d))
+		print $d;
+	elseif (is_array($d)) {
+		foreach ($d as $k => &$v) {
+			if (empty($k) || is_numeric($k))
+				encode_html($v);
+			else {
+				print "<$k>\n\t";
+				encode_html($v);
+				print "</$k>\n";
+			}
+		}
+	}
+			
+}
 
 ?>
