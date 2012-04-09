@@ -79,7 +79,7 @@ class token {
 			$v = urldecode($v); // remove URI encoding
 				
 		$this->p = (object) $p; // objectize for convinience
-		$this->roles = json_decode($this->p->r); // pull out roles (if available)
+		parse_str($this->p->c, $this->roles); // pull out roles (if available)
 
 		// lastly, apply a default value to the CRC (if needed/possible)
 		$this->set($this->p->h, sha1($this->checked_parts()), $strict);		
