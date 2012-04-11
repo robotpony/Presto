@@ -80,9 +80,16 @@ class Request {
 
 	/* Set up  a request object (from PHP builtins) */	
 	public function __construct() {
-	
+		
+		// Use the URI from either .htaccess routing or the raw request
+		$uri = $_SERVER['REQUEST_URI'];		
+		if (array_key_exists('r', $_GET)) {
+			$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
+			$uri = $_GET['r'].'.'.$type;
+		}
+		
 		// bootstrap request parameters
-		$this->uri = new URI($_SERVER['REQUEST_URI']);
+		$this->uri = new URI($uri);
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
 		$this->action = coalesce($this->method, 'get');
 		$this->host = $_SERVER['HTTP_HOST'];

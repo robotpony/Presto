@@ -1,4 +1,4 @@
-<?php include_once('./lib/presto/lib/presto.php');
+<?php include_once('../lib/presto/lib/presto.php');
 
 /* Presto: delegate API requests */
 
