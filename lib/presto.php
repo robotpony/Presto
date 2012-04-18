@@ -7,12 +7,11 @@
 		
 		service
 			request		method	path	options
-				
-
 */
 
 include_once('_config.php');
 include_once(PRESTO_BASE.'/_helpers.php');
+include_once(PRESTO_BASE.'/api.php');
 
 class Presto extends REST {
 	public $call;
