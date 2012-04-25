@@ -1,23 +1,34 @@
 <?php
 include('../lib/presto.php');
 
+/* PRESTO tests 
 
+*/
 
 try {
-	simple_database_tests();
+	database_tests();
 	
-	simple_service_tests();
+	service_tests();
+	
+	simple_view_tests();
 	
 } catch (Exception $e) {
 
-	status("Failed with: {$e->getMessage()}", 'FAIL');
+	status("Failed with: {$e->getCode()} - {$e->getMessage()}", 'FAIL');
 	print("\n");
 	print($e);
 
 }
 
-
-function simple_database_tests() {
+/* Test view helper(s) */
+function simple_view_tests() {
+	View::$root = realpath(__DIR__) . '/';
+	$v = new View('test-view', array('name' => 'test'));
+	status("Created simple view", 'OK');
+	
+}
+/* Test PDO and wrapper(s) */
+function database_tests() {
 	$dsn = 'mysql:host=localhost;dbname=test';
 	$user = 'test';
 	$password = '12345';
@@ -32,8 +43,8 @@ function simple_database_tests() {
 	status("Simple select", 'OK');
 	result($r);
 }
-
-function simple_service_tests() {
+/* Test service class */
+function service_tests() {
 	$config = array(
 		'service' 	=> 'https://api.twitter.com/',
 		'extra' 	=> '1',
@@ -50,12 +61,14 @@ function simple_service_tests() {
 	status("Simple GET request", 'OK');
 	result($data);
 }
+/* Display status (with some console highlighting) */
 function status($text, $status) {
 	$status = strtoupper($status);
 	$c = $status == 'OK' ? '42' : '41';
 
 	print " \033[1;{$c};30m[ {$status} ]\033[0m\t\t$text\n";
 }
+/* Display detailed results */
 function result($t) { ?>
 
 ----
