@@ -20,13 +20,8 @@ function dump() {
 
 // Load classes automatically
 function __autoload($c) { require_once(strtolower($c) . '.php'); }
-
 // return the first valid value
 function coalesce() { return array_shift(@array_filter(func_get_args())); }
 function _d() { return array_shift(@array_filter(func_get_args())); }
-
-
 // build a valid path (false if it's not valid)
 function _pathinate($p,$b = API_BASE) { return realpath($b . '/' . $p); }
-
-?>
