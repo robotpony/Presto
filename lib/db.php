@@ -5,6 +5,8 @@
 	See PDO docs for details: http://www.php.net/manual/en/class.pdo.php
 
 	Adds a few extensions for common batched operations.
+	
+	See related `extra/tagged-sql.php` for extra post-processing magic.
 */
 class db extends PDO {
 

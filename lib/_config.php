@@ -11,7 +11,8 @@ $builtIns = array('API', 'request', 'session');
 set_include_path(get_include_path()
   . PATH_SEPARATOR . PRESTO_BASE
   . PATH_SEPARATOR . API_BASE
-  . PATH_SEPARATOR . API_BASE . '/lib/');	
+  . PATH_SEPARATOR . API_BASE . '/lib/'
+  . PATH_SEPARATOR . API_BASE . '/lib/extras/');	
 
 presto_check_install();
 

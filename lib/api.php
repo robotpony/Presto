@@ -25,5 +25,3 @@ class API extends REST {
 		&& in_array($c, $this->concepts); }
 
 }
-
-?>
