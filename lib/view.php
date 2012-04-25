@@ -23,6 +23,7 @@ class View {
 	
 	function display() {
 		// TODO: hook presto constants in? other constants?
+		// NOTE: would be nice to hook in $app construct of some sort (or other globals)
 		
 		try {
 			extract($this->d);

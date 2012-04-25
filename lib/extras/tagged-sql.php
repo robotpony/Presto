@@ -4,6 +4,6 @@
 
 class tagged_sql {
 	function __construct() {
-	
+		
 	}
 }

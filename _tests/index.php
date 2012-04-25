@@ -27,6 +27,7 @@ function simple_view_tests() {
 	status("Created simple view", 'OK');
 	
 }
+
 /* Test PDO and wrapper(s) */
 function database_tests() {
 	$dsn = 'mysql:host=localhost;dbname=test';
@@ -43,6 +44,7 @@ function database_tests() {
 	status("Simple select", 'OK');
 	result($r);
 }
+
 /* Test service class */
 function service_tests() {
 	$config = array(
@@ -61,6 +63,8 @@ function service_tests() {
 	status("Simple GET request", 'OK');
 	result($data);
 }
+
+
 /* Display status (with some console highlighting) */
 function status($text, $status) {
 	$status = strtoupper($status);
