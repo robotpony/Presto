@@ -1,12 +1,8 @@
 <?php // Presto global config and constants
 
-
-
 define('PRESTO_DEBUG', 0);
 define('VERSION_HEADER', 'X-Api-Version');
-define('API_VERSION', 0);
 define('DEFAULT_RES_TYPE', '.html');
-
 define('PRESTO_BASE', dirname(__FILE__));
 define('API_BASE', realpath($_SERVER['DOCUMENT_ROOT']));
 
@@ -22,12 +18,11 @@ presto_check_install();
 /* check the installation */
 function presto_check_install() {
 	
-	if (!PRESTO_DEBUG) return; 
+	if (!PRESTO_DEBUG) return;
 	
 	$ver = explode('.', phpversion());
-	if ($ver[0] != '5' && $ver[1] < 3) { 
-		print 'Unsupported version of PHP. (' . phpversion() . '). '; die; 
-	};
+	if ($ver[0] != '5' && $ver[1] < 3)
+		throw new Exception('Unsupported version of PHP. (' . phpversion() . '). ');
 	
 	if (!function_exists('curl_init'))
 		throw new Exception('cURL required by Presto.lib.');
@@ -48,7 +43,7 @@ class PrestoException extends Exception {
 		
 		$e->line = $line;
 		$e->file = $file;
-		
+
 		throw $e;
 	}
 } 

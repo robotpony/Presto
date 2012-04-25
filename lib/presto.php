@@ -7,21 +7,20 @@
 		
 		service
 			request		method	path	options
-				
-
 */
 
 include_once('_config.php');
 include_once(PRESTO_BASE.'/_helpers.php');
+include_once(PRESTO_BASE.'/api.php');
 
 class Presto extends REST {
 	public $call;
+	public static $v;
 	
-	public function __construct() { 	
+	public function __construct($v = '') { 	
 		$this->_base = $_SERVER['DOCUMENT_ROOT'];
-		
 		set_error_handler(array($this, 'fail'));
-		
+		self::$v = $v;
 		self::$req = new request();
 
 		try {
@@ -61,7 +60,7 @@ class Presto extends REST {
 			'params' => self::$req->uri->parameters,
 			'exists' => false);			
 
-		self::$resp = new response($this->call);
+		self::$resp = new response($this->call, self::$v);
 
 		if ($obj == 'error')
 			throw new Exception('Root access not allowed', 403);
