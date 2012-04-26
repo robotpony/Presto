@@ -1,4 +1,4 @@
-<?php include_once('config.php'); include_once(PRESTO);
+<?php include_once('_config.php'); include_once(PRESTO);
 
 /* Presto: delegate API requests */
 
