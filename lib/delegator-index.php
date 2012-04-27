@@ -1,18 +1,17 @@
-<?php include_once('./lib/presto.php'); 
+<?php include_once('_config.php'); include_once(PRESTO);
 
-if (PRESTO_DEBUG) { ?>
-<h1>Presto debug mode</h1>
-<?php } 
+/* Presto: delegate API requests */
 
-try {
-	
+try {  
 	$p = new Presto();
-	
 	if (PRESTO_DEBUG) dump($p);
-	
+
 } catch (Exception $e) {
-	print 'Presto error: ' . $e->getMessage();
+	$n = $e->getCode();
+	$message = $e->getMessage();
+	
+	header("HTTP/1.0 $n API error");
+	header("Content-Type: application/json");
+	print json_encode( array('message' => $message , 'code' => $n ) );
 }
-
-
 ?>
