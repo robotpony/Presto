@@ -3,6 +3,7 @@
 class Response {
 	private $call;
 	private $sentHeaders = 0;
+	private static $v;
 	private $codes = array(
 			'200' => 'OK',
 			'201' => 'Created',
@@ -34,8 +35,9 @@ class Response {
 	/** Set up the response class
 	
 	*/	
-	public function __construct($ctx = null) {
+	public function __construct($ctx = null, $v = '') {
 		$this->call = $ctx;	
+		self::$v = $v;
 	}
 	
 	/** Respond to a request positively 
@@ -68,7 +70,7 @@ class Response {
 		$this->sentHeaders = 1;
 		
 		header("HTTP/1.0 {$c} {$this->codes[$c]}");
-		header(VERSION_HEADER . ': ' . API_VERSION);
+		header(VERSION_HEADER . ': ' . self::$v);
 		header('Cache-Control: no-cache');
 				
 		if (in_array($c, array('201', '204'), true))
