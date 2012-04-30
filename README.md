@@ -3,6 +3,8 @@ Presto for PHP
 
 Presto is a small library of tools and scripts for hacking together RESTful APIs in PHP. It's minimalistic, decoupled, and focused on making web apps the right way (encouraging nice URLs, RESTfulness, documentation, testing, and so on).
 
+See the [developer documentation](docs/index.md) for the juicy bits on how to use Presto.
+
 How it's different
 ------------------
 
