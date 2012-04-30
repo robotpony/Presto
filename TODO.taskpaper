@@ -1,0 +1,23 @@
+Presto:
+	
+* Views
+	* Direct object mapping
+	* Templated view (mostly unused)
+		* Partial templated (hopefully not)
+* Application state
+	* session
+	* other data
+* Configuration
+	* DB connectivity
+* Parameter checking
+	* POST
+	* GET
+		* built in
+		* like post?
+* API calls
+
+
+* Where to look for the various pieces
+	* above pieces (param filtering)
+	
+
