@@ -1,16 +1,16 @@
 <?php
 include('../lib/presto.php');
 
-/* PRESTO tests 
+/* PRESTO tests
 
 */
 
 try {
 //	response_tests();
 	response_complex_types_tests();
-//	service_tests();	
+//	service_tests();
 //	simple_view_tests();
-//	database_tests();	
+//	database_tests();
 	
 } catch (Exception $e) {
 
@@ -50,40 +50,42 @@ JSON;
 	print "\n";
 	status("Default HTML output for complex data", 'OK');
 
+	unset($r);
 	$r = new Response((object) array( 'res' => 'htm' ) ); // htm intentional, tests type matching
-	Response::add_type_handler('.*\/htm.*', encode_html, function($k, &$n, &$a, $d) {
+	
+	Response::add_type_handler('.*\/htm.*', _encode_html, function($k, &$n, &$a, $d) {
 		static $parents = array();
-		static $at = 0; // current depth
-
+		static $was = 0;
+				
+		// track parents
+	
+		if ($was >= $d) // traversing up tree
+			for($i = 0; $i < ($was - $d) + 1; $i++) array_pop($parents);
+			
+		$parents[] = $k;
+		$p_at = count($parents) - 2;
+		$p = $p_at >= 0 ? $parents[$p_at] : ''; 
+		
 		// remap node name
 				
 		switch ($k) {
-			case 'chapters':
-				$k = 'body'; break;
-			case 'title':
-				$k = 'h'.($d-1); break;
-			case 'ideas':
-				$k = 'ul'; break;
-			case 'li': 
-				if (end($parents) === 'body') { // remap root LIs
-					$k = 'section';
-					
+			case 'chapters': 		$k = 'div'; break;
+			case 'title': 			$k = 'h'.($d-1); break;
+			case 'ideas':			$k = 'ul'; break;
+			case 'li':
+				if ($p === 'chapters') { // remap chapter LIs
+					$k = 'section';				
 					// also pull out the ID as an attribute
 					if (array_key_exists('id', $n)) {
-						$a = " id='{$n['id']}'";
+						$a .= " id='{$n['id']}'";
 						unset($n['id']);
-					} 
+					}
 				}
 				break;
 		}
-		
-		// track parent nodes
-		
-		if ($at > $d || empty($parents)) $parents[] = $k;		
-		elseif ($at != $d) array_pop($p);
-		
-		if ($d != $at) $at = $d;
-		
+	
+		$was = $d; // track depth for parents path
+	
 		return $k;
 	} );
 	
@@ -127,8 +129,8 @@ function database_tests() {
 	$user = 'test';
 	$password = '12345';
 	$config = array(
-	    PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-	); 
+	PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+	);
 	
 	$db = new db($dsn, $user, $password, $config);
 	status("Connected to `$dsn`", 'OK');
@@ -153,7 +155,7 @@ function service_tests() {
 	$service = new Service($config);
 	
 	status("Created test service", 'OK');
-	//https://api.twitter.com/1/help/test.json	
+	//https://api.twitter.com/1/help/test.json
 	$data = $service->get_help('test.json');
 	status("Simple GET request", 'OK');
 	result($data);

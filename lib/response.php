@@ -41,7 +41,7 @@ class Response {
 	
 		// register default type handlers
 		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
-		self::add_type_handler('.*\/htm.*', encode_html );
+		self::add_type_handler('.*\/htm.*', _encode_html );
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 	
@@ -118,21 +118,25 @@ class Response {
 		$encode($dom, $map);
 	}
 	
-	public function __toString() { return print_r($this, true); }	
+	public function __toString() { return print_r($this, true); }
 }
 
 /* Simple HTML encoder */
-function encode_html($node,  $map = null) {
-	static $d = -1;
+function _encode_html($node,  $map = null) {
+	static $d = null;
 	static $mapper;
 	
 	if ($mapper === null && $map !== null) $mapper = $map;
 	
+	if (!isset($d) || $map !== null) {
+		$d = -1;
+		return _encode_html(array('html' => array('body' => $node)));
+	}
+	
 	$indent = str_repeat("\t", $d);	// indent for pretty printing
 	
-	if (is_string($node))
-		return print "\n$indent$node";	
-	else if (is_array($node)) {
+	if (is_string($node)) return print "\n$indent$node";	
+	elseif (is_array($node)) {
 		
 		// descend into child nodes 
 		
@@ -149,10 +153,10 @@ function encode_html($node,  $map = null) {
 			// print node
 			
 			print "\n$indent<$k$a>";
-			encode_html($v); // recurse
+			_encode_html($v); // recurse
 			print "\n$indent</$k>";
 		}
-		$d--;
+		$d--;		
 	}
 }
 
