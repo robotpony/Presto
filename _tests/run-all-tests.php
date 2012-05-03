@@ -26,10 +26,12 @@ function response_complex_types_tests() {
 	$dom = <<<JSON
 {"chapters" : [
 	{"title": "This is chapter 1",
+		"id": 101,
 		"content" : "This is some text",
 		"ideas" : ["This is a list of things", "And another item"]
 	},
 	{"title": "This is chapter 2",
+		"id": 102,
 		"content" : "This is some more text",
 		"ideas" : ["This is a list of things", "And another item"]
 	}
@@ -48,23 +50,41 @@ JSON;
 	print "\n";
 	status("Default HTML output for complex data", 'OK');
 
-	$r = new Response((object) array( 'res' => 'htm' ) ); // htm intentional, tests match	
-	Response::add_type_handler('.*\/htm.*', encode_html, function($k, &$n, $d) {
-		static $p = ''; 
-		static $at = 0;
+	$r = new Response((object) array( 'res' => 'htm' ) ); // htm intentional, tests type matching
+	Response::add_type_handler('.*\/htm.*', encode_html, function($k, &$n, &$a, $d) {
+		static $parents = array();
+		static $at = 0; // current depth
 
-		if ($d <= $at || empty($p)) $p = $k;
+		// remap node name
+				
+		switch ($k) {
+			case 'chapters':
+				$k = 'body'; break;
+			case 'title':
+				$k = 'h'.($d-1); break;
+			case 'ideas':
+				$k = 'ul'; break;
+			case 'li': 
+				if (end($parents) === 'body') { // remap root LIs
+					$k = 'section';
+					
+					// also pull out the ID as an attribute
+					if (array_key_exists('id', $n)) {
+						$a = " id='{$n['id']}'";
+						unset($n['id']);
+					} 
+				}
+				break;
+		}
+		
+		// track parent nodes
+		
+		if ($at > $d || empty($parents)) $parents[] = $k;		
+		elseif ($at != $d) array_pop($p);
+		
 		if ($d != $at) $at = $d;
 		
-		if (false) print "\n<!-- $p:$k | $at:$d -->"; // debugging
-		
-		switch ($k) {
-			case 'title': return 'h'.($d-1);
-			case 'ideas': return 'ul';
-			case 'chapters': return 'body';
-			case 'li': if ($p === 'chapters') return 'section';
-			default: return $k;
-		}
+		return $k;
 	} );
 	
 	$r->ok($dom);
