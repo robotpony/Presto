@@ -126,7 +126,7 @@ function encode_html($node,  $map = null) {
 	static $d = -1;
 	static $mapper;
 	
-	if ($mapper === null && $map !== null)  $mapper = $map;
+	if ($mapper === null && $map !== null) $mapper = $map;
 	
 	$indent = str_repeat("\t", $d);	// indent for pretty printing
 	
@@ -137,17 +137,18 @@ function encode_html($node,  $map = null) {
 		// descend into child nodes 
 		
 		$d++;
-		foreach ($node as $k => &$v) {	
+		foreach ($node as $k => &$v) {
+			$a = '';
 		
 			if (empty($k) || is_numeric($k))
 				$k = 'li'; // assume lists are LIs
 
 			if (is_callable($mapper))
-				$k = $mapper($k, $v, $d);
-				
+				$k = $mapper($k, $v, $a, $d);
+
 			// print node
 			
-			print "\n$indent<$k>";
+			print "\n$indent<$k$a>";
 			encode_html($v); // recurse
 			print "\n$indent</$k>";
 		}
