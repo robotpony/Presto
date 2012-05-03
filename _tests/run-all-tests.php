@@ -6,11 +6,10 @@ include('../lib/presto.php');
 */
 
 try {
-	database_tests();
-	
-	service_tests();
-	
+	response_tests();
+	service_tests();	
 	simple_view_tests();
+	database_tests();	
 	
 } catch (Exception $e) {
 
@@ -20,8 +19,25 @@ try {
 
 }
 
+function response_tests() {
+	test("Response tests");
+	$r = new Response((object) array( 'res' => 'json' ) );
+	status("Created response object", 'OK');
+	
+	$r->ok( array('test' => 'test data') );
+	print "\n";
+	status("Responded with simple JSON transform", 'OK');
+	
+	$r = new Response((object) array( 'res' => 'html' ) );
+	$r->ok( array('test' => 'test data') );
+	print "\n";
+	status("Responded with simple HTML transform", 'OK');
+}
+
 /* Test view helper(s) */
 function simple_view_tests() {
+	test("View tests");
+
 	View::$root = realpath(__DIR__) . '/';
 	$v = new View('test-view', array('name' => 'test'));
 	status("Created simple view", 'OK');
@@ -30,6 +46,8 @@ function simple_view_tests() {
 
 /* Test PDO and wrapper(s) */
 function database_tests() {
+	test("DB/PDO tests");
+
 	$dsn = 'mysql:host=localhost;dbname=test';
 	$user = 'test';
 	$password = '12345';
@@ -47,6 +65,8 @@ function database_tests() {
 
 /* Test service class */
 function service_tests() {
+	test("Service tests");
+	
 	$config = array(
 		'service' 	=> 'https://api.twitter.com/',
 		'extra' 	=> '1',
@@ -64,6 +84,10 @@ function service_tests() {
 	result($data);
 }
 
+
+function test($text) {
+	print "\n=[ $text ]========================================\n\n";
+}
 
 /* Display status (with some console highlighting) */
 function status($text, $status) {
