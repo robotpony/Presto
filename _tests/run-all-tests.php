@@ -49,13 +49,24 @@ JSON;
 	status("Default HTML output for complex data", 'OK');
 
 	$r = new Response((object) array( 'res' => 'htm' ) ); // htm intentional, tests match	
-	Response::add_type_handler('.*\/htm.*', encode_html, function($p, $n, $d) {
-		switch ($p) {
+	Response::add_type_handler('.*\/htm.*', encode_html, function($k, &$n, $d) {
+		static $p = ''; 
+		static $at = 0;
+
+		if ($d <= $at || empty($p)) $p = $k;
+		if ($d != $at) $at = $d;
+		
+		if (false) print "\n<!-- $p:$k | $at:$d -->"; // debugging
+		
+		switch ($k) {
 			case 'title': return 'h'.($d-1);
 			case 'ideas': return 'ul';
-			default: return $p;
+			case 'chapters': return 'body';
+			case 'li': if ($p === 'chapters') return 'section';
+			default: return $k;
 		}
 	} );
+	
 	$r->ok($dom);
 	print "\n";
 	status("Mapped HTML output for complex data", 'OK');
