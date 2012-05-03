@@ -41,7 +41,7 @@ class Response {
 	
 		// register default type handlers
 		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
-		self::add_type_handler('*/htm*', function ($dom) { encode_html($dom); } );
+		self::add_type_handler('.*\/htm.*', function ($dom) { encode_html($dom); } );
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 	
@@ -60,7 +60,7 @@ class Response {
 	}
 		
 	/* Generate an appropriate HTTP header */
-	private function hdr($c = '200') {
+	public function hdr($c = '200') {
 		if ($this->sentHeaders) return;
 
 		$this->sentHeaders = 1;
@@ -108,7 +108,7 @@ class Response {
 			$h = self::$type_handlers[$type]; // direct mapping
 		else {
 			foreach (self::$type_handlers as $exp => $handler)
-				if (preg_match($exp, $type)) $h = self::$type_handlers[$exp]; // expression mapping
+				if (preg_match("#$exp#", $type)) $h = self::$type_handlers[$exp]; // expression mapping
 		}
 		
 		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
