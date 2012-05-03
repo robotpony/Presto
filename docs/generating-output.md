@@ -90,4 +90,4 @@ Notice that the `DOM` mapper prints its output, done to minimize allocated memor
 
 ### Example: transforming a DOM into HTML
 
-<script src="https://gist.github.com/2589593.js?file=example-output-mapper.php"></script>
+<script src="https://gist.github.com/2589593.js?file=complex-mapping-example.php"></script>
