@@ -3,9 +3,7 @@ Frequently asked things
 
 Document style: FAQ
 
-## Q: What's wrong with MVC?
-
-Nothing.
+## Q: Why no MVC?
 
 MVC is a poor match for stateless web APIs and web applications, as it implies a large slice of functionality for what are generally very narrow requests. Presto assumes that API requests are narrow, and minimises the amount of framework loaded (and dependencies implied by) each request. This simplifies your code and your ability to get the most performance out of your web services.
 
@@ -21,10 +19,8 @@ For API views, Presto uses output adapters, which transform your PHP objects int
 
 ## Q: How does routing work?
 
-Routing 
-
-
 <!-- 
+Questions:
 
 * Views
 	* Direct object mapping
