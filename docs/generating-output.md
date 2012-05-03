@@ -88,6 +88,6 @@ We can expand the example to map headings to Markdown headings by adding a mappi
 Notice that the `DOM` mapper prints its output, done to minimize allocated memory. It also doesn't manage the `path` variable as a full path, though this can be done for more complex mapping problems.
 
 
-### Example: transforming a DOM into HTML
+### Additional examples:
 
-<script src="https://gist.github.com/2589593.js?file=complex-mapping-example.php"></script>
+1. An [example mapping function for simple HTML transformations](https://gist.github.com/2589593), including attribute remapping.
