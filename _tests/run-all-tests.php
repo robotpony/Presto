@@ -7,6 +7,7 @@ include('../lib/presto.php');
 
 try {
 	response_tests();
+	response_complex_types_tests();
 	service_tests();	
 	simple_view_tests();
 	database_tests();	
@@ -17,6 +18,36 @@ try {
 	print("\n");
 	print($e);
 
+}
+
+function response_complex_types_tests() {
+	test("Response - complex types tests");
+
+	$dom = <<<JSON
+{"chapters" : [
+	{"title": "This is chapter 1",
+		"content" : "This is some text",
+		"ideas" : ["This is a list of things", "And another item"]
+	},
+	{"title": "This is chapter 2",
+		"content" : "This is some more text",
+		"ideas" : ["This is a list of things", "And another item"]
+	}
+] }
+JSON;
+
+	$dom = json_decode($dom, true);
+	
+	$r = new Response((object) array( 'res' => 'json' ) );
+	$r->ok($dom);
+	print "\n";
+	status("JSON output for complex data", 'OK');
+	
+	$r = new Response((object) array( 'res' => 'htm' ) ); // htm intentional, tests match
+	status("Default HTML output for complex data", 'OK');
+	$r->ok($dom);
+	
+	// TODO custom mapper / handler
 }
 
 function response_tests() {
