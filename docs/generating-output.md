@@ -61,21 +61,27 @@ This simple encoder does not use a `mapper`, and it ignores any node names in th
 We can expand the example to map headings to Markdown headings by adding a mapping function and extending the `DOM` traversal:
 
 
-	function markdown_mapper($node, $path, $depth) {
+	function markdown_mapper($node, $depth, $path) {
 		if ($path === 'title' && is_string($node)) 
 			return str_repeat('#', $depth) . " $node";
 	
 		return $node;
 	}
 	
-	function encode_simple_text($node, $path = null, $map = null) {
+	function encode_simple_text($node, $map = null) {
 		static $d = 0;
-		$node = $map($node, $path, $d);
+		static $p = '';
+		
+		$node = $map($node, $d, $p);
 		if (is_string($node)) return print $node . "\n";
 		
 		if (is_array($node)) {
 			$d++;
-			foreach ($node as $k => &$v) encode_simple_text($v, $k);
+			foreach ($node as $k => &$v) {
+				$p = $k;
+				encode_simple_text($v);
+			}
+			$d--;
 		}
 	}
 
