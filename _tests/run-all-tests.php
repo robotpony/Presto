@@ -6,11 +6,11 @@ include('../lib/presto.php');
 */
 
 try {
-	response_tests();
+//	response_tests();
 	response_complex_types_tests();
-	service_tests();	
-	simple_view_tests();
-	database_tests();	
+//	service_tests();	
+//	simple_view_tests();
+//	database_tests();	
 	
 } catch (Exception $e) {
 
@@ -44,8 +44,21 @@ JSON;
 	status("JSON output for complex data", 'OK');
 	
 	$r = new Response((object) array( 'res' => 'htm' ) ); // htm intentional, tests match
-	status("Default HTML output for complex data", 'OK');
 	$r->ok($dom);
+	print "\n";
+	status("Default HTML output for complex data", 'OK');
+
+	$r = new Response((object) array( 'res' => 'htm' ) ); // htm intentional, tests match	
+	Response::add_type_handler('.*\/htm.*', encode_html, function($p, $n, $d) {
+		switch ($p) {
+			case 'title': return 'h'.($d-1);
+			case 'ideas': return 'ul';
+			default: return $p;
+		}
+	} );
+	$r->ok($dom);
+	print "\n";
+	status("Mapped HTML output for complex data", 'OK');
 	
 	// TODO custom mapper / handler
 }

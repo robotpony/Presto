@@ -3,7 +3,7 @@
 class Response {
 	private $call;
 	private $sentHeaders = 0;
-	private static $type_handlers = array();
+	public static $type_handlers = array();
 	private static $ver;
 	private $codes = array(
 			'200' => 'OK',
@@ -41,7 +41,7 @@ class Response {
 	
 		// register default type handlers
 		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
-		self::add_type_handler('.*\/htm.*', function ($dom) { encode_html($dom); } );
+		self::add_type_handler('.*\/htm.*', encode_html );
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 	
@@ -49,7 +49,7 @@ class Response {
 	public static function add_type_handler($type, $encoder_fn, $mapper_fn = null) {
 		if (!is_callable($encoder_fn)) throw new Exception('Invalid type handler.', 500);
 		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new Exception('Invalid type mapper.', 500);
-			
+		
 		self::$type_handlers[$type] = (object) array('enc' => $encoder_fn, 'map' => $mapper_fn);
 	}
 	
@@ -114,35 +114,45 @@ class Response {
 		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
 		
 		$encode = $h->enc;
-		$encode($dom, 'root', $h->map);
+		$map = $h->map;
+		$encode($dom, $map);
 	}
 	
 	public function __toString() { return print_r($this, true); }	
 }
 
 /* Simple HTML encoder */
-function encode_html($node) {
-	static $d = -1;	
-	$indent = str_repeat("\t", $d);	
+function encode_html($node,  $map = null) {
+	static $d = -1;
+	static $mapper;
 	
-	if (is_string($node)) return print "\n$indent$node";	
-	else if (!is_array($node)) return;
+	if ($mapper === null && $map !== null)  $mapper = $map;
 	
-	// descend into child nodes 
+	$indent = str_repeat("\t", $d);	// indent for pretty printing
 	
-	$d++;
-	foreach ($node as $k => &$v) {	
-		if (empty($k) || is_numeric($k))
-			$k = 'li'; // assume lists are LIs
+	if (is_string($node))
+		return print "\n$indent$node";	
+	else if (is_array($node)) {
 		
-		// print node
+		// descend into child nodes 
 		
-		print "\n$indent<$k>";
-		encode_html($v); // recurse
-		print "\n$indent</$k>";
-	}
-	$d--;
+		$d++;
+		foreach ($node as $k => &$v) {	
+		
+			if (empty($k) || is_numeric($k))
+				$k = 'li'; // assume lists are LIs
+
+			if (is_callable($mapper))
+				$k = $mapper($k, $v, $d);
+				
+			// print node
 			
+			print "\n$indent<$k>";
+			encode_html($v); // recurse
+			print "\n$indent</$k>";
+		}
+		$d--;
+	}
 }
 
 ?>
