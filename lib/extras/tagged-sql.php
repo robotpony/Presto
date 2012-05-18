@@ -13,22 +13,21 @@ class tagged_sql {
 	# Hierarchical transformation for a tagged SQL result set.
 	 
 	Returns a DOM based on the tag structure in the derived column names.
-	The returned DOM is either an object or a multidimensional array.
+	The returned DOM is either an object or an array based on the $asObj
+	parameter.
 	 
-	Tags are column names and are used to build a hierarchical DOM resultset.
-	 
-	Three types of tags:
-	1. Node Constructor tags:	`@id(classes)|nodeName|User Readable Label`
-	2. Attribute tags: 			`@attributeName`
-	3. Simple node tags:		`nodeName(classes)|User Readable Label`
+	Tags are column names and there are three types:
+	
+	1. Complex node tags:	`@id(classes)|nodeName|User Readable Label`
+	2. Attribute tags:		`@attributeName`
+	3. Simple node tags:	`nodeName(classes)|User Readable Label`
 	 
 	The '(classes)' portion of tags, and the '|User Readable Label' portion, are optional.
 	 
-	## Constructor tags
+	## Complex tags
 	
-	Nodes created with a constructor tag may have other nodes added to them through
-	subsequent constructor tags. They may also have simple nodes and attributes added
-	to them. In this way they are complex nodes, or branches in the resulting DOM tree.
+	Nodes created with a complex tag may have other nodes added to them be they complex, 
+	simple nodes, or attributes. They are branches in the resulting DOM tree.
 	 
 	For efficiency the DOM is constructed in place and in the order that rows and columns 
 	are encountered in the result set. When a constructor tag is encountered a branch is 
@@ -72,12 +71,12 @@ class tagged_sql {
 	
 	Simple node tags add a simple node to the current (complex) node of the
 	DOM. Simple nodes will have a value and may have a label or classes, but that's it,
-	they do not have complex nodes or other attributes. They are leaves in the DOM:
+	they do not contain complex nodes or other attributes. They are leaves in the DOM:
 	~~~
 	[simpleNode] => Array
 	(
 		[@label] => Human readable label,
-		[@class] => class1 class2 class3
+		[@class] => class1 class2 class3 ... classn
 		[value] => The value pulled from the DB
 	)
 	~~~
@@ -119,7 +118,7 @@ class tagged_sql {
 	    |        |¯¯¯¯¯¯¯¯|              
 	    |------->| Domain |------------->|¯¯¯¯¯¯¯¯¯|
 	             | @id:2  |       |      | Element |
-	             |________|	      |      |  @id:31 |
+	             |________|	      |      |  @id:3  |
 	                              |      |_________|
 	                              |
 	                              |----->|¯¯¯¯¯¯¯¯¯|
