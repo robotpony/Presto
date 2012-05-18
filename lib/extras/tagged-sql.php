@@ -18,11 +18,11 @@ class tagged_sql {
 	 
 	Tags are column names and there are three types:
 	
-	1. Complex node tags:	`@id(classes)|nodeName|User Readable Label`
+	1. Complex node tags:	`#nodeName(classes)[User Readable Label]`
 	2. Attribute tags:		`@attributeName`
-	3. Simple node tags:	`nodeName(classes)|User Readable Label`
+	3. Simple node tags:	`nodeName(classes)[User Readable Label]`
 	 
-	The '(classes)' portion of tags, and the '|User Readable Label' portion, are optional.
+	The '(classes)' portion of tags, and the '[User Readable Label]' portion, are optional.
 	 
 	## Complex tags
 	
@@ -39,22 +39,22 @@ class tagged_sql {
 	Examples:
 	~~~
 	Correct order:
-				r.RubricID 		AS `@id|rubric`,
-				r.Title			AS `title|Rubric Title`,
-				d.DomainID		AS `@id|domain`,
-				d.Title			AS `title|Domain Title`
+				r.RubricID 		AS `#rubric`,
+				r.Title			AS `title[Rubric Title]`,
+				d.DomainID		AS `#domain`,
+				d.Title			AS `title[Domain Title]`
 	 
 	Wrong order:
-	 			r.RubricID 		AS `@id|rubric`,
-				d.Title			AS `title|Domain Title`,
-				d.DomainID		AS `@id|domain`,
-				r.Title			AS `title|Rubric Title`
+	 			r.RubricID 		AS `#rubric`,
+				d.Title			AS `title[Domain Title]`,
+				d.DomainID		AS `#domain`,
+				r.Title			AS `title[Rubric Title]`
 	
 	Wrong order:
-	 			r.RubricID 		AS `@id|rubric`,
-				d.DomainID		AS `@id|domain`,
-				r.Title			AS `title|Rubric Title`,
-				d.Title			AS `title|Domain Title`
+	 			r.RubricID 		AS `#rubric`,
+				d.DomainID		AS `#domain`,
+				r.Title			AS `title[Rubric Title]`,
+				d.Title			AS `title[Domain Title]`
 	~~~
 	
 	## Simple node tags and attribute tags
@@ -139,8 +139,8 @@ class tagged_sql {
 		$dom = array();
 		if (empty($rs)) return $dom;
 		
-		$r_constructorNode = 	'/^@id(?:\(.*\))?\|(\w+)(?:\|(.+))?$/';
-		$r_simpleNode = 		'/^(@?\w+)(?:\(.*\))?(?:\|(.+))?$/';
+		$r_constructorNode = 	'/^#(\w+)(?:\(.*\))?(?:\[(.+)\])?$/';
+		$r_simpleNode = 		'/^(@?\w+)(?:\(.*\))?(?:\[(.+)\])?$/';
 		$r_classes = 			'/^.*\((.*)\).*$/';
 		
 		foreach ($rs as $row) {
