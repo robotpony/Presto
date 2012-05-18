@@ -41,7 +41,7 @@ class Response {
 	
 		// register default type handlers
 		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
-		self::add_type_handler('.*\/htm.*', _encode_html );
+		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 	
