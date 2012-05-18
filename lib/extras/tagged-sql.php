@@ -1,101 +1,169 @@
 <?php
 
-/* A placeholder for tagged SQL post-processing (transforming result sets into object trees) */
+/* Tagged SQL transformer.
+ *
+ * Post-processing for a result set where column names follow some tagging rules.
+ * The tagging rules are used to traform the flat result set into a hierarchical
+ * DOM. 
+ */
 
 class tagged_sql {
-
-	private $rs = null;
-	private $dom = null;
-	
-	function __construct(&$result_set) {
-		$this->rs = &$result_set;
-		$this->dominate();
-	}
 	
 	/**
-	 * Select hierarchically tagged SQL.
-	 *
-	 * Returns a DOM based on the tag structure in the derived column names
-	 * in the form of a DOM (a multidimensional array).
-	 *
-	 * Tags are defined in the derived column names and are used to 
-	 * build a hierarchical DOM resultset.
-	 *
-	 * Three types of tags:
-	 * 1. Node Constructor tags:	`@id(classes)|path.to.node.nodeName|User Readable Label`
-	 * 2. Attribute tags: 			`@attributeName|path.to.node.nodeName`
-	 * 3. Simple node tags:			`nodeName(classes)|path.to.node|User Readable Label`
-	 *
-	 * The '(classes)' portion of tags, and the ':User Readable Label' portion, are optional.
-	 *
-	 * Constructor tags
-	 * ----------------
-	 * Nodes created with a constructor tag may have other nodes added to them through
-	 * subsequent constructor tags.
-	 * When a constructor tag is encountered a node is created at the specified level of the DOM.
-	 * All constructor tags must be encountered first in the results (before attribute or simple nodes).
-	 * Constructor tags must be ordered according to their depth in the resulting DOM:
-	 *
-	 * Example:
-	 *
-	 * Correct order:
-	 *				AS `@id|rubric`
-	 *				AS `@id|rubric.domain`
-	 *
-	 * Wrong order:
-	 *
-	 *				AS `@id|rubric.domain`
-	 *				AS `@id|rubric`
-	 * 
-	 * Simple node tags and attribute tags
-	 * -----------------------------------
-	 *
-	 * All attribute tags and simple node tags must be encountered after all node constructors
-	 * are encountered.
-	 *
-	 * Attribute tags add an attribute at the level specified by the node path in the tag.
-	 *
-	 * Simple node tags add a node of the type:
-	 * 		<nodeName @class="classes" @label="User Readable Label">
-	 *			<value>$value</value>
-	 *		</nodeName>
-	 */
-	private function dominate() {
-		if (empty($this->rs)) return $this->dom;
+	# Hierarchical transformation for a tagged SQL result set.
+	 
+	Returns a DOM based on the tag structure in the derived column names.
+	The returned DOM is either an object or a multidimensional array.
+	 
+	Tags are column names and are used to build a hierarchical DOM resultset.
+	 
+	Three types of tags:
+	1. Node Constructor tags:	`@id(classes)|nodeName|User Readable Label`
+	2. Attribute tags: 			`@attributeName`
+	3. Simple node tags:		`nodeName(classes)|User Readable Label`
+	 
+	The '(classes)' portion of tags, and the '|User Readable Label' portion, are optional.
+	 
+	## Constructor tags
+	
+	Nodes created with a constructor tag may have other nodes added to them through
+	subsequent constructor tags. They may also have simple nodes and attributes added
+	to them. In this way they are complex nodes, or branches in the resulting DOM tree.
+	 
+	For efficiency the DOM is constructed in place and in the order that rows and columns 
+	are encountered in the result set. When a constructor tag is encountered a branch is 
+	created at the current level of the DOM if it does not already exist. Subsequent nodes 
+	are created within the branch (leaves or other branches).
+	 
+	Simple node tags must directly follow the constructor tag they apply to.
+	 
+	Examples:
+	~~~
+	Correct order:
+				r.RubricID 		AS `@id|rubric`,
+				r.Title			AS `title|Rubric Title`,
+				d.DomainID		AS `@id|domain`,
+				d.Title			AS `title|Domain Title`
+	 
+	Wrong order:
+	 			r.RubricID 		AS `@id|rubric`,
+				d.Title			AS `title|Domain Title`,
+				d.DomainID		AS `@id|domain`,
+				r.Title			AS `title|Rubric Title`
+	
+	Wrong order:
+	 			r.RubricID 		AS `@id|rubric`,
+				d.DomainID		AS `@id|domain`,
+				r.Title			AS `title|Rubric Title`,
+				d.Title			AS `title|Domain Title`
+	~~~
+	
+	## Simple node tags and attribute tags
+	 
+	Attribute tags add an attribute at the current node in the DOM.
+	
+	Example:
+	~~~
+	[currentnode] => Array
+	(
+		[@attributeName] => attributeValue
+	)
+	~~~
+	
+	Simple node tags add a simple node to the current (complex) node of the
+	DOM. Simple nodes will have a value and may have a label or classes, but that's it,
+	they do not have complex nodes or other attributes. They are leaves in the DOM:
+	~~~
+	[simpleNode] => Array
+	(
+		[@label] => Human readable label,
+		[@class] => class1 class2 class3
+		[value] => The value pulled from the DB
+	)
+	~~~
+	
+	## Result set row ordering
+	
+	The transform depends on the row ordering of the result set. The purpose of this
+	transform is to take flat result sets and transform them into the tree they represent.
+	
+	For example the result set:
+	~~~
+	| RubricID | DomainID | ElementID |
+	| -------- | -------- | --------- |
+	|        1 |        1 |         1 |
+	|        1 |        1 |         2 |
+	|        1 |        2 |         3 | 
+	|        1 |        2 |         4 |
+	~~~
+	
+	Is transfomed into the DOM:
+	~~~
+	
+	|¯¯¯¯¯¯¯¯| 
+	| Rubric |
+	|  @id:1 |
+	|________|
+	    |
+	    |        |¯¯¯¯¯¯¯¯|
+	    |------->| Domain |------------->|¯¯¯¯¯¯¯¯¯|
+	    |        | @id:1  |       |      | Element |
+	    |        |________|	      |      |  @id:1  |
+	    |                         |      |_________|
+	    |                         |
+	    |                         |----->|¯¯¯¯¯¯¯¯¯|
+	    |                                | Element |
+	    |                                |  @id:2  |
+	    | 								 |_________|
+	    |
+	    |        |¯¯¯¯¯¯¯¯|              
+	    |------->| Domain |------------->|¯¯¯¯¯¯¯¯¯|
+	             | @id:2  |       |      | Element |
+	             |________|	      |      |  @id:31 |
+	                              |      |_________|
+	                              |
+	                              |----->|¯¯¯¯¯¯¯¯¯|
+	                                     | Element |
+	                                     |  @id:4  |
+	     								 |_________|
+	   		 
+						  
+							  	  
+	~~~
+	
+	Note that if you do not order the rows in your result set in this way then the
+	there is no guarantee about the shape of the resulting DOM, except that it will
+	be wrong.
+	
+	*/
+	public function &dominate(&$rs, $asObj = true) {
+		$dom = array();
+		if (empty($rs)) return $dom;
 		
-		$r_constructorNode = 	'/^@id(?:\(.*\))?\|((?:\w+\.)*)(\w+)(?:\|(.+))?$/';
-		$r_simpleNode = 		'/^(@?\w+)(?:\(.*\))?\|((?:\w+\.)*(?:\w+))(?:\|(.+))?$/';
+		$r_constructorNode = 	'/^@id(?:\(.*\))?\|(\w+)(?:\|(.+))?$/';
+		$r_simpleNode = 		'/^(@?\w+)(?:\(.*\))?(?:\|(.+))?$/';
 		$r_classes = 			'/^.*\((.*)\).*$/';
 		
-		foreach ($this->rs as $row) {dump($row);
-			$pathState = array();
+		foreach ($rs as $row) {
+			$currentNode = &$dom;
 			foreach ($row as $key => $value) {
-				$currentNode = &$this->dom;
 				
 				if (!isset($value)) $value = ''; // clamp null values to '';
 				
 				// get the node level classes (if any)
 				$classes = null;
 				if (preg_match($r_classes, $key, $matches)) {
-					$classes = $matches[1]; dump($classes);
+					$classes = $matches[1];
 				}
 				
 				if (preg_match($r_constructorNode, $key, $matches)) {
-					// this tag will construct a node that may have other complex nodes as children.
+					// this tag will construct a node.
 					if ($value === '') {
 						// no value means no ID ... we can't do anything with this
-						continue;
+						break;
 					}
-					
-					$path = explode('.', $matches[1]);
-					$nodeName = $matches[2];
-					
-					// navigate to the node defined by the path
-					foreach ($path as $p) {
-						if (isset($pathState[$p]) && isset($currentNode[$p.'-'.$pathState[$p]])) {
-							$currentNode = &$currentNode[$p.'-'.$pathState[$p]];
-						}
-					}
+				
+					$nodeName = $matches[1];
 					
 					// create this node if it doesn't exist
 					if (!isset($currentNode[$nodeName.'-'.$value])) {
@@ -104,7 +172,6 @@ class tagged_sql {
 					
 					// move into the node
 					$currentNode = &$currentNode[$nodeName.'-'.$value];
-					$pathState[$nodeName] = $value;
 					
 					// set the id for this node
 					$currentNode['@id'] = $value;
@@ -115,21 +182,13 @@ class tagged_sql {
 					}
 					
 					// set the node label if there is one
-					if (isset($matches[3]) && trim($matches[3]) != '') {
-						$currentNode['@label'] = trim($matches[3]);
+					if (isset($matches[2]) && trim($matches[2]) != '') {
+						$currentNode['@label'] = trim($matches[2]);
 					}
 				}
-				else if (preg_match($r_simpleNode, $key, $matches)) {
+				else if (preg_match($r_simpleNode, $key, $matches)) {//dump($matches);
 					// this tag will construct a simple node (or attribute).
-					$path = explode('.', $matches[2]);
 					$nodeName = $matches[1];
-					
-					// navigate to the node defined by the path
-					foreach ($path as $p) {
-						if (isset($pathState[$p]) && isset($currentNode[$p.'-'.$pathState[$p]])) {
-							$currentNode = &$currentNode[$p.'-'.$pathState[$p]];
-						}
-					}
 					
 					// create the node (or attribute)
 					if (strpos($nodeName, '@') === 0) {
@@ -141,8 +200,8 @@ class tagged_sql {
 						$currentNode[$nodeName] = array();
 					
 						// set the node label if there is one
-						if (isset($matches[3]) && trim($matches[3]) != '') {
-							$currentNode[$nodeName]['@label'] = trim($matches[3]);
+						if (isset($matches[2]) && trim($matches[2]) != '') {
+							$currentNode[$nodeName]['@label'] = trim($matches[2]);
 						}
 					
 						// set the node level class(es)
@@ -156,12 +215,8 @@ class tagged_sql {
 				}
 			}
 		}
-		dump($this->dom);
-		if (empty($this->dom)) return $this->dom;
-		return (object) $this->dom;
-	}
-	
-	public function &dom() {
-		return $this->dom;
+		if (empty($dom)) return $dom;
+		if ($asObj) $dom = (object) $dom;
+		return $dom;
 	}
 }
