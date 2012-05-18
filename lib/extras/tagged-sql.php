@@ -165,16 +165,8 @@ class tagged_sql {
 				
 					$nodeName = $matches[1];
 					
-					// create this node if it doesn't exist
-					if (!isset($currentNode[$nodeName.'-'.$value])) {
-						$currentNode[$nodeName.'-'.$value] = array();
-					}
-					
 					// move into the node
-					$currentNode = &$currentNode[$nodeName.'-'.$value];
-					
-					// set the id for this node
-					$currentNode['@id'] = $value;
+					$currentNode = &$currentNode[$nodeName][$value];
 					
 					// set the node level class(es)
 					if (isset($classes)) {
@@ -186,7 +178,7 @@ class tagged_sql {
 						$currentNode['@label'] = trim($matches[2]);
 					}
 				}
-				else if (preg_match($r_simpleNode, $key, $matches)) {//dump($matches);
+				else if (preg_match($r_simpleNode, $key, $matches)) {
 					// this tag will construct a simple node (or attribute).
 					$nodeName = $matches[1];
 					
