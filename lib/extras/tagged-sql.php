@@ -207,7 +207,7 @@ class tagged_sql {
 			}
 		}
 		if (empty($dom)) return $dom;
-		if ($asObj) $dom = (object) $dom;
+		if ($asObj) return (object) $dom;
 		return $dom;
 	}
 }
