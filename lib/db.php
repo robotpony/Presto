@@ -37,5 +37,9 @@ class db extends PDO {
 	function insert($sql, &$bound_parameters = array()) {
 		return $this->update($sql, $bound_parameters);
 	}
+	
+	function errors() {
+		return $this->statement->errorInfo();
+	}
 
 }
