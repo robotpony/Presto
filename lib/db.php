@@ -32,5 +32,14 @@ class db extends PDO {
 
 		return $this->statement->execute();	
 	}
+	
+	/* Provide a wrapper for inserts which is really just an alias for the update function. */
+	function insert($sql, &$bound_parameters = array()) {
+		return $this->update($sql, $bound_parameters);
+	}
+	
+	function errors() {
+		return $this->statement->errorInfo();
+	}
 
 }
