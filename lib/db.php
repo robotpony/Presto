@@ -38,8 +38,14 @@ class db extends PDO {
 		return $this->update($sql, $bound_parameters);
 	}
 	
+	/* Return error info pertaining to the last operation. */
 	function errors() {
 		return $this->statement->errorInfo();
+	}
+	
+	/* Return the number of rows affected by the last INSERT, DELETE, or UPDATE.  */
+	function affected_rows() {
+		return $this->statement->rowCount();
 	}
 
 }
