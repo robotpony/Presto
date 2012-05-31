@@ -1,6 +1,4 @@
 <?php 
-include_once('lib/api.php');
-
 
 /* An API for returning information 
 

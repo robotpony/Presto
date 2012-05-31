@@ -1,0 +1,22 @@
+Options +FollowSymlinks
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+RewriteBase /
+
+# Don't allow access to system folders
+RewriteRule _service(.*) /404.html [R,L]
+RewriteRule _parts(.*) /404.html [R,L]
+RewriteRule lib/(.*) /404.html [R,L]
+
+# Route API requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*)\.(json)$ /api.php?($1) [L]
+RewriteRule ^(.*)\.html$ $1.php [NC,L]
+
+# General requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*) /index.php?($1) [L]
+</IfModule>
+
+ErrorDocument 404 /404.html

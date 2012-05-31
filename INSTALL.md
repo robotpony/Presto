@@ -1,27 +1,25 @@
 # Quick install
 
-1. Clone the repo to a local folder (like ~/).
+1. Clone the repo to a web root:
 
-	$ git clone git://github.com/robotpony/Presto.git
+	$ git clone git://github.com/robotpony/Presto.git lib/presto
 	
-2. Create a new web root for your service, add to vhosts, and symlink in the library:
+2. Add default routing using the example HTACCESS file:
 
-	$ ln -s ~/Presto/lib
+	$ cp lib/presto/lib/htaccess-example .htaccess
 	
-3. Run the configuration script.
+3. Link API delegator to your API root:
 
-	$ ./lib/configure.sh
+	$ ln -s lib/presto/lib/delegator-index.php api.php
 	
-You should now have a web root with a linked .htaccess, index.html (for docs), and index.php (for delegating requests).
+4. Copy the example API file and retest:
 
-4. Now add your API as a set of classes in the web root, where the files are named the same as the class name:
-
-	$ touch text.php status.php
-	
-5. Add skeleton classes based on the examples provided.
+	$ cp lib/presto/examples/info.php .
+	$ curl [YOUR WEBROOT]/info.json	
+	{"example":"This is some example information"}
 
 
-## Notes
+## Special setups
 
 ### Installing on a DH PS
 
