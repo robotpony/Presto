@@ -3,7 +3,8 @@
 class Response {
 	private $call;
 	private $sentHeaders = 0;
-	private static $v;
+	public static $type_handlers = array();
+	private static $ver;
 	private $codes = array(
 			'200' => 'OK',
 			'201' => 'Created',
@@ -32,45 +33,40 @@ class Response {
 			'506' => 'Variant Also Negotiates'
 	);
 	
-	/** Set up the response class
+		
+	/* Set up the response */
+	public function __construct($ctx = null, $ver = '') {
+		$this->call = $ctx;
+		self::$ver = $ver;
 	
-	*/	
-	public function __construct($ctx = null, $v = '') {
-		$this->call = $ctx;	
-		self::$v = $v;
+		// register default type handlers
+		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
+		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
+		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 	
-	/** Respond to a request positively 
+	/* Register a type handler */
+	public static function add_type_handler($type, $encoder_fn, $mapper_fn = null) {
+		if (!is_callable($encoder_fn)) throw new Exception('Invalid type handler.', 500);
+		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new Exception('Invalid type mapper.', 500);
+		
+		self::$type_handlers[$type] = (object) array('enc' => $encoder_fn, 'map' => $mapper_fn);
+	}
 	
-	*/	
+	/* Respond to a request */
 	public function ok($d) {
-
 		if (!$this->hdr()) return false; // no data sent to client
-		
-		switch ($this->call->res) {
-			case 'json': 
-				print json_encode($d); break;
-
-			case 'htm': 
-			case 'html': 
-				encode_html($d); break;
-			
-			default: throw new Exception('Unknown resource type: ' . $this->call->res, 500);
-		}
-		
-		return true;
+		return self::encode($this->content_type(), $d);
 	}
-	public function __toString() { return print_r($this, true); }
-	
-	
-	// output the API header
-	function hdr($c = '200') {
+		
+	/* Generate an appropriate HTTP header */
+	public function hdr($c = '200') {
 		if ($this->sentHeaders) return;
 
 		$this->sentHeaders = 1;
 		
 		header("HTTP/1.0 {$c} {$this->codes[$c]}");
-		header(VERSION_HEADER . ': ' . self::$v);
+		header(VERSION_HEADER . ': ' . self::$ver);
 		header('Cache-Control: no-cache');
 				
 		if (in_array($c, array('201', '204'), true))
@@ -84,11 +80,14 @@ class Response {
 		return true;
 	}
 	
-	/***/
-	function content_type() {
+	/** Determine the content-type */
+	private function content_type() {
 		if (!isset($this->call) || empty($this->call->res))
 			return 'text/plain';
 		
+		if (strpos($this->call->res, '/')) return $this->call->res; // already a content-type
+		
+		// map obvious content types (should be an array?)
 		switch ($this->call->res) {
 			case 'html':
 			case 'htm':
@@ -99,24 +98,66 @@ class Response {
 		}
 	}
 	
+	/* Encode the response using type handlers */
+	private static function encode($type, $dom) {		
+		$h = false;
+		
+		// find encoder
+		
+		if (array_key_exists($type, self::$type_handlers))
+			$h = self::$type_handlers[$type]; // direct mapping
+		else {
+			foreach (self::$type_handlers as $exp => $handler)
+				if (preg_match("#$exp#", $type)) $h = self::$type_handlers[$exp]; // expression mapping
+		}
+		
+		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
+		
+		$encode = $h->enc;
+		$map = $h->map;
+		$encode($dom, $map);
+	}
+	
+	public function __toString() { return print_r($this, true); }
 }
 
-/* */
-function encode_html($d) {
-	if (is_string($d))
-		print $d;
-	elseif (is_array($d)) {
-		foreach ($d as $k => &$v) {
-			if (empty($k) || is_numeric($k))
-				encode_html($v);
-			else {
-				print "<$k>\n\t";
-				encode_html($v);
-				print "</$k>\n";
-			}
-		}
+/* Simple HTML encoder */
+function _encode_html($node,  $map = null) {
+	static $d = null;
+	static $mapper;
+	
+	if ($mapper === null && $map !== null) $mapper = $map;
+	
+	if (!isset($d) || $map !== null) {
+		$d = -1;
+		return _encode_html(array('html' => array('body' => $node)));
 	}
+	
+	$indent = str_repeat("\t", $d);	// indent for pretty printing
+	
+	if (is_string($node)) return print "\n$indent$node";	
+	elseif (is_array($node)) {
+		
+		// descend into child nodes 
+		
+		$d++;
+		foreach ($node as $k => &$v) {
+			$a = '';
+		
+			if (empty($k) || is_numeric($k))
+				$k = 'li'; // assume lists are LIs
+
+			if (is_callable($mapper))
+				$k = $mapper($k, $v, $a, $d);
+
+			// print node
 			
+			print "\n$indent<$k$a>";
+			_encode_html($v); // recurse
+			print "\n$indent</$k>";
+		}
+		$d--;		
+	}
 }
 
 ?>
