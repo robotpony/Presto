@@ -18,8 +18,8 @@
 4. Copy the example API file and retest:
 
 <pre>$ cp lib/presto/examples/info.php .
-    $ curl [YOUR WEBROOT]/info.json	
-    {"example":"This is some example information"}</pre>
+$ curl [YOUR WEBROOT]/info.json	
+{"example":"This is some example information"}</pre>
 
 
 ## Requirements and special cases
