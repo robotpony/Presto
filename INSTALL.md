@@ -26,10 +26,10 @@ $ curl [YOUR WEBROOT]/info.json
 
 * PHP 5.3 or greater is required
 * JSON extensions must be enabled
-* You must enable .htaccess processing in Apache (it's off by default in most installations)
+* You must enable `.htaccess` processing in Apache (it's off by default in many installations)
 
 ### Installing on a DH PS
 
-You will need to enable the JSON extension using a custom RC (not a custom .ini). Read the instructions here:
+You need to enable the JSON extension using a custom RC (not a custom .ini). Find the instructions here:
 
 * http://wiki.dreamhost.com/PHP.ini#Loading_PHP_5.3_extensions_on_all_domains_.28on_VPS_or_dedicated.29
