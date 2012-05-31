@@ -2,24 +2,24 @@
 
 1. Clone the Presto library repo to a functioning web root:
 
-    $ git clone git://github.com/robotpony/Presto.git lib/presto
+<pre>$ git clone git://github.com/robotpony/Presto.git lib/presto</pre>
 
 
 2. Add default routing using the example `.htaccess` file:
 
-    $ cp lib/presto/lib/htaccess-example .htaccess
+<pre>$ cp lib/presto/lib/htaccess-example .htaccess</pre>
 	
 
 3. Link API delegator to your API root:
 
-    $ ln -s lib/presto/lib/delegator-index.php api.php
+<pre>$ ln -s lib/presto/lib/delegator-index.php api.php</pre>
 	
 
 4. Copy the example API file and retest:
 
-    $ cp lib/presto/examples/info.php .
+<pre>$ cp lib/presto/examples/info.php .
     $ curl [YOUR WEBROOT]/info.json	
-    {"example":"This is some example information"}
+    {"example":"This is some example information"}</pre>
 
 
 ## Requirements and special cases
