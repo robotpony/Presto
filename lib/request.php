@@ -76,6 +76,7 @@ class Request {
 	public $service;	
 	public $uri;
 	public $query;
+	public $get;
 	public $post;
 
 	/* Set up  a request object (from PHP builtins) */	
@@ -101,6 +102,30 @@ class Request {
 		
 	}
 	
+	/** Get a GET value (or values)
+	
+	Relies on PHP's built in filtering mechanics. These are a reliable, thourough set
+	of filters. Learn them. Use them.
+		
+	$f
+	: Either the parameter to get, or the set of parameters and filters (based
+		on the filter_input* APIs)
+	
+	Returns the value or values requested. Caches values for debugging and other 
+		
+	See parameter definitions for:
+	
+		http://php.net/manual/en/function.filter-input-array.php
+		http://www.php.net/manual/en/function.filter-input.php
+	*/
+	public function get($f = null) {
+		
+		if ( $this->get = $this->filter(INPUT_GET, $f) )
+			return (object)  $this->get;
+		
+		throw new Exception('Missing or invalid GET parameter', 400);
+	}
+	
 	/** Get a post value (or values)
 	
 	Relies on PHP's built in filtering mechanics. These are a reliable, thourough set
@@ -118,20 +143,32 @@ class Request {
 		http://www.php.net/manual/en/function.filter-input.php
 	*/
 	public function post($f = null) {
-		if (is_array($f)) {
-			$this->post = filter_input_array(INPUT_POST, $f);
-		} elseif (is_string($f)) {
-			$this->post[$f] = filter_input(INPUT_POST, $f);
-			return $this->post[$f];
-		} else {
-			foreach ($_POST as $k => $v)
-				$this->post($k);
-		}
-		
-		if ( $this->post )
+				
+		if ( $this->post = $this->filter(INPUT_POST, $f) )
 			return (object)  $this->post;
 		
 		throw new Exception('Missing or invalid POST parameter', 400);
+	}
+	
+	private function filter($type, $f = null) {
+	
+		$r = null;
+		$in = $type === INPUT_POST ? $_POST : $_GET;
+		
+		if (is_array($f)) {
+			$r = filter_input_array($type, $f);
+		} elseif (is_string($f)) {
+			$r[$f] = filter_input($type, $f);
+			return $r[$f];
+		} else {
+			foreach ($in as $k => $v)
+				$r($k);
+		}
+		
+		if ( $r )
+			return (object)  $r;
+			
+		return false;
 	}
 
 	/** Get a request body 
