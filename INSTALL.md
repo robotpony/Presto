@@ -19,7 +19,13 @@
 	{"example":"This is some example information"}
 
 
-## Special setups
+
+
+## Requirements and special cases
+
+* PHP 5.3 or greater is required
+* JSON extensions must be enabled
+* You must enable .htaccess processing in Apache (it's off by default in most installations)
 
 ### Installing on a DH PS
 
