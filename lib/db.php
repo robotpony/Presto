@@ -23,6 +23,7 @@ class db extends PDO {
 		$bound_parameters is an array of arrays with the first member as the value to bind and the second as 
 		that parameter's PDO datatype.
 	 */
+	function query($sql, &$bound_parameters = array()) {return $this->update($sql, $bound_parameters);}
 	function update($sql, &$bound_parameters = array()) {	
 		$this->statement = $this->prepare($sql);	
 		foreach ($bound_parameters as $key => &$param) {
