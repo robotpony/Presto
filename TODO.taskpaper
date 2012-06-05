@@ -5,5 +5,15 @@ Presto:
 	`delegate(ctx)`
 - Content type filter to specify that a route only handles $x
 	`$this->add_contentType('json', true /* exclusive (default) */);`
+	https://github.com/Discovery-Software/Presto/issues/3
 - Wrap Simple SSO library in a more reusable package
 
+
+Documentation:
+- New introduction
+- Quick tutorial
+- A better example
+- FAQ
+	- multiple deligates
+	- limiting content types
+- per file/function
