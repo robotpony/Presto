@@ -113,11 +113,11 @@ $(document).ready(function() {
 			else
 				display.text('PASS');					
 
-		}, error: function(jqXHR, textStatus, errorThrown) {
+		}, error: function(xhr, textStatus, errorThrown) {
 		
-			detail.text(jqXHR.responseText);
+			detail.text(xhr.responseText);
 			
-			if (jqXHR.status === 404) {
+			if (xhr.status === 404) {
 				display.text('PASS');
 				console.log('Ignoring 404, marks delegation success');
 			} else { 
@@ -127,10 +127,48 @@ $(document).ready(function() {
 	});	
 });
 </script>
+</details>
 
+<details class="delegate-actual">
+	<summary>Presto delegate execution? <var></var></summary>
+	<p>Validates sample Presto delegation. <pre></pre></p>
+
+<script>	
+$(document).ready(function() {
+	var display = $('details.delegate-actual summary>var'), detail = $('details.delegate-actual pre');
+	
+	$.ajax({
+		url: 'info.json',
+		success: function(response, status, xhr) {
+			var ct = xhr.getResponseHeader("content-type") || "";
+			
+			if (ct.indexOf('html') > -1) {
+				display.text('FAIL');
+				detail.text('Invalid content type (HTML, expecting JSON).');
+			}
+			else
+				display.text('PASS');	
+				
+			detail.text(xhr.responseText);				
+
+		}, error: function(xhr, textStatus, errorThrown) {
+		
+			detail.text(xhr.responseText);
+			
+			if (xhr.status === 404) {
+				display.text('PASS');
+				console.log('Ignoring 404, marks delegation success');
+			} else { 
+				display.text('FAIL');
+			}
+		}
+	});	
+});
+</script>
 </details>
 
 <details>
+
 <summary>Request details</summary>
 <pre>
 <?php print_r($_SERVER); ?>
