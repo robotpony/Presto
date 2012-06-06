@@ -58,7 +58,12 @@ class Response {
 		if (!$this->hdr()) return false; // no data sent to client
 		return self::encode($this->content_type(), $d);
 	}
-		
+	/* Respond with a failure */
+	public function fail($d, $c = 500) {
+		if (!$this->hdr($c)) return false; // no data sent to client
+		return self::encode($this->content_type(), $d);
+	}
+			
 	/* Generate an appropriate HTTP header */
 	public function hdr($c = '200') {
 		if ($this->sentHeaders) return;
