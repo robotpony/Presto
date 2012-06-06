@@ -4,6 +4,7 @@
 
 <pre>$ git clone git://github.com/robotpony/Presto.git lib/presto</pre>
 
+The web root will need to be accessible by Apache, be able to execute PHP, and honour `.htaccess` rules.
 
 2. Add default routing using the example `.htaccess` file:
 
@@ -13,20 +14,22 @@
 3. Link API delegator to your API root:
 
 <pre>$ ln -s lib/presto/lib/delegator-index.php api.php</pre>
-	
 
-4. Copy the example API file and retest:
+This file sets up Presto's delegator features, so that your classes are called in a predictable way via `HTTP` requests.
+
+4. Copy the example API file and test:
 
 <pre>$ cp lib/presto/examples/info.php .
 $ curl [YOUR WEBROOT]/info.json	
 {"example":"This is some example information"}</pre>
 
+The example API file writes a simple DOM (a `PHP` keyed array) as `JSON` back to the client (which is `cURL` in this case).
 
-## Requirements and special cases
+## Requirements
 
 * PHP 5.3 or greater is required
-* JSON extensions must be enabled
-* You must enable `.htaccess` processing in Apache (it's off by default in many installations)
+* The JSON PHP extensions must be enabled
+* `.htaccess` must be enabled in Apache (it's off by default in many installations)
 
 ### Installing on a DH PS
 

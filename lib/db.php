@@ -20,14 +20,16 @@ class db extends PDO {
 	} 
 	
 	/* Wrapper for updates.
-		$bound_parameters is an array of arrays with the first member as the value to bind and the second as 
+		$bound_parameters is an array of arrays with the 'value' member as the value to bind and the 'pdoType' as 
 		that parameter's PDO datatype.
 	 */
+	function query($sql, &$bound_parameters = array()) {return $this->update($sql, $bound_parameters);}
 	function update($sql, &$bound_parameters = array()) {	
 		$this->statement = $this->prepare($sql);	
 		foreach ($bound_parameters as $key => &$param) {
-			if (!$this->statement->bindParam($key, $param[0], $param[1]))
-				throw new Exception("Unable to bind '{$param[0]}' to named parameter ':$key'.", 413);
+			$v = $param['value']; $t = $param['pdoType'];
+			if (!$this->statement->bindValue($key, $v, $t))
+				throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 413);
 		}
 
 		return $this->statement->execute();	
