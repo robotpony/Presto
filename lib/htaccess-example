@@ -11,12 +11,14 @@ RewriteRule lib/(.*) /404.html [R,L]
 
 # Route API requests
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule (.*)\.(json)$ /api.php?($1) [L]
+RewriteRule (.*)\.(json)$ /delegator.php?($1) [L]
 RewriteRule ^(.*)\.html$ $1.php [NC,L]
 
-# General requests
+# General requests (enable for standard php/index delegate behaviour)
+RewriteCond %{DOCUMENT_ROOT}/index.php -f
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule (.*) /index.php?($1) [L]
+RewriteRule (.*) /index.php?presto&$1 [L]
+
 </IfModule>
 
 ErrorDocument 404 /404.html
