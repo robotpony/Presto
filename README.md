@@ -1,16 +1,16 @@
 Presto - PHP REST toolkit
 =========================
 
-Presto is a small library for building simple, RESTful APIs using PHP. It's lightweight, decoupled, and focused on making web apps the right way; using simple APIs, encouraging clean URLs, and treating things as things.
+Presto is a small library for building simple, RESTful APIs using PHP. It's lightweight, decoupled, and focused on making web apps the right way; using APIs with clean URLs, which produce simple, clean output in standard formats like JSON, HTML, and XML.
 
 How is it different?
 --------------------
 
-Presto has no views, no models, and no controllers[^1]. Instead it focuses on APIs built from simple classes. It encourages applications that are based on APIs, which feed web applications animated with HTML/CSS/JavaScript.
+Presto has no views, no models, and no controllers[^1]. Instead it focuses on APIs built from simple classes. It encourages applications to be based on APIs, which feed web applications animated with HTML/CSS/JavaScript.
 
 A Presto API is simply a PHP class that maps to a resource or tree of resources. It has:
 
-* Public members that map to requests (like `get_details`)
+* Public members that map to requests (`GET thing/details.json` would map to `$thing->get_details()`)
 * Request parameters and input payloads that are packaged up and sanitized
 * Each route returns data as DOMs, which are automatically adapted to the requested `ContentType`
 * Errors are automatically converted into returned HTTP statuses
@@ -39,7 +39,10 @@ An example API
 		}
 		
 		// GET info/time.json - gets the local machine time
-		public function get_time($ctx) { return (object) getdate(); }
+		public function get_time($ctx) { 
+			$dom = (object) getdate();
+			return $dom; // <-- returns the DOM as JSON
+		}
 		
 		// PUT info/time.json
 		public function put_time($ctx) { throw new Exception('Not implemented', 501); }
