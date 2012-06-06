@@ -36,6 +36,9 @@ details>summary>var {
 details>p {
 	font-size: 13pt; font-weight: 200;
 }
+pre {
+	word-wrap: break-word; 
+}
 </style>
 </head>
 <body>
@@ -78,16 +81,9 @@ details>p {
 	$ok = function_exists('json_encode');
 ?>
 	<summary>JSON/PHP installed? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
-	<p>JSON has no additional details</p>
+	<p>Determines if JSON support is enabled.</p>
 </details>
 
-<details>
-<?php 
-	$ok = function_exists('json_encode');
-?>
-	<summary>HTACCESS enabled? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
-	<p>JSON has no additional details</p>
-</details>
 
 <details>
 <?php 
@@ -99,7 +95,7 @@ details>p {
 
 <details class="delegate">
 	<summary>Presto delegation ok? <var></var></summary>
-	<p>Validates basic Presto delegation. <pre></pre></p>
+	<p>Validates basic Presto delegation. This test looks for a valid Presto 404. <pre></pre></p>
 
 <script>	
 $(document).ready(function() {
@@ -119,12 +115,13 @@ $(document).ready(function() {
 
 		}, error: function(jqXHR, textStatus, errorThrown) {
 		
+			detail.text(jqXHR.responseText);
+			
 			if (jqXHR.status === 404) {
 				display.text('PASS');
 				console.log('Ignoring 404, marks delegation success');
 			} else { 
 				display.text('FAIL');
-				detail.text('Invalid content type (HTML, expecting JSON).');
 			}
 		}
 	});	
@@ -144,8 +141,6 @@ $(document).ready(function() {
 </details>
 <!--
 
-.HTACCESS enabled (if possible, perhaps getting an expected error?)
-Delegator setup
 Inspecting for classes?
 
 -->
