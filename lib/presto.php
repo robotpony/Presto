@@ -8,15 +8,13 @@ include_once(PRESTO_BASE.'/api.php');
 */
 class Presto extends REST {
 	public $call;
-	public static $v; // version
 	
 	/** Initialize with the request, and start delegation */
-	public function __construct($v = '' /* version */) {
+	public function __construct() {
 
 		$this->_base = $_SERVER['DOCUMENT_ROOT'];
 		set_error_handler(array($this, 'fail'));
-		
-		self::$v = $v;
+
 		self::$req = new request();
 
 		try {
@@ -41,9 +39,14 @@ class Presto extends REST {
 			$action = self::$req->action;	// determines the request action (method)
 			$thing = self::$req->uri->thing(); // determine the thing (resource)
 	
-			if (!$o->validConcept($thing))
+			// validate that the concept noun is valid
+			if (!$o->is_valid_concept($thing))
 				$thing = ''; // no thing (resource) available, assume root action
 	
+			// validate that the content type is supported
+			if (!$o->is_valid_contentType(self::$req->uri->type()))
+				throw new Exception("Unsupported media type: $action $thing.", 415);
+
 			// build the call pseudo object
 			$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;	
 			$this->call = (object) array(
@@ -54,7 +57,7 @@ class Presto extends REST {
 				'exists' 	=> false);			
 	
 			// build the response object
-			self::$resp = new response($this->call, self::$v);
+			self::$resp = new response($this->call, $o::$version);
 	
 			// verify the request
 			
@@ -85,20 +88,28 @@ class Presto extends REST {
 
 	/** Presto failures (including many PHP failures) */
 	static public function fail($n, $text, $file, $line, $ctx) {
+
+		// set up pseudo call and response
 		$call = (object) array('res' => 'json');
 		self::$resp = new response($call);
+		
+		// generate useful HTTP status
+		switch ($n) {
+			case 2: $status = 404; break;
+			default: $status = 500;
+		}
 
-		$details = array(
+		// build the resulting error object
+		$details = (object) array(
+			'status' => $status,
 			'code' => $n,
-			'text' => $text, 
+			'error' => $text, 
 			'file' => $file,
 			'line' => $line,
-			'context' => $ctx
+			'ctx' => $ctx
 		);
 
-		$codes = array(2 => '404');
-		self::$resp->hdr(coalesce(@$codes[$n], '500'));
-		
+		self::$resp->hdr($status);
 		print json_encode($details);
 	}
 
