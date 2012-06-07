@@ -4,8 +4,8 @@
 class API extends REST {
 		
 	private $concepts;
-	private $delegates;
-	private $typeFilters;
+	private $delegates = array();
+	private $typeFilters = array();
 	
 	/* Initialization */
 	public function __construct($c) {	
@@ -71,7 +71,7 @@ class API extends REST {
 		if (array_key_exists($type, $this->typeFilters))
 			throw new Exception("Content-type filter already exists for $type", 500);
 			
-		$this->typeFilters[$type];
+		array_push($this->typeFilters, $type);
 	}
 	
 	/* Check if a content type is valid (called by Presto) */

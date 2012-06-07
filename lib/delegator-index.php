@@ -12,7 +12,9 @@ try {
 	$n = $e->getCode();
 	$message = $e->getMessage();
 	
-	$payload = array('message' => $message , 'code' => $n, $detail => $p::call);	
+	$detail = (is_object($p)) ? $p::call : $e->getTrace();
+	
+	$payload = array('message' => $message , 'code' => $n, 'detail' => $detail);	
 	header("HTTP/1.0 $n API error");
 	header("Content-Type: application/json");
 	print json_encode( $payload );
