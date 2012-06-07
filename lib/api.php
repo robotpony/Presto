@@ -4,8 +4,8 @@
 class API extends REST {
 		
 	private $concepts;
-	private $types;
 	private $delegates;
+	private $typeFilters;
 	
 	/* Initialization */
 	public function __construct($c) {	
@@ -59,5 +59,23 @@ class API extends REST {
 			}
 		}
 		throw new Exception("Bad request. No sub method exists for resource $path", 404);
+	}
+	
+	/* Add a valid contentType for this API or route
+	
+		All content-types are valid, unless this filter is set up.
+		
+		Filters can be configured in the constructor (global to API), or in a given route (local to that route).
+	*/
+	public function add_contentType($type) {
+		if (array_key_exists($type, $this->typeFilters))
+			throw new Exception("Content-type filter already exists for $type", 500);
+			
+		$this->typeFilters[$type];
+	}
+	
+	/* Check if a content type is valid (called by Presto) */
+	public function is_valid_contentType($type) { 
+		return ( empty($this->typeFilters) || array_key_exists($type, $this->typeFilters) );
 	}
 }

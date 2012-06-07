@@ -41,9 +41,14 @@ class Presto extends REST {
 			$action = self::$req->action;	// determines the request action (method)
 			$thing = self::$req->uri->thing(); // determine the thing (resource)
 	
+			// validate that the concept noun is valid
 			if (!$o->is_valid_concept($thing))
 				$thing = ''; // no thing (resource) available, assume root action
 	
+			// validate that the content type is supported
+			if (!$o->is_valid_contentType(self::$req->uri->type()))
+				throw new Exception("Unsupported media type: $action $thing.", 415);
+
 			// build the call pseudo object
 			$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;	
 			$this->call = (object) array(
