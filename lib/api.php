@@ -47,7 +47,7 @@ class API extends REST {
 		
 		Throws if delegation fails.
 	*/
-	protected function delegate($ctx, $data = null) {
+	public function delegate($ctx, $data = null) {
 		if (empty($this->delegates) || empty($ctx) || empty($ctx->params)) 
 			throw new Exception('Unserviceable internal delegation attempt.', 501);
 			
