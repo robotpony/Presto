@@ -6,11 +6,14 @@ class API extends REST {
 	private $concepts;
 	private $delegates = array();
 	private $typeFilters = array();
+	public static $version;
 	
 	/* Initialization */
-	public function __construct($c) {	
+	public function __construct($c /* class for introspection */, $v = '' /* version for headers */) {	
 		
-		// guess valid REST concepts from class members
+		self::$version = $v;
+		
+		// learn valid REST concepts from class members
 		
 		foreach (get_class_methods($c) as $fn) {
 		

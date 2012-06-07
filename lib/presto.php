@@ -8,15 +8,13 @@ include_once(PRESTO_BASE.'/api.php');
 */
 class Presto extends REST {
 	public $call;
-	public static $v; // version
 	
 	/** Initialize with the request, and start delegation */
-	public function __construct($v = '' /* version */) {
+	public function __construct() {
 
 		$this->_base = $_SERVER['DOCUMENT_ROOT'];
 		set_error_handler(array($this, 'fail'));
-		
-		self::$v = $v;
+
 		self::$req = new request();
 
 		try {
@@ -59,7 +57,7 @@ class Presto extends REST {
 				'exists' 	=> false);			
 	
 			// build the response object
-			self::$resp = new response($this->call, self::$v);
+			self::$resp = new response($this->call, $o::$version);
 	
 			// verify the request
 			
