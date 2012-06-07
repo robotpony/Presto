@@ -5,7 +5,7 @@ class API extends REST {
 		
 	private $concepts;
 	private $delegates;
-	private $typeFilters;
+	private $typeFilters = array();
 	
 	/* Initialization */
 	public function __construct($c) {	
