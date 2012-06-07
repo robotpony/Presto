@@ -1,4 +1,10 @@
-# Quick install
+# Test your setup
+
+1. Point Apache at the `examples/` folder of presto.
+2. Point your browser at the VHOST configured in #1.
+3. All tests should pass.
+
+# Using Presto in your own projects
 
 1. Clone the Presto library repo to a functioning web root:
 
