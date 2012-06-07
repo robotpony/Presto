@@ -14,10 +14,9 @@
 class info extends API {
 	
 	public function __construct() {
-		parent::__construct(get_class()); // required to automatically learn available routes via introspection
+		parent::__construct(get_class(), 'presto-example-1');
 
 		// other startup here
-
 	}
 	
 	// info.json (root get request)
