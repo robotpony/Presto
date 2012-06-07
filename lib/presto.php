@@ -90,20 +90,28 @@ class Presto extends REST {
 
 	/** Presto failures (including many PHP failures) */
 	static public function fail($n, $text, $file, $line, $ctx) {
+
+		// set up pseudo call and response
 		$call = (object) array('res' => 'json');
 		self::$resp = new response($call);
+		
+		// generate useful HTTP status
+		switch ($n) {
+			case 2: $status = 404; break;
+			default: $status = 500;
+		}
 
-		$details = array(
+		// build the resulting error object
+		$details = (object) array(
+			'status' => $status,
 			'code' => $n,
-			'text' => $text, 
+			'error' => $text, 
 			'file' => $file,
 			'line' => $line,
-			'context' => $ctx
+			'ctx' => $ctx
 		);
 
-		$codes = array(2 => '404');
-		self::$resp->hdr(coalesce(@$codes[$n], '500'));
-		
+		self::$resp->hdr($status);
 		print json_encode($details);
 	}
 
