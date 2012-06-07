@@ -41,7 +41,7 @@ class Presto extends REST {
 			$action = self::$req->action;	// determines the request action (method)
 			$thing = self::$req->uri->thing(); // determine the thing (resource)
 	
-			if (!$o->validConcept($thing))
+			if (!$o->is_valid_concept($thing))
 				$thing = ''; // no thing (resource) available, assume root action
 	
 			// build the call pseudo object
