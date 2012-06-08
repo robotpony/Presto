@@ -23,18 +23,26 @@ class db extends PDO {
 		return $resultset;
 	} 
 	
-	/* Wrapper for updates.
+	/* Provide a wrapper for updates which is really just an alias for the query function. */
+	function update($sql, &$bound_parameters = array()) {
+		$this->query($sql, $bound_parameters);
+		if ($this->statement->rowCount() === 0)
+			throw new Exception('Update failed: resource was not found.', 404);
+	}
+	/* 
+		General query. Use this when no specific results are expected. Example: attempting to delete a resource
+		that may or may exist.
+		
 		$bound_parameters is an array of arrays with the 'value' member as the value to bind and the 'pdoType' as 
 		that parameter's PDO datatype.
 	 */
-	function query($sql, &$bound_parameters = array()) {$this->update($sql, $bound_parameters);}
-	function update($sql, &$bound_parameters = array()) {
+	function query($sql, &$bound_parameters = array()) {
 		$this->statement = $this->prepare($sql);
 		if (!empty($bound_parameters)) {	
 			foreach ($bound_parameters as $key => &$param) {
 				$v = $param['value']; $t = $param['pdoType'];
 				if (!$this->statement->bindValue($key, $v, $t))
-					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 413);
+					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
 			}
 		}
 		
@@ -42,9 +50,18 @@ class db extends PDO {
 		$this->errors();	
 	}
 	
-	/* Provide a wrapper for inserts which is really just an alias for the update function. */
+	/* Provide a wrapper for inserts which is really just an alias for the query function. */
 	function insert($sql, &$bound_parameters = array()) {
-		$this->update($sql, $bound_parameters);
+		$this->query($sql, $bound_parameters);
+		if ($this->statement->rowCount() === 0)
+			throw new Exception('Insert failed: no rows were inserted.', 500);
+	}
+	
+	/* Provide a wrapper for deletes which is really just an alias for the query function. */
+	function delete($sql, &$bound_parameters = array()) {
+		$this->query($sql, $bound_parameters);
+		if ($this->statement->rowCount() === 0)
+			throw new Exception('Delete failed: resource does not exist.', 404);
 	}
 	
 	/* Return the number of rows affected by the last INSERT, DELETE, or UPDATE.  */
