@@ -28,12 +28,14 @@ class db extends PDO {
 		that parameter's PDO datatype.
 	 */
 	function query($sql, &$bound_parameters = array()) {$this->update($sql, $bound_parameters);}
-	function update($sql, &$bound_parameters = array()) {	
-		$this->statement = $this->prepare($sql);	
-		foreach ($bound_parameters as $key => &$param) {
-			$v = $param['value']; $t = $param['pdoType'];
-			if (!$this->statement->bindValue($key, $v, $t))
-				throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 413);
+	function update($sql, &$bound_parameters = array()) {
+		$this->statement = $this->prepare($sql);
+		if (!empty($bound_parameters)) {	
+			foreach ($bound_parameters as $key => &$param) {
+				$v = $param['value']; $t = $param['pdoType'];
+				if (!$this->statement->bindValue($key, $v, $t))
+					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 413);
+			}
 		}
 		
 		$this->statement->execute();
