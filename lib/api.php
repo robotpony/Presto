@@ -5,8 +5,10 @@ class API extends REST {
 		
 	private $concepts;
 	private $delegates = array();
-	private $typeFilters = array();
 	public static $version;
+	public static $ctx;
+	public static $resp;
+	public static $req;
 	
 	/* Initialization */
 	public function __construct($c /* class for introspection */, $v = '' /* version for headers */) {	
@@ -24,6 +26,11 @@ class API extends REST {
 				$this->concepts[] = $concept;
 		
 		}
+	}
+	public function attach($ctx, $resp, $req) {
+		self::$ctx = $ctx;
+		self::$resp = $resp;
+		self::$req = $req;
 	}
 	/* Test if a route refers to a valid concept (member) */
 	public function is_valid_concept($c) { return !empty($this->concepts) 
@@ -64,21 +71,21 @@ class API extends REST {
 		throw new Exception("Bad request. No sub method exists for resource $path", 404);
 	}
 	
-	/* Add a valid contentType for this API or route
+	/* Restrict the valid contentTypes for this API or API route
 	
-		All content-types are valid, unless this filter is set up.
-		
-		Filters can be configured in the constructor (global to API), or in a given route (local to that route).
 	*/
-	public function add_contentType($type) {
-		if (array_key_exists($type, $this->typeFilters))
-			throw new Exception("Content-type filter already exists for $type", 500);
-			
-		array_push($this->typeFilters, $type);
+	public function restrictTo($types) {
+		if ( is_string( $types ) )
+			return $this->validate_contentType($types);
+	
+		foreach ($types as $t) // array of type filters
+			$this->validate_contentType($t);
 	}
 	
-	/* Check if a content type is valid (called by Presto) */
-	public function is_valid_contentType($type) { 
-		return ( empty($this->typeFilters) || array_key_exists($type, $this->typeFilters) );
+	private function validate_contentType($t) {
+		$in = self::$ctx->class . '::' . self::$ctx->method . '()';
+		$res = self::$ctx->res;
+		if ($t !== $res)
+			throw new Exception("Unsupported media type $res for $in.", 415);
 	}
 }
