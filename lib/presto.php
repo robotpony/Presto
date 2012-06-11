@@ -42,10 +42,6 @@ class Presto extends REST {
 			// validate that the concept noun is valid
 			if (!$o->is_valid_concept($thing))
 				$thing = ''; // no thing (resource) available, assume root action
-	
-			// validate that the content type is supported
-			if (!$o->is_valid_contentType(self::$req->uri->type()))
-				throw new Exception("Unsupported media type: $action $thing.", 415);
 
 			// build the call pseudo object
 			$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;	
@@ -58,7 +54,7 @@ class Presto extends REST {
 	
 			// build the response object
 			self::$resp = new response($this->call, $o::$version);
-	
+				
 			// verify the request
 			
 			if ($obj == 'error') // disallow root component access
@@ -69,9 +65,10 @@ class Presto extends REST {
 
 			$this->call->exists = true; 
 			
-			self::_trace("Dispatching to $obj :: $method");		
+			self::_trace("Dispatching to $obj :: $method");	
 		
 			// delegate
+			$o->attach( $this->call, self::$resp, self::$req );
 			$this->call->data = $o->$method( $this->call, self::$req->body() );
 		
 			// 
