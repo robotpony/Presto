@@ -36,6 +36,8 @@ class Response {
 		
 	/* Set up the response */
 	public function __construct($ctx = null, $ver = '') {
+		if ($ctx === null) $ctx = (object) array('res' => 'json');
+
 		$this->call = $ctx;
 		self::$ver = $ver;
 	
