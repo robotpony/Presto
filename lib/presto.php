@@ -77,7 +77,10 @@ class Presto extends REST {
 			else
 				return $this->call->data;
 
-		} catch (Exception $e) {			
+		} catch (Exception $e) {
+			if (self::$resp === null)
+				self::$resp = new response();
+				
 			self::$resp->hdr($e->getCode());
 			throw $e;
 		}
@@ -87,8 +90,8 @@ class Presto extends REST {
 	static public function fail($n, $text, $file, $line, $ctx) {
 
 		// set up pseudo call and response
-		$call = (object) array('res' => 'json');
-		self::$resp = new response($call);
+		if (self::$resp === null)
+			self::$resp = new response($call);
 		
 		// generate useful HTTP status
 		switch ($n) {
