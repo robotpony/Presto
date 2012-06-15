@@ -56,9 +56,9 @@ class Response {
 	}
 	
 	/* Respond to a request */
-	public function ok($d) {
+	public function ok($ctx) {
 		if (!$this->hdr()) return false; // no data sent to client
-		return self::encode($this->content_type(), $d);
+		return self::encode($this->content_type(), $ctx->data);
 	}
 	/* Respond with a failure */
 	public function fail($d, $c = 500) {

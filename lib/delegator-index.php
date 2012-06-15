@@ -6,8 +6,6 @@ $p = null;
 
 try {  
 	$p = new Presto();	
-	if (PRESTO_DEBUG) dump($p);
-	
 } catch (Exception $e) {
 	$n = $e->getCode();
 	$message = $e->getMessage();

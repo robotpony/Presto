@@ -73,7 +73,7 @@ class Presto extends REST {
 		
 			// 
 			if (is_object($this->call->data) || is_array($this->call->data))
-				return self::$resp->ok($this->call->data, self::$req);
+				return self::$resp->ok($this->call, self::$req);
 			else
 				return $this->call->data;
 
@@ -134,8 +134,7 @@ class REST {
 	
 	public static function _trace() {
 		if (PRESTO_DEBUG == 0) return;
-		
-		print "TRACE: \n\t".implode("\n\t", func_get_args()) . "\n\n";
+		error_log("TRACE: ".implode("\n\t", func_get_args()));
 	}
 	
 }
