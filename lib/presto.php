@@ -56,16 +56,29 @@ class Presto extends REST {
 	private function filter() {	
 	}
 	
+	private static function autoload_explicit($class) {
+		// First look in the base directory for the web app
+		$class_file = strtolower($class) . ".php";
+		if (file_exists($class_file))
+			return require_once($class_file);
+die("HERE");
+		throw new Exception("API `$class` not found.", 404);
+	}
+	
 	/* Dispatch requests to classes and class methods */
 	private function dispatch() {
 		
 		try {
 	
 			$obj = self::$req->uri->component('error' /* default to an error route */);
-			$o = new $obj();	
 			$action = self::$req->action;	// determines the request action (method)
 			$thing = self::$req->uri->thing(); // determine the thing (resource)
-	
+				
+			// Create an an instance of the API subclass
+			//	(autoloads based on the path)
+			self::autoload_explicit($obj);
+			$o = new $obj(); 
+
 			// validate that the concept noun is valid
 			if (!$o->is_valid_concept($thing))
 				$thing = ''; // no thing (resource) available, assume root action
