@@ -61,7 +61,7 @@ class Presto extends REST {
 		$class_file = strtolower($class) . ".php";
 		if (file_exists($class_file))
 			return require_once($class_file);
-die("HERE");
+
 		throw new Exception("API `$class` not found.", 404);
 	}
 	
