@@ -18,8 +18,6 @@ function dump() {
 ?></pre><?php 
 }
 
-// Load classes automatically
-function __autoload($c) { require_once(strtolower($c) . '.php'); }
 // return the first valid value
 function coalesce() { return array_shift(@array_filter(func_get_args())); }
 function _d() { return array_shift(@array_filter(func_get_args())); }

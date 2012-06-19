@@ -3,6 +3,33 @@
 include_once(PRESTO_BASE.'/_helpers.php');
 include_once(PRESTO_BASE.'/api.php');
 
+/**
+ * Automatically load classes that aren't included.
+ *
+ * @param string $class (Required) The classname to load.
+ * @return boolean Whether or not the file was successfully loaded.
+ */
+function presto_autoloader($class) {
+	// First look in the base directory for the web app
+	$class_file = strtolower($class) . ".php";
+	if (file_exists($class_file)) {
+		require_once($class_file);
+		return true;
+	}
+	// Next look in the Presto library directory
+	$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+	$lib_file = $path . $class_file;
+	if (file_exists($lib_file)) {
+		require_once($lib_file);
+		return true;
+	}
+	// We can't find it so we let other autoloaders try
+	return false;
+}
+
+// Register the autoloader.
+spl_autoload_register('presto_autoloader');
+
 /** Presto micro web services framework
 
 */
@@ -29,16 +56,29 @@ class Presto extends REST {
 	private function filter() {	
 	}
 	
+	private static function autoload_explicit($class) {
+		// First look in the base directory for the web app
+		$class_file = strtolower($class) . ".php";
+		if (file_exists($class_file))
+			return require_once($class_file);
+
+		throw new Exception("API `$class` not found.", 404);
+	}
+	
 	/* Dispatch requests to classes and class methods */
 	private function dispatch() {
 		
 		try {
 	
 			$obj = self::$req->uri->component('error' /* default to an error route */);
-			$o = new $obj();	
 			$action = self::$req->action;	// determines the request action (method)
 			$thing = self::$req->uri->thing(); // determine the thing (resource)
-	
+				
+			// Create an an instance of the API subclass
+			//	(autoloads based on the path)
+			self::autoload_explicit($obj);
+			$o = new $obj(); 
+
 			// validate that the concept noun is valid
 			if (!$o->is_valid_concept($thing))
 				$thing = ''; // no thing (resource) available, assume root action
