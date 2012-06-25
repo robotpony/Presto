@@ -28,8 +28,10 @@ class info extends API {
 		return array('example' => 'This is some example information'); // will be returned as json, if json is requested
 	}
 	
-	// 
-	public function get_listing($ctx) {
-	
+	// Test custom header values
+	public function get_header_test($ctx) {
+		$this->status(201);
+		$this->add_header('CUSTOM_HEADER', 'TEST');
+		return array('test' => 'ok');
 	}
 }

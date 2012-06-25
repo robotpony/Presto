@@ -56,9 +56,12 @@ class Response {
 	}
 	
 	/* Respond to a request */
-	public function ok($ctx) {
-		if (!$this->hdr()) return false; // no data sent to client
-		return self::encode($this->content_type(), $ctx->data);
+	public function ok($ctx, $enc = true, $c = 200, $h = null) {
+		if (!$this->hdr($c, $h))
+			return false; // returns if status does not allow a body
+			
+		if ($enc) return self::encode($this->content_type(), $ctx->data);
+		else return $ctx->data;
 	}
 	/* Respond with a failure */
 	public function fail($d, $c = 500) {
@@ -67,8 +70,8 @@ class Response {
 	}
 			
 	/* Generate an appropriate HTTP header */
-	public function hdr($c = '200') {
-		if ($this->sentHeaders) return;
+	public function hdr($c = '200', $h = null) {
+		if ($this->sentHeaders) return true;
 
 		$this->sentHeaders = 1;
 		
@@ -83,6 +86,9 @@ class Response {
 
 		if (!empty($this->call->modified))
 			header('Last-Modified: '.$this->call->modified);
+			
+		// includecustom headers
+		foreach($h as $k => $v) header("$k: $v");
 
 		return true;
 	}
