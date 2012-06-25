@@ -5,7 +5,13 @@ class API extends REST {
 		
 	private $concepts;
 	private $delegates = array();
+
+	private $status = 200;
+	private $headers = array();
+	
 	public static $version;
+	
+	
 	public static $ctx;
 	public static $resp;
 	public static $req;
@@ -27,11 +33,24 @@ class API extends REST {
 		
 		}
 	}
+	/* Attach to Presto framework */
 	public function attach($ctx, $resp, $req) {
 		self::$ctx = $ctx;
 		self::$resp = $resp;
 		self::$req = $req;
 	}
+	/* Set or get the HTTP status */
+	public function status($s = null) {
+		if ($s !== null) $this->status = $s;
+		return $this->status;
+	}
+	/* Get and set custom headers */
+	public function add_header($key, $value) {
+		if (empty($key)) throw new Exception('Missing header key (API::add_header).', 500);
+		$this->headers[$key] = $value;
+	}
+	public function headers() { return $this->headers; }
+	
 	/* Test if a route refers to a valid concept (member) */
 	public function is_valid_concept($c) { return !empty($this->concepts) 
 		&& in_array($c, $this->concepts); }
