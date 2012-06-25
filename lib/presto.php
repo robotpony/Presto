@@ -111,12 +111,10 @@ class Presto extends REST {
 			$o->attach( $this->call, self::$resp, self::$req );
 			$this->call->data = $o->$method( $this->call, self::$req->body() );
 		
-			// 
-			if (is_object($this->call->data) || is_array($this->call->data))
-				return self::$resp->ok($this->call, self::$req);
-			else
-				return $this->call->data;
-
+			// return the result to the client
+			$encode = (is_object($this->call->data) || is_array($this->call->data));		
+			return self::$resp->ok( $this->call, $encode, $o->status(), $o->headers() );
+			
 		} catch (Exception $e) {
 			if (self::$resp === null)
 				self::$resp = new response();

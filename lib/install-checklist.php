@@ -21,10 +21,20 @@ body>header>h1>em {
 }
 details {
 	width: 50%;
+	border: 1px solid #999;
+	padding: 1em; margin:  1em;
+	box-shadow: 0px 0px 15px rgba(0,0,0,.1);
+	border-radius: 15px;
 }
+
 details>summary {
 	margin-bottom: 1em;
+	font-size:  larger;
+	font-weight: bold;
 }
+::-webkit-details-marker {
+ 	list-style-type: none;
+ }
 details>summary>var {
 	float: right;
 	font-style: normal;
@@ -166,6 +176,47 @@ $(document).ready(function() {
 });
 </script>
 </details>
+
+<details class="delegate-extras">
+	<summary>Presto header magic? <var></var></summary>
+	<p>Validates Presto header functions. <pre></pre></p>
+
+<script>	
+$(document).ready(function() {
+	var display = $('details.delegate-extras summary>var'), detail = $('details.delegate-extras pre');
+	
+	$.ajax({
+		url: 'info/header_test.json',
+		success: function(response, status, xhr) {
+			var ct = xhr.getResponseHeader("content-type") || "";
+			
+			if (ct.indexOf('html') > -1) {
+				display.text('FAIL');
+				detail.text('Invalid content type (HTML, expecting JSON).');
+			}
+			else
+				display.text('PASS');	
+				
+			detail.text(xhr.responseText+'\n\nHTTP return: '+xhr.status+'\n\n'+ xhr.getAllResponseHeaders().toLowerCase() );
+			
+			console.log(xhr.status());		
+
+		}, error: function(xhr, textStatus, errorThrown) {
+		
+			detail.text(xhr.responseText);
+			
+			if (xhr.status === 404) {
+				display.text('PASS');
+				console.log('Ignoring 404, marks delegation success');
+			} else { 
+				display.text('FAIL');
+			}
+		}
+	});	
+});
+</script>
+</details>
+
 
 <details>
 
