@@ -87,8 +87,8 @@ class Response {
 		if (!empty($this->call->modified))
 			header('Last-Modified: '.$this->call->modified);
 			
-		// includecustom headers
-		foreach($h as $k => $v) header("$k: $v");
+		// include custom headers
+		if ($h) foreach($h as $k => $v) header("$k: $v");
 
 		return true;
 	}
