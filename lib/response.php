@@ -42,7 +42,12 @@ class Response {
 		self::$ver = $ver;
 	
 		// register default type handlers
+		
+		/* php 5.4
+		if (PRESTO_DEBUG)	self::add_type_handler('application/json', function ($dom) { print json_encode($dom, JSON_PRETTY_PRINT); } );
+		else */
 		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
+		
 		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
@@ -136,7 +141,7 @@ class Response {
 
 /* Simple HTML encoder */
 function _encode_html($node,  $map = null) {
-	static $d = null;
+	static $d = 0;
 	static $mapper;
 	
 	if ($mapper === null && $map !== null) $mapper = $map;
