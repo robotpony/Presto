@@ -112,7 +112,8 @@ class Presto extends REST {
 			$this->call->data = $o->$method( $this->call, self::$req->body() );
 		
 			// return the result to the client
-			$encode = (is_object($this->call->data) || is_array($this->call->data));		
+			$encode = (is_object($this->call->data) || is_array($this->call->data));
+
 			return self::$resp->ok( $this->call, $encode, $o->status(), $o->headers() );
 			
 		} catch (Exception $e) {

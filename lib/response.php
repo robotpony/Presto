@@ -61,7 +61,7 @@ class Response {
 			return false; // returns if status does not allow a body
 			
 		if ($enc) return self::encode($this->content_type(), $ctx->data);
-		else return $ctx->data;
+		else return print $ctx->data;
 	}
 	/* Respond with a failure */
 	public function fail($d, $c = 500) {
