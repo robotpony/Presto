@@ -122,8 +122,10 @@ class Response {
 
 /* Simple HTML encoder */
 function encode_html($node) {
-	static $d = -1;	
-	$indent = str_repeat("\t", $d);	
+	static $d = -1, $indent = '';	
+	
+	if ($d >= 0)
+		$indent = str_repeat("\t", $d);	
 	
 	if (is_string($node)) return print "\n$indent$node";	
 	else if (!is_array($node)) return;
