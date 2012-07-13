@@ -3,7 +3,7 @@
 class Response {
 	private $call;
 	private $sentHeaders = 0;
-	private static $type_handlers = array();
+	public static $type_handlers = array();
 	private static $ver;
 	private $codes = array(
 			'200' => 'OK',
@@ -36,12 +36,19 @@ class Response {
 		
 	/* Set up the response */
 	public function __construct($ctx = null, $ver = '') {
+		if ($ctx === null) $ctx = (object) array('res' => 'json');
+
 		$this->call = $ctx;
 		self::$ver = $ver;
 	
 		// register default type handlers
+		
+		/* php 5.4
+		if (PRESTO_DEBUG)	self::add_type_handler('application/json', function ($dom) { print json_encode($dom, JSON_PRETTY_PRINT); } );
+		else */
 		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
-		self::add_type_handler('.*\/htm.*', function ($dom) { encode_html($dom); } );
+		
+		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 	
@@ -49,19 +56,27 @@ class Response {
 	public static function add_type_handler($type, $encoder_fn, $mapper_fn = null) {
 		if (!is_callable($encoder_fn)) throw new Exception('Invalid type handler.', 500);
 		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new Exception('Invalid type mapper.', 500);
-			
+		
 		self::$type_handlers[$type] = (object) array('enc' => $encoder_fn, 'map' => $mapper_fn);
 	}
 	
 	/* Respond to a request */
-	public function ok($d) {
-		if (!$this->hdr()) return false; // no data sent to client
+	public function ok($ctx, $enc = true, $c = 200, $h = null) {
+		if (!$this->hdr($c, $h))
+			return false; // returns if status does not allow a body
+			
+		if ($enc) return self::encode($this->content_type(), $ctx->data);
+		else return print $ctx->data;
+	}
+	/* Respond with a failure */
+	public function fail($d, $c = 500) {
+		if (!$this->hdr($c)) return false; // no data sent to client
 		return self::encode($this->content_type(), $d);
 	}
-		
+			
 	/* Generate an appropriate HTTP header */
-	public function hdr($c = '200') {
-		if ($this->sentHeaders) return;
+	public function hdr($c = '200', $h = null) {
+		if ($this->sentHeaders) return true;
 
 		$this->sentHeaders = 1;
 		
@@ -76,6 +91,9 @@ class Response {
 
 		if (!empty($this->call->modified))
 			header('Last-Modified: '.$this->call->modified);
+			
+		// include custom headers
+		if ($h) foreach($h as $k => $v) header("$k: $v");
 
 		return true;
 	}
@@ -114,37 +132,50 @@ class Response {
 		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
 		
 		$encode = $h->enc;
-		$encode($dom, 'root', $h->map);
+		$map = $h->map;
+		$encode($dom, $map);
 	}
 	
-	public function __toString() { return print_r($this, true); }	
+	public function __toString() { return print_r($this, true); }
 }
 
 /* Simple HTML encoder */
-function encode_html($node) {
-	static $d = -1, $indent = '';	
+function _encode_html($node,  $map = null) {
+	static $d = 0;
+	static $mapper;
 	
-	if ($d >= 0)
-		$indent = str_repeat("\t", $d);	
+	if ($mapper === null && $map !== null) $mapper = $map;
+	
+	if (!isset($d) || $map !== null) {
+		$d = -1;
+		return _encode_html(array('html' => array('body' => $node)));
+	}
+	
+	$indent = str_repeat("\t", $d);	// indent for pretty printing
 	
 	if (is_string($node)) return print "\n$indent$node";	
-	else if (!is_array($node)) return;
-	
-	// descend into child nodes 
-	
-	$d++;
-	foreach ($node as $k => &$v) {	
-		if (empty($k) || is_numeric($k))
-			$k = 'li'; // assume lists are LIs
+	elseif (is_array($node)) {
 		
-		// print node
+		// descend into child nodes 
 		
-		print "\n$indent<$k>";
-		encode_html($v); // recurse
-		print "\n$indent</$k>";
-	}
-	$d--;
+		$d++;
+		foreach ($node as $k => &$v) {
+			$a = '';
+		
+			if (empty($k) || is_numeric($k))
+				$k = 'li'; // assume lists are LIs
+
+			if (is_callable($mapper))
+				$k = $mapper($k, $v, $a, $d);
+
+			// print node
 			
+			print "\n$indent<$k$a>";
+			_encode_html($v); // recurse
+			print "\n$indent</$k>";
+		}
+		$d--;		
+	}
 }
 
 ?>

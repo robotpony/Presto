@@ -1,7 +1,14 @@
 Presto:
 
-- Add sub-delegators based on rx::v2 pieces ... self::add_delegate('//', fn)
-- Add type handler registration for registering adaptors ... self::add_type_handler('text-html', fn); // or class?
-- Wrap SSO library in a more sensible form
-
-- Output adapters
+- header exposure (nice, per type?)
+- Wrap Simple SSO library in a more reusable package
+Documentation:
+- Quick tutorial
+- FAQ
+	- multiple deligates
+	- limiting content types
+- per file/function
+Archive:
+	- automated examples @done
+	- New introduction @done
+	- A better example @done

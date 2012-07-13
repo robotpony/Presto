@@ -1,0 +1,1 @@
+../lib/install-checklist.php

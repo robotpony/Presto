@@ -61,23 +61,33 @@ This simple encoder does not use a `mapper`, and it ignores any node names in th
 We can expand the example to map headings to Markdown headings by adding a mapping function and extending the `DOM` traversal:
 
 
-	function markdown_mapper($node, $path, $depth) {
+	function markdown_mapper($path, $node, $depth) {
 		if ($path === 'title' && is_string($node)) 
 			return str_repeat('#', $depth) . " $node";
 	
 		return $node;
 	}
 	
-	function encode_simple_text($node, $path = null, $map = null) {
+	function encode_simple_text($node, $map = null) {
 		static $d = 0;
-		$node = $map($node, $path, $d);
+		static $p = '';
+		
 		if (is_string($node)) return print $node . "\n";
 		
 		if (is_array($node)) {
 			$d++;
-			foreach ($node as $k => &$v) encode_simple_text($v, $k);
+			foreach ($node as $k => &$v) {
+				$p = $k;
+				$node = $map($v, $d, $p);				
+				encode_simple_text($v);
+			}
+			$d--;
 		}
 	}
 
 Notice that the `DOM` mapper prints its output, done to minimize allocated memory. It also doesn't manage the `path` variable as a full path, though this can be done for more complex mapping problems.
 
+
+### Additional examples:
+
+1. An [example mapping function for simple HTML transformations](https://gist.github.com/2589593), including attribute remapping.

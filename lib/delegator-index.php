@@ -1,17 +1,22 @@
-<?php include_once('_config.php'); include_once(PRESTO);
+<?php include_once('inc.php');
 
 /* Presto: delegate API requests */
 
-try {  
-	$p = new Presto();
-	if (PRESTO_DEBUG) dump($p);
+$p = null;
 
+try {  
+	$p = new Presto();	
 } catch (Exception $e) {
 	$n = $e->getCode();
 	$message = $e->getMessage();
 	
+	if (PRESTO_DEBUG) {
+		$detail = (is_object($p)) ? $p::call : $e->getTrace();	
+		$payload = array('message' => $message , 'code' => $n, 'detail' => $detail);	
+	} else {
+		$payload = array('message' => $message , 'code' => $n);
+	}
 	header("HTTP/1.0 $n API error");
 	header("Content-Type: application/json");
-	print json_encode( array('message' => $message , 'code' => $n ) );
+	print json_encode( $payload );
 }
-?>
