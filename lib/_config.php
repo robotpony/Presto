@@ -15,26 +15,6 @@ set_include_path(get_include_path()
   . PATH_SEPARATOR . API_BASE . '/lib/'
   . PATH_SEPARATOR . API_BASE . '/lib/extras/');	
 
-presto_check_install();
-
-/* check the installation */
-function presto_check_install() {
-	
-	if (!PRESTO_DEBUG) return;
-	
-	$ver = explode('.', phpversion());
-	if ($ver[0] != '5' && $ver[1] < 3)
-		throw new Exception('Unsupported version of PHP. (' . phpversion() . '). ');
-	
-	if (!function_exists('curl_init'))
-		throw new Exception('cURL required by Presto.lib.');
-
-	if (!function_exists('json_encode'))
-		throw new Exception('JSON extension required by Presto.lib.');
-		 
-}
-
-
 class PrestoException extends Exception { 
 	public static function errorHandlerCallback($code, $string, $file, $line, $context) {
 	

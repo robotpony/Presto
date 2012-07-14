@@ -94,17 +94,14 @@ class API extends REST {
 	
 	*/
 	public function restrictTo($types) {
-		if ( is_string( $types ) )
-			return $this->validate_contentType($types);
-	
-		foreach ($types as $t) // array of type filters
-			$this->validate_contentType($t);
+		return $this->validate_contentType($types);
 	}
 	
 	private function validate_contentType($t) {
 		$in = self::$ctx->class . '::' . self::$ctx->method . '()';
 		$res = self::$ctx->res;
-		if ($t !== $res)
-			throw new Exception("Unsupported media type $res for $in.", 415);
+		
+		if (!is_array($t)) $t = array($t);		
+		if (!in_array($res, $t)) throw new Exception("Unsupported media type $res for $in.", 415);
 	}
 }

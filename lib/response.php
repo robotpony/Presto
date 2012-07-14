@@ -42,7 +42,12 @@ class Response {
 		self::$ver = $ver;
 	
 		// register default type handlers
+		
+		/* php 5.4
+		if (PRESTO_DEBUG)	self::add_type_handler('application/json', function ($dom) { print json_encode($dom, JSON_PRETTY_PRINT); } );
+		else */
 		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
+		
 		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
@@ -61,7 +66,7 @@ class Response {
 			return false; // returns if status does not allow a body
 			
 		if ($enc) return self::encode($this->content_type(), $ctx->data);
-		else return $ctx->data;
+		else return print $ctx->data;
 	}
 	/* Respond with a failure */
 	public function fail($d, $c = 500) {
@@ -87,8 +92,8 @@ class Response {
 		if (!empty($this->call->modified))
 			header('Last-Modified: '.$this->call->modified);
 			
-		// includecustom headers
-		foreach($h as $k => $v) header("$k: $v");
+		// include custom headers
+		if ($h) foreach($h as $k => $v) header("$k: $v");
 
 		return true;
 	}
@@ -136,7 +141,7 @@ class Response {
 
 /* Simple HTML encoder */
 function _encode_html($node,  $map = null) {
-	static $d = null;
+	static $d = 0;
 	static $mapper;
 	
 	if ($mapper === null && $map !== null) $mapper = $map;
