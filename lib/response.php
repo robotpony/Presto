@@ -10,9 +10,9 @@ class Response {
 			'201' => 'Created',
 			'202' => 'Accepted',
 			'204' => 'No Content', // (NO BODY)
-			
+
 			'304' => 'Not modified',
-			
+
 			'400' => 'Bad request',
 			'401' => 'Auth failed',
 			'402' => 'Payment required',
@@ -26,45 +26,47 @@ class Response {
 			'415' => 'Unexpected media type',
 			'417' => 'Expectation Failed',
 			'418' => 'I\'m a little teapot', // (RFC 2324)
-	
+
 			'500' => 'Internal Server Error',
 			'501' => 'Not Implemented',
 			'503' => 'Service Unavailable',
 			'506' => 'Variant Also Negotiates'
 	);
-	
-		
+
+
 	/* Set up the response */
 	public function __construct($ctx = null, $ver = '') {
 		if ($ctx === null) $ctx = (object) array('res' => 'json');
 
 		$this->call = $ctx;
 		self::$ver = $ver;
-	
+
 		// register default type handlers
-		
-		/* php 5.4
-		if (PRESTO_DEBUG)	self::add_type_handler('application/json', function ($dom) { print json_encode($dom, JSON_PRETTY_PRINT); } );
-		else */
-		self::add_type_handler('application/json', function ($dom) { print json_encode($dom); } );
-		
+
+		self::add_type_handler('application/json', function ($dom) {
+			$json = json_encode($dom);
+			if (json_last_error() !== JSON_ERROR_NONE) throw new Exception('JSON encoding error #' . json_last_error(), 400);
+			print $json;
+		} );
+
 		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
+
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
-	
+
 	/* Register a type handler */
 	public static function add_type_handler($type, $encoder_fn, $mapper_fn = null) {
 		if (!is_callable($encoder_fn)) throw new Exception('Invalid type handler.', 500);
 		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new Exception('Invalid type mapper.', 500);
-		
+
 		self::$type_handlers[$type] = (object) array('enc' => $encoder_fn, 'map' => $mapper_fn);
 	}
-	
+
 	/* Respond to a request */
 	public function ok($ctx, $enc = true, $c = 200, $h = null) {
 		if (!$this->hdr($c, $h))
 			return false; // returns if status does not allow a body
-			
+
 		if ($enc) return self::encode($this->content_type(), $ctx->data);
 		else return print $ctx->data;
 	}
@@ -73,17 +75,17 @@ class Response {
 		if (!$this->hdr($c)) return false; // no data sent to client
 		return self::encode($this->content_type(), $d);
 	}
-			
+
 	/* Generate an appropriate HTTP header */
 	public function hdr($c = '200', $h = null) {
 		if ($this->sentHeaders) return true;
 
 		$this->sentHeaders = 1;
-		
+
 		header("HTTP/1.0 {$c} {$this->codes[$c]}");
 		header(VERSION_HEADER . ': ' . self::$ver);
 		header('Cache-Control: no-cache');
-				
+
 		if (in_array($c, array('201', '204'), true))
 			return false; // no body allowed
 
@@ -91,51 +93,51 @@ class Response {
 
 		if (!empty($this->call->modified))
 			header('Last-Modified: '.$this->call->modified);
-			
+
 		// include custom headers
 		if ($h) foreach($h as $k => $v) header("$k: $v");
 
 		return true;
 	}
-	
+
 	/** Determine the content-type */
 	private function content_type() {
 		if (!isset($this->call) || empty($this->call->res))
 			return 'text/plain';
-		
+
 		if (strpos($this->call->res, '/')) return $this->call->res; // already a content-type
-		
+
 		// map obvious content types (should be an array?)
 		switch ($this->call->res) {
 			case 'html':
 			case 'htm':
 				return 'text/html';
-			
+
 			default:
 				return 'application/' . $this->call->res;
 		}
 	}
-	
+
 	/* Encode the response using type handlers */
-	private static function encode($type, $dom) {		
+	private static function encode($type, $dom) {
 		$h = false;
-		
+
 		// find encoder
-		
+
 		if (array_key_exists($type, self::$type_handlers))
 			$h = self::$type_handlers[$type]; // direct mapping
 		else {
 			foreach (self::$type_handlers as $exp => $handler)
 				if (preg_match("#$exp#", $type)) $h = self::$type_handlers[$exp]; // expression mapping
 		}
-		
+
 		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
-		
+
 		$encode = $h->enc;
 		$map = $h->map;
 		$encode($dom, $map);
 	}
-	
+
 	public function __toString() { return print_r($this, true); }
 }
 
@@ -143,25 +145,25 @@ class Response {
 function _encode_html($node,  $map = null) {
 	static $d = 0;
 	static $mapper;
-	
+
 	if ($mapper === null && $map !== null) $mapper = $map;
-	
+
 	if (!isset($d) || $map !== null) {
 		$d = -1;
 		return _encode_html(array('html' => array('body' => $node)));
 	}
-	
+
 	$indent = str_repeat("\t", $d);	// indent for pretty printing
-	
-	if (is_string($node)) return print "\n$indent$node";	
+
+	if (is_string($node)) return print "\n$indent$node";
 	elseif (is_array($node)) {
-		
-		// descend into child nodes 
-		
+
+		// descend into child nodes
+
 		$d++;
 		foreach ($node as $k => &$v) {
 			$a = '';
-		
+
 			if (empty($k) || is_numeric($k))
 				$k = 'li'; // assume lists are LIs
 
@@ -169,12 +171,12 @@ function _encode_html($node,  $map = null) {
 				$k = $mapper($k, $v, $a, $d);
 
 			// print node
-			
+
 			print "\n$indent<$k$a>";
 			_encode_html($v); // recurse
 			print "\n$indent</$k>";
 		}
-		$d--;		
+		$d--;
 	}
 }
 

@@ -134,7 +134,7 @@ class Presto extends REST {
 		
 		// generate useful HTTP status
 		switch ($n) {
-			case 2: $status = 404; break;
+			case 2: $status = 400; break;
 			default: $status = 500;
 		}
 
@@ -150,6 +150,7 @@ class Presto extends REST {
 
 		self::$resp->hdr($status);
 		print json_encode($details);
+		die;
 	}
 
 	/** Debugging dump of Presto delegator */
