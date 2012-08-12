@@ -65,9 +65,10 @@ class API extends REST {
 		// check for conflicts in previously added delegates.
 		if (array_key_exists($regex, $this->delegates)) 
 			throw new Exception("URI delegate already exists: pattern collision for '$regex'", 500);
-		
+
 		// preflight (and compile + cache) the regex ... errors handled by Presto.
-		if (!preg_match($regex, '')) $this->delegates[$regex] = $delegateFn;
+		preg_match($regex, '');
+		$this->delegates[$regex] = $delegateFn;
 	}
 	
 	/* Do delegation for hierarchical sub-routes
@@ -80,7 +81,7 @@ class API extends REST {
 		if (empty($this->delegates) || empty($ctx) || empty($ctx->params)) 
 			throw new Exception('Unserviceable internal delegation attempt.', 501);
 			
-		$path = implode('/', $ctx->params);
+		$path = implode('/', array_slice($ctx->params, 1));
 		foreach ($this->delegates as $p => $d) {
 			if (preg_match($p, $path)) {
 				if (empty($data)) return $this->$d($ctx);
