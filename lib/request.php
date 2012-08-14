@@ -51,7 +51,7 @@ class URI {
 	public function thing() { return !empty($this->parameters[1]) ? str_replace('-', '_', $this->parameters[1]): ''; }
 	// get the component that this URI refers to
 	public function component($d) { 
-		return coalesce( 
+		return presto_lib::coalesce( 
 			str_replace('-', '_', reset($this->parameters)), $d ); 
 	}
 	// bump a parameter off this URI
@@ -92,7 +92,7 @@ class Request {
 		// bootstrap request parameters
 		$this->uri = new URI($uri);
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
-		$this->action = coalesce($this->method, 'get');
+		$this->action = presto_lib::coalesce($this->method, 'get');
 		$this->host = $_SERVER['HTTP_HOST'];
 		$this->service = strstr($this->host, '.', -1);
 
