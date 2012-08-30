@@ -51,7 +51,7 @@ class URI {
 	public function thing() { return !empty($this->parameters[1]) ? str_replace('-', '_', $this->parameters[1]): ''; }
 	// get the component that this URI refers to
 	public function component($d) { 
-		return coalesce( 
+		return presto_lib::coalesce( 
 			str_replace('-', '_', reset($this->parameters)), $d ); 
 	}
 	// bump a parameter off this URI
@@ -92,7 +92,7 @@ class Request {
 		// bootstrap request parameters
 		$this->uri = new URI($uri);
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
-		$this->action = coalesce($this->method, 'get');
+		$this->action = presto_lib::coalesce($this->method, 'get');
 		$this->host = $_SERVER['HTTP_HOST'];
 		$this->service = strstr($this->host, '.', -1);
 
@@ -185,51 +185,42 @@ class Request {
 	public function body() {
 		$decoded_body = false;		
 		if ( ($body = @file_get_contents('php://input')) ) {
-			if (empty($body)) return $decoded_body; // no data, not an error
 			
-			if ( isset($_SERVER['CONTENT_TYPE']) ) {
-				$content_type = trim(strtolower($_SERVER['CONTENT_TYPE']));
-			}
-			else {
-				$content_type = 'none';
-			}
-			if ( ($content_type == 'application/json')
-				// If no content type was specified, we assume JSON
-				|| ($content_type == 'none') ) {
-				if ( ! ($decoded_body = json_decode($body)) ) {
+			if (empty($body)) return $decoded_body; // no data, not an error
+
+			switch ($this->uri->type()) {
+				case 'json':
+
+					if ( ! ($decoded_body = json_decode($body)) ) {
+						
+						$errors = array(
+							JSON_ERROR_NONE => 'No errors.',
+							JSON_ERROR_DEPTH  => 'Maximum stack depth exceeded',
+							JSON_ERROR_STATE_MISMATCH  => 'Underflow or the modes mismatch',
+							JSON_ERROR_CTRL_CHAR  => 'Unexpected control character found',
+							JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
+							JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
+						);
 					
-					$errors = array(
-						JSON_ERROR_NONE => 'No errors.',
-						JSON_ERROR_DEPTH  => 'Maximum stack depth exceeded',
-						JSON_ERROR_STATE_MISMATCH  => 'Underflow or the modes mismatch',
-						JSON_ERROR_CTRL_CHAR  => 'Unexpected control character found',
-						JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
-						JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
-					);
+						throw new Exception('Invalid JSON request payload. ' . $errors[json_last_error()], 400);
+					}
+				break;
 				
-					throw new Exception('Invalid JSON request payload. ' . $errors[json_last_error()], 400);
-				}
+				case 'xml':
+				
+					$decoded_body = simplexml_load_string($body);
+					if ( $decoded_body === false )
+						throw new Exception("Invalid XML request payload.", 400);
+				break;
+				
+									
+				default: 
+
+					$decoded_body = $body;
+					if ( $decoded_body === false )
+						throw new Exception("Invalid form request payload.", 400);
 			}
-			else if ( ($content_type == 'application/xml')
-					|| ($content_type == 'text/xml') ) {
-				
-				$decoded_body = simplexml_load_string($body);
-				if ( $decoded_body === false ) {
-					throw new Exception("Invalid XML request payload.", 400);
-				}
-				
-			}
-			else if ( $content_type == 'application/x-www-form-urlencoded' ) {
-				
-				$decoded_body = $body;
-				if ( $decoded_body === false ) {
-					throw new Exception("Invalid form request payload.", 400);
-				}
-				
-			}
-			else {
-				throw new Exception("Invalid request payload type: \"$content_type\".", 400);
-			}
+			
 		}		
 		
 		return $decoded_body;
