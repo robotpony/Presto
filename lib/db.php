@@ -8,11 +8,29 @@
 	
 	See related `extra/tagged-sql.php` for extra post-processing magic.
 */
+
 class db extends PDO {
 
 	private $statement; 
 	const USR_DEF_DB_ERR 	= '45000'; 
 	const DB_NO_ERR 		= '00000';
+
+	static function _instance($cfg) {
+		global $_db;
+	
+		if ($_db !== null) return $_db; // return if cached
+		
+		$settings = array(
+		    PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+		); 
+		
+		try {
+			$_db = new db($cfg->dsn, $cfg->user, $cfg->password, $settings);		
+		} catch (Exception $e) {
+			throw new Exception('Failed to connect to database.', 500, $e);
+		}
+		return $_db;		
+	}
 	
 	/* Returns an array of classes based on the given SQL and bound parameters (see PDO docs for details) */
 	function select($sql, $bound_parameters = array()) {		
