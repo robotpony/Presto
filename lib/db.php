@@ -15,6 +15,13 @@ class db extends PDO {
 	const USR_DEF_DB_ERR 	= '45000'; 
 	const DB_NO_ERR 		= '00000';
 
+	/* Get an instance of a PDO DB 
+		
+		Creates an instance if needed, or returns the cached instance. Errors are rethrown as 500s + error details.
+		
+		$cfg is a Presto config chunk, including dsn, user, and password elements
+		
+	*/
 	static function _instance($cfg) {
 		global $_db;
 	
