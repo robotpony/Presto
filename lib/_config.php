@@ -6,6 +6,7 @@ define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
 define('PRESTO_BASE', dirname(__FILE__));
 define('API_BASE', realpath($_SERVER['DOCUMENT_ROOT']));
+if (empty($_SERVER['HOST'])) $_SERVER['HOST'] = 'localhost';
 
 $builtIns = array('API', 'request', 'session');
 
@@ -34,5 +35,3 @@ assert_options(ASSERT_WARNING, 0);
 ini_set('html_errors',false);
 error_reporting(E_ALL);
 set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
-
-?>
