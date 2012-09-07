@@ -8,6 +8,7 @@ define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
 define('PRESTO_BASE', dirname(__FILE__));
 define('API_BASE', realpath($_SERVER['DOCUMENT_ROOT']));
+if (empty($_SERVER['HOST'])) $_SERVER['HOST'] = 'localhost';
 
 // Helpful shortcut constants
 
