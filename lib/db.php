@@ -15,16 +15,15 @@ class db extends PDO {
 	const DB_NO_ERR 		= '00000';
 	
 	/* Create (or reuse) an instance of a PDO database */
-	static function _instance($cfg) {
+	static function _instance($dsn, $user, $password, $config = null) {
         global $_db;
         if ($_db !== null) return $_db; // return cached
         
-        $config = array(
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-        );
+        if ($confg === null)
+	        $config = array( PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' );
         
         try {
-	        $_db = new db($cfg['dsn'], $cfg['user'], $cfg['password'], $config);        
+	        $_db = new db($dsn, $user, $password, $config);        
 	    } catch (Exception $e) {
 			throw new Exception("Failed to connect to database.", 500, $e);
 	    }
