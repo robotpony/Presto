@@ -181,4 +181,3 @@ function _encode_html($node,  $map = null) {
 	}
 }
 
-?>

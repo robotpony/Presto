@@ -229,4 +229,3 @@ class Request {
 	// dump the object to a string
 	public function __toString() { return print_r($this, true); }
 }
-?>

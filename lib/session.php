@@ -6,5 +6,3 @@ class Session extends Presto {
 	}
 	
 }
-
-?>

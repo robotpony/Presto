@@ -45,4 +45,3 @@ ini_set('html_errors', false);
 error_reporting(E_ALL);
 set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
 
-?>
