@@ -10,7 +10,9 @@ class Response {
 			'201' => 'Created',
 			'202' => 'Accepted',
 			'204' => 'No Content', // (NO BODY)
-
+			'205' => 'Reset Content', // (NO BODY)
+			'206' => 'Partial Content', // (ADD'L HEADERS)
+			
 			'304' => 'Not modified',
 
 			'400' => 'Bad request',
@@ -78,11 +80,12 @@ class Response {
 
 	/* Generate an appropriate HTTP header */
 	public function hdr($c = '200', $h = null) {
+		$message = array_key_exists($c, $this->codes) ? $this->codes[$c] : 'Internal error';
+		
 		if ($this->sentHeaders) return true;
-
-		$this->sentHeaders = 1;
-
-		header("HTTP/1.0 {$c} {$this->codes[$c]}");
+		else $this->sentHeaders = 1;
+		
+		header("HTTP/1.0 {$c} {$message}");
 		header(VERSION_HEADER . ': ' . self::$ver);
 		header('Cache-Control: no-cache');
 
@@ -180,4 +183,3 @@ function _encode_html($node,  $map = null) {
 	}
 }
 
-?>
