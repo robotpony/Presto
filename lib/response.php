@@ -10,7 +10,9 @@ class Response {
 			'201' => 'Created',
 			'202' => 'Accepted',
 			'204' => 'No Content', // (NO BODY)
-
+			'205' => 'Reset Content', // (NO BODY)
+			'206' => 'Partial Content', // (ADD'L HEADERS)
+			
 			'304' => 'Not modified',
 
 			'400' => 'Bad request',
