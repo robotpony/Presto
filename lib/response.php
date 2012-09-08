@@ -80,11 +80,12 @@ class Response {
 
 	/* Generate an appropriate HTTP header */
 	public function hdr($c = '200', $h = null) {
+		$message = array_key_exists($c, $this->codes) ? $this->codes[$c] : 'Internal error';
+		
 		if ($this->sentHeaders) return true;
-
-		$this->sentHeaders = 1;
-
-		header("HTTP/1.0 {$c} {$this->codes[$c]}");
+		else $this->sentHeaders = 1;
+		
+		header("HTTP/1.0 {$c} {$message}");
 		header(VERSION_HEADER . ': ' . self::$ver);
 		header('Cache-Control: no-cache');
 
@@ -182,4 +183,3 @@ function _encode_html($node,  $map = null) {
 	}
 }
 
-?>

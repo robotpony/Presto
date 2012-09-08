@@ -8,11 +8,36 @@
 	
 	See related `extra/tagged-sql.php` for extra post-processing magic.
 */
+
 class db extends PDO {
 
 	private $statement; 
 	const USR_DEF_DB_ERR 	= '45000'; 
 	const DB_NO_ERR 		= '00000';
+
+	/* Get an instance of a PDO DB 
+		
+		Creates an instance if needed, or returns the cached instance. Errors are rethrown as 500s + error details.
+		
+		$cfg is a Presto config chunk, including dsn, user, and password elements
+		
+	*/
+	static function _instance($cfg) {
+		global $_db;
+	
+		if ($_db !== null) return $_db; // return if cached
+		
+		$settings = array(
+		    PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+		); 
+		
+		try {
+			$_db = new db($cfg->dsn, $cfg->user, $cfg->password, $settings);		
+		} catch (Exception $e) {
+			throw new Exception('Failed to connect to database.', 500, $e);
+		}
+		return $_db;		
+	}
 	
 	/* Create (or reuse) an instance of a PDO database */
 	static function _instance($dsn, $user, $password, $config = null) {
