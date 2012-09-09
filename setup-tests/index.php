@@ -30,7 +30,7 @@
 <a href="https://github.com/robotpony/Presto"><img style="position: absolute; position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 
 <header><div>
-	<h1><a href="/">Presto</a> <em>install checklist</em></h1>
+	<h1><a href="/">Presto</a> <em>Install checklist</em></h1>
 	
 <?php include_once('../docs/nav.php'); ?>
 	
