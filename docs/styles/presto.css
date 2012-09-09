@@ -1,6 +1,6 @@
 body{font:105%/150% "freight-sans-pro","Helvetica Neau",Helvetica;}body header,body section,body footer{width:100%;position:relative;}
 body header>div,body section>div,body footer>div{position:relative;width:40em;margin:0 auto;}
-body a,body a:visited{color:#963232;text-decoration:none;}
+body a,body a:visited,body a:hover{color:#963232;text-decoration:none;}
 body h1,body h2,body h4,body h5{margin:2em 0 0;}
 body h3{margin:1.75em 0 0;font-size:smaller;font-weight:400;text-transform:uppercase;}
 body code,body pre{font:10pt/100% Menlo,Monaco,"Andale Mono",monospace;}
@@ -12,5 +12,5 @@ body header nav{position:absolute;right:0;top:.25em;}body header nav a{display:b
 body details:nth-child(1){margin-top:2em;}
 body details{border:1px solid rgba(0, 0, 0, 0.25);padding:.25em .5em;margin:.25em .5em;}body details summary::-webkit-details-marker{content:'...';}
 body details summary{position:relative;font-weight:bold;outline:none;cursor:pointer;}body details summary var{position:absolute;right:0;top:0;width:3em;text-align:center;font-style:normal;font-weight:bold;background-color:rgba(0, 0, 0, 0.25);color:rgba(0, 0, 0, 0.5);}
-body details summary var.fail{background-color:red;}
-body details summary var.pass{background-color:green;}
+body details summary var.fail,body details summary var.off{background-color:#963232;color:#fff;}
+body details summary var.pass,body details summary var.on{background-color:green;color:#fff;}

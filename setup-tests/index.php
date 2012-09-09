@@ -6,9 +6,10 @@
 <head>
 <meta charset="utf-8">
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 <script type="text/javascript" src="//use.typekit.net/vie4pvy.js"></script>
 <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+
 
 <title>Presto - installation checklist</title>
 <meta name="description" content="A simple PHP REST toolkit">
@@ -16,6 +17,7 @@
 
 <meta name="viewport" content="width=device-width">
 <link rel="stylesheet" href="/docs/styles/presto.css">
+
 
 <!--[if lt IE 9]>
 <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -30,7 +32,7 @@
 <header><div>
 	<h1><a href="/">Presto</a> <em>install checklist</em></h1>
 	
-<?php include_once('../nav.php'); ?>
+<?php include_once('../docs/nav.php'); ?>
 	
 </div></header>
 
@@ -46,7 +48,7 @@
 	$ver = explode('.', phpversion());
 	$ok = ($ver[0] >= '5' && $ver[1] >= 3);
 ?>
-	<summary>PHP version ok? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
+	<summary>PHP version ok? <var class="<?= $ok ? 'pass' : 'fail' ?>"><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 	<p>Found PHP version <code><?= phpversion() ?></code></p>
 	<p>PHP execution environment? <code><?= array_key_exists('REQUEST_URI', $_SERVER) ? 'FastCGI' : 'CGI' ?></code></p>
 </details>
@@ -55,7 +57,7 @@
 <?php 
 	$ok = function_exists('curl_init');
 ?>
-	<summary>cURL PHP installed? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
+	<summary>cURL PHP installed? <var class="<?= $ok ? 'pass' : 'fail' ?>"><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 <?php if ($ok) { ?><p>cURL details: <pre><?= print_r(curl_version()) ?></pre></p>
 <?php } else { ?><p>cURL is missing from your PHP installation.</p><?php } ?>
 </details>
@@ -64,7 +66,7 @@
 <?php 
 	$ok = function_exists('json_encode');
 ?>
-	<summary>JSON PHP installed? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
+	<summary>JSON PHP installed? <var class="<?= $ok ? 'pass' : 'fail' ?>"><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 	<p>Determines if JSON support is enabled.</p>
 </details>
 
@@ -73,13 +75,14 @@
 <?php 
 	$ok = array_key_exists('presto', $_GET);
 ?>
-	<summary>HTACCESS enabled? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
+	<summary>HTACCESS enabled? <var class="<?= $ok ? 'pass' : 'fail' ?>"><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 	<p>Validates that both .htaccess rules and non-API delegation are functional.</p>
 <?php if (!$ok) { ?><pre>Missing Presto tag in GET request for this page.
 
 $_GET <?php print_r($_GET); ?>
 </pre><?php } ?>
 </details>
+
 
 <details class="delegate">
 	<summary>Presto delegation ok? <var></var></summary>
@@ -95,18 +98,23 @@ $(document).ready(function() {
 			var ct = xhr.getResponseHeader("content-type") || "";
 			
 			if (ct.indexOf('html') > -1) {
-				display.text('FAIL');
+				display.text('FAIL').addClass('fail');
 				detail.text('Invalid content type (HTML, expecting JSON).');
 			}
 			else
-				display.text('PASS');					
+				display.text('PASS').addClass('pass');					
 
 		}, error: function(xhr, textStatus, errorThrown) {
 			var ct = xhr.getResponseHeader("content-type") || "",
 				isJSON = ct.indexOf('json') > -1;
 			
-			detail.text(!isJSON ? 'Response was in an unexpected format, delegation failed.' : 'Unexpected response.');			
-			display.text('FAIL');
+			if (!isJSON) {
+				detail.text('Response was in an unexpected format, delegation failed.');
+				display.text('FAIL').addClass('fail');
+			} else {
+				detail.text('Found the expected '+xhr.status+' in JSON format:\n\n'+xhr.responseText);
+				display.text('PASS').addClass('pass');				
+			}
 		}
 	});	
 });
@@ -128,11 +136,11 @@ $(document).ready(function() {
 				isJSON = ct.indexOf('json') > -1;
 			
 			if (!isJSON) {
-				display.text('FAIL');
+				display.text('FAIL').addClass('fail');
 				detail.text('Invalid content type (HTML, expecting JSON).');
 			}
 			else {
-				display.text('PASS');	
+				display.text('PASS').addClass('pass');	
 				detail.text(xhr.responseText);
 			}
 
@@ -141,7 +149,7 @@ $(document).ready(function() {
 				isJSON = ct.indexOf('json') > -1;
 						
 			detail.text(!isJSON ? 'Response was in an unexpected format, delegation failed.' : 'Unexpected response.');			
-			display.text('FAIL');
+			display.text('FAIL').addClass('fail');
 		}
 	});	
 });
@@ -163,11 +171,11 @@ $(document).ready(function() {
 				isJSON = ct.indexOf('json') > -1;
 			
 			if (!isJSON) {
-				display.text('FAIL');
+				display.text('FAIL').addClass('fail');
 				detail.text('Invalid content type (HTML, expecting JSON).');
 			}
 			else {
-				display.text('PASS');		
+				display.text('PASS').addClass('pass');		
 				detail.text(xhr.responseText+'\n\nHTTP return: '+xhr.status+'\n\n'+ xhr.getAllResponseHeaders().toLowerCase() );
 			}
 
@@ -176,7 +184,7 @@ $(document).ready(function() {
 				isJSON = ct.indexOf('json') > -1;
 						
 			detail.text(!isJSON ? 'Response was in an unexpected format, delegation failed.' : 'Unexpected response.');			
-			display.text('FAIL');
+			display.text('FAIL').addClass('fail');
 		}
 	});	
 });
@@ -184,7 +192,8 @@ $(document).ready(function() {
 </details>
 
 <details>
-	<summary>Presto debug mode <var><?= PRESTO_DEBUG ? 'ON' : 'OFF' ?></var></summary>
+<?php $on = defined(PRESTO_DEBUG) && PRESTO_DEBUG ?>
+	<summary>Presto debug mode <var class="<?= $on ? 'on' : 'off' ?>"><?= $on ? 'ON' : 'OFF' ?></var></summary>
 	<p>Debug mode adds trace and informational logging via syslog and extra detail in exceptions.</p>
 </details>
 
@@ -198,11 +207,6 @@ $(document).ready(function() {
 </pre>
 </details>
 
-<details>
-<summary>PHP environment</summary>
-<?php phpinfo(); ?>
-</details>
-
 <!--
 
 Inspecting for classes?
@@ -210,6 +214,7 @@ Inspecting for classes?
 -->
 </div>
 </section>
+
 </body>
 </html>
 

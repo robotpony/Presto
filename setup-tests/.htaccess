@@ -1,0 +1,25 @@
+Options +FollowSymlinks
+<IfModule mod_rewrite.c>
+
+# TODO: rework filtering for API versus PHP/static HTML
+
+RewriteEngine On
+RewriteBase /
+
+# Don't allow access to system folders
+RewriteRule _service(.*) /404.html [R,L]
+RewriteRule _parts(.*) /404.html [R,L]
+RewriteRule lib/(.*) /404.html [R,L]
+
+# Route API requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*)\.(.*)$ /setup-tests/delegator.php?r=$1&t=$2 [L]
+
+# General requests (enable for standard php/index delegate behaviour)
+RewriteCond %{DOCUMENT_ROOT}/setup-tests/index.php -f
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*) /setup-tests/index.php?presto&$1 [L]
+
+</IfModule>
+
+ErrorDocument 404 /setup-tests/index.php?presto&e=404&$1
