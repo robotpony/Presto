@@ -1,1 +1,1 @@
-../lib/install-checklist.php
+../../lib/install-checklist.php

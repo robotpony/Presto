@@ -4,8 +4,9 @@ RewriteEngine On
 RewriteBase /docs/
 
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^docs/setup-tests/
 RewriteRule ^(.*)$ index.php?presto&page=$1 [NC,L]
-
 </IfModule>
 
 

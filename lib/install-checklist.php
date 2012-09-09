@@ -1,73 +1,45 @@
 <!doctype html>
-<html lang=en>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-<meta charset=utf-8>
-<title>Presto install checklist</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<style>
-body {
-	font-family: 'Helvetica Neue', Helvetica, sans-serif;
-}
-body>header, body>section, body>footer {
-	width: 800px; margin: 0	auto;
-}
-body>header>h1 {
-	font-size: 18pt;
-}
-body>header>h1>em {
-	display: block;
-	font-style: normal; font-weight: 200;
-	font-size: 10pt;
-}
-details {
-	width: 50%;
-	border: 1px solid #999;
-	padding: 1em; margin:  1em;
-	box-shadow: 0px 0px 15px rgba(0,0,0,.1);
-	border-radius: 15px;
-}
+<meta charset="utf-8">
 
-details>summary {
-	margin-bottom: 1em;
-	font-size:  larger;
-	font-weight: bold;
-}
-::-webkit-details-marker {
- 	list-style-type: none;
- }
-details>summary>var {
-	float: right;
-	font-style: normal;
-	font-weight: bold;
-	background-color: rgba(0,0,0,.75); color: #fff;
-	padding: 4px 6px;
-	border-radius: 3px;
-}
-details>p {
-	font-size: 13pt; font-weight: 200;
-}
-pre {
-	word-wrap: break-word; 
-}
-</style>
+<script type="text/javascript" src="//use.typekit.net/vie4pvy.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+
+<title>Presto - installation checklist</title>
+<meta name="description" content="A simple PHP REST toolkit">
+<meta name="author" content="Bruce Alderson">
+
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="/docs/styles/presto.css">
+
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script>window.html5 || document.write('<script src="js/libs/html5.js"><\/script>')</script>
+<![endif]-->
 </head>
 <body>
+<!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
 
-<header>
-	<h1>Presto <em>install checklist</em></h1>
-</header>
+<a href="https://github.com/robotpony/Presto"><img style="position: absolute; position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+<header><div>
+	<h1><a href="/">Presto</a> <em>install checklist</em></h1>
+	
+<?php include_once('../nav.php'); ?>
+	
+</div></header>
 
 <?php 
-	include_once('../lib/inc.php');
+	include_once('inc.php');
 	
 	// NOTE: this would make a great default "api"	
 ?>
-<section>
-
-<details>
-	<summary>Presto debug mode <var><?= PRESTO_DEBUG ? 'ON' : 'OFF' ?></var></summary>
-	<p>Debug mode adds trace and informational logging via syslog and extra detail in exceptions.</p>
-</details>
+<section><div>
 
 <details>
 <?php 
@@ -76,21 +48,23 @@ pre {
 ?>
 	<summary>PHP version ok? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 	<p>Found PHP version <code><?= phpversion() ?></code></p>
+	<p>PHP execution environment? <code><?= array_key_exists('REQUEST_URI', $_SERVER) ? 'FastCGI' : 'CGI' ?></code></p>
 </details>
 
 <details>
 <?php 
 	$ok = function_exists('curl_init');
 ?>
-	<summary>cURL/PHP installed? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
-	<p>cURL details: <pre><?= print_r(curl_version()) ?></pre></p>
+	<summary>cURL PHP installed? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
+<?php if ($ok) { ?><p>cURL details: <pre><?= print_r(curl_version()) ?></pre></p>
+<?php } else { ?><p>cURL is missing from your PHP installation.</p><?php } ?>
 </details>
 
 <details>
 <?php 
 	$ok = function_exists('json_encode');
 ?>
-	<summary>JSON/PHP installed? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
+	<summary>JSON PHP installed? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 	<p>Determines if JSON support is enabled.</p>
 </details>
 
@@ -101,6 +75,10 @@ pre {
 ?>
 	<summary>HTACCESS enabled? <var><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 	<p>Validates that both .htaccess rules and non-API delegation are functional.</p>
+<?php if (!$ok) { ?><pre>Missing Presto tag in GET request for this page.
+
+$_GET <?php print_r($_GET); ?>
+</pre><?php } ?>
 </details>
 
 <details class="delegate">
@@ -124,15 +102,11 @@ $(document).ready(function() {
 				display.text('PASS');					
 
 		}, error: function(xhr, textStatus, errorThrown) {
-		
-			detail.text(xhr.responseText);
+			var ct = xhr.getResponseHeader("content-type") || "",
+				isJSON = ct.indexOf('json') > -1;
 			
-			if (xhr.status === 404) {
-				display.text('PASS');
-				console.log('Ignoring 404, marks delegation success');
-			} else { 
-				display.text('FAIL');
-			}
+			detail.text(!isJSON ? 'Response was in an unexpected format, delegation failed.' : 'Unexpected response.');			
+			display.text('FAIL');
 		}
 	});	
 });
@@ -150,27 +124,24 @@ $(document).ready(function() {
 	$.ajax({
 		url: 'info.json',
 		success: function(response, status, xhr) {
-			var ct = xhr.getResponseHeader("content-type") || "";
+			var ct = xhr.getResponseHeader("content-type") || "",
+				isJSON = ct.indexOf('json') > -1;
 			
-			if (ct.indexOf('html') > -1) {
+			if (!isJSON) {
 				display.text('FAIL');
 				detail.text('Invalid content type (HTML, expecting JSON).');
 			}
-			else
+			else {
 				display.text('PASS');	
-				
-			detail.text(xhr.responseText);				
+				detail.text(xhr.responseText);
+			}
 
 		}, error: function(xhr, textStatus, errorThrown) {
-		
-			detail.text(xhr.responseText);
-			
-			if (xhr.status === 404) {
-				display.text('PASS');
-				console.log('Ignoring 404, marks delegation success');
-			} else { 
-				display.text('FAIL');
-			}
+			var ct = xhr.getResponseHeader("content-type") || "",
+				isJSON = ct.indexOf('json') > -1;
+						
+			detail.text(!isJSON ? 'Response was in an unexpected format, delegation failed.' : 'Unexpected response.');			
+			display.text('FAIL');
 		}
 	});	
 });
@@ -188,38 +159,36 @@ $(document).ready(function() {
 	$.ajax({
 		url: 'info/header_test.json',
 		success: function(response, status, xhr) {
-			var ct = xhr.getResponseHeader("content-type") || "";
+			var ct = xhr.getResponseHeader("content-type") || "",
+				isJSON = ct.indexOf('json') > -1;
 			
-			if (ct.indexOf('html') > -1) {
+			if (!isJSON) {
 				display.text('FAIL');
 				detail.text('Invalid content type (HTML, expecting JSON).');
 			}
-			else
-				display.text('PASS');	
-				
-			detail.text(xhr.responseText+'\n\nHTTP return: '+xhr.status+'\n\n'+ xhr.getAllResponseHeaders().toLowerCase() );
-			
-			console.log(xhr.status());		
+			else {
+				display.text('PASS');		
+				detail.text(xhr.responseText+'\n\nHTTP return: '+xhr.status+'\n\n'+ xhr.getAllResponseHeaders().toLowerCase() );
+			}
 
 		}, error: function(xhr, textStatus, errorThrown) {
-		
-			detail.text(xhr.responseText);
-			
-			if (xhr.status === 404) {
-				display.text('PASS');
-				console.log('Ignoring 404, marks delegation success');
-			} else { 
-				display.text('FAIL');
-			}
+			var ct = xhr.getResponseHeader("content-type") || "",
+				isJSON = ct.indexOf('json') > -1;
+						
+			detail.text(!isJSON ? 'Response was in an unexpected format, delegation failed.' : 'Unexpected response.');			
+			display.text('FAIL');
 		}
 	});	
 });
 </script>
 </details>
 
+<details>
+	<summary>Presto debug mode <var><?= PRESTO_DEBUG ? 'ON' : 'OFF' ?></var></summary>
+	<p>Debug mode adds trace and informational logging via syslog and extra detail in exceptions.</p>
+</details>
 
 <details>
-
 <summary>Request details</summary>
 <pre>
 <?php print_r($_SERVER); ?>
@@ -228,11 +197,18 @@ $(document).ready(function() {
 <?php print_r($_COOKIE); ?>
 </pre>
 </details>
+
+<details>
+<summary>PHP environment</summary>
+<?php phpinfo(); ?>
+</details>
+
 <!--
 
 Inspecting for classes?
 
 -->
+</div>
 </section>
 </body>
 </html>

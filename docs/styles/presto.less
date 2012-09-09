@@ -1,6 +1,9 @@
 @import 'elements.less';
 
 @hl: rgba(150, 50, 50, 100);
+@light: rgba(0,0,0,.25);
+@med: rgba(0,0,0,.5);
+@shadow: rgba(0,0,0,.75);
 
 body {
 	font: 105%/150% "freight-sans-pro", "Helvetica Neau", Helvetica;
@@ -11,6 +14,7 @@ body {
 		position: relative;
 	}
 	header>div, section>div, footer>div {
+		position: relative;
 		width: 40em;
 		margin: 0 auto;
 	}
@@ -38,6 +42,7 @@ body {
 		background-color: rgba(0,0,0,.1);
 		padding: .75em 1em;
 		.rounded(.5em);
+		overflow: hidden;
 	}
 	p {
 		margin: .25em 0 1em;
@@ -62,6 +67,49 @@ body {
 				font-weight: lighter;
 				color: #333;
 			}
+		}
+		
+		nav {
+			position: absolute; right: 0; top: .25em;
+			
+			a {
+				display: block;
+				width: 5em; line-height: 95%;
+				font-weight: lighter;
+				text-align: center;
+				text-transform: uppercase;
+			}
+		}
+	}
+	
+	/* Test blocks */
+	
+	details:nth-child(1) {
+		margin-top: 2em;
+	}
+	
+	details {
+		border: 1px solid rgba(0,0,0,.25);
+		padding: .25em .5em; margin: .25em .5em;
+
+		summary::-webkit-details-marker { content: '...'; }
+
+		summary {
+			position: relative;
+			font-weight: bold;
+			outline: none;
+			cursor: pointer;
+			
+			var {
+				position: absolute; right: 0; top: 0;
+				width: 3em;
+				text-align: center;
+				font-style: normal;
+				font-weight: bold;
+				background-color: @light; color: @med;
+			}
+			var.fail { background-color: red; }
+			var.pass { background-color: green; }
 		}
 	}
 

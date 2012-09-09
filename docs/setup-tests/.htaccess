@@ -1,1 +1,19 @@
-../lib/htaccess-example
+Options +FollowSymlinks
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+RewriteBase /docs/setup-tests/
+
+# Route API requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*)\.(.*)$ /delegator.php?r=$1&t=$2 [L]
+RewriteRule ^(.*)\.html$ $1.php [NC,L]
+
+# General requests (enable for standard php/index delegate behaviour)
+RewriteCond %{DOCUMENT_ROOT}/index.php -f
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*) /index.php?presto&$1 [L]
+
+</IfModule>
+
+ErrorDocument 404 /404.html

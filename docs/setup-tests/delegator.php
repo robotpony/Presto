@@ -1,1 +1,1 @@
-../lib/delegator-index.php
+../../lib/delegator-index.php
