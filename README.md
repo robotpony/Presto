@@ -11,7 +11,9 @@ An API is a class with members named for each resource (or tree of resources). F
 
 	GET apples/spartan.json&large+red
 
+
 Presto maps the request to a file, class, and class member automatically. It loads the file, creates an instance of the class, and executes the member that best fits:
+
 
 	/* Loaded from 'apples.php' */
 	
@@ -28,7 +30,8 @@ Presto maps the request to a file, class, and class member automatically. It loa
 			return $thing;
 		}
 	}
-	
+
+
 The `$thing` is automatically converted by Presto to the requested `Content-Type`, either implied by the request or the appropriate HTTP header. For formats not supported by default, *Output Adapters* can be defined and registered, or the type can be passed through for resources that are not based DOM style data.
 
 Any HTTP request type is mapped automatically. For example, you can request a list of `apple` types available from the API:
@@ -38,6 +41,7 @@ Any HTTP request type is mapped automatically. For example, you can request a li
 A LIST request is mapped to a function of the same name:
 
 	public function list($ctx) { return array(); }
+
 
 More complex resources are possible by either delegating (based on regex patterns), or by adding specific handlers. For example, you could add a `seeds` branch to the `apple` resource. Getting a list of seeds would map to:
 
@@ -49,8 +53,8 @@ Errors are handled by the toolkit as standard PHP exceptions and standard PHP er
 
 For example, if you encounter a parameter error you can simply throw an exception:
 
-	if (empty($param))
-		throw new Exception("Missing required parameter", 400);
+if (empty($param))
+	throw new Exception("Missing required parameter", 400);
 		
 Presto translates the exception into a `400` with an appropriately encoded body.
 

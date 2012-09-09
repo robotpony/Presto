@@ -1,7 +1,5 @@
 Frequently asked things
-=======================
-
-Document style: FAQ
+-----------------------
 
 ## Q: Why no MVC?
 

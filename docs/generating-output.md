@@ -1,5 +1,5 @@
 Generating output
-==================
+-----------------
 
 All Presto API functions return a simple DOM object. This object (or array) is translated into output using a type handler, which is selected by the requested `content-type`.
 

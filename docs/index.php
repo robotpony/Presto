@@ -12,6 +12,7 @@
 	$title = $page ? "$name - $page" : "$name - $tagline";
 	
 	if (empty($page)) $page = 'README.md';
+	else $page = str_replace('.html', '.md', $page);
 	
 	$file = realpath(API_BASE."/$page");
 	
@@ -63,7 +64,8 @@
 	<p>The document you were looking for wasn't found.</p>
 <?php } else {
 	
-	$text = Markdown(file_get_contents($file));	
+	$text = Markdown(file_get_contents($file));
+	$text = str_replace('<pre>', '<pre class="highlight" style="border: 0; padding: .75em;">', $text);
 ?>
 <?= $text ?>
 <?php 
@@ -89,6 +91,8 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 <script src="/docs/js/md.js"></script>
+<script type="text/javascript" src="http://balupton.github.com/jquery-syntaxhighlighter/scripts/jquery.syntaxhighlighter.min.js"></script>
+<script type="text/javascript">$.SyntaxHighlighter.init({'lineNumbers': false, 'theme': 'google'});</script>
 
 <script>
 	var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
