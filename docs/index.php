@@ -8,7 +8,7 @@
 	$page = g('page', '');
 
 	$name = 'pRESTo';
-	$tagline = 'PHP + REST';
+	$tagline = 'Simpler REST with PHP';
 	$title = $page ? "$name - $page" : "$name - $tagline";
 	
 	if (empty($page)) $page = 'README.md';
@@ -45,7 +45,7 @@
 <a href="https://github.com/robotpony/Presto"><img style="position: absolute; position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 
 <header><div>
-	<h1><a href="/"><?= $name ?></a></h1>
+	<h1><a href="/"><?= $name ?> <em><?= $tagline ?></em></a></h1>
 	
 	<nav>
 		<a class="disabled" href="#prev"><i class="icon-caret-left"></i></a>

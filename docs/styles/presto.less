@@ -1,7 +1,11 @@
+@import 'elements.less';
+
+@hl: rgba(150, 50, 50, 100);
 
 body {
 	font: 105%/150% "freight-sans-pro", "Helvetica Neau", Helvetica;
 	
+	/* Page layout, grid, and colours */
 	header,	section, footer {
 		width: 100%;
 		position: relative;
@@ -9,6 +13,56 @@ body {
 	header>div, section>div, footer>div {
 		width: 40em;
 		margin: 0 auto;
+	}
+
+	/* Overrides */	
+
+	a, a:visited {
+		color: @hl;
+		text-decoration: none;
+	}
+	h1, h2, h4, h5 {
+		margin: 2em 0 0;
+	}
+	h3 {
+		margin: 1.75em 0 0;
+		font-size: smaller;
+		font-weight: 400;
+		text-transform: uppercase;
+	}
+	
+	code, pre {
+		font: 10pt/100% Menlo, Monaco, "Andale Mono", monospace;
+	}
+	pre {
+		background-color: rgba(0,0,0,.1);
+		padding: .75em 1em;
+		.rounded(.5em);
+	}
+	p {
+		margin: .25em 0 1em;
+	}
+	p>code {
+		background-color: rgba(0,0,0,.1);
+		padding: .35em .25em; margin: 0 .25em 0 0;
+		.rounded(.25em);
+	}
+	
+
+	/* Sections */
+	
+	header {
+		h1 {
+			margin: 0;
+			
+			em {
+				display: block;
+				font-size: 10pt;
+				font-style: normal;
+				font-weight: lighter;
+				color: #333;
+			}
+		}
 	}
 
 }
