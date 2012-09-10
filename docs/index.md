@@ -1,6 +1,10 @@
 Developer documentation
 -----------------------
 
+[License](/LICENSE.html)
+
+[Installation instructions](/INSTALL.html)
+
 [Frequently Asked Things (FAQ)](/docs/faq.html)
 
 [Application state](/docs/application-state.html)
@@ -10,10 +14,10 @@ Developer documentation
 [Output adapters](/docs/generating-output.html)
 
 
-Future topics
-=============
+Missing topics
+==============
 
-These are things that aren't yet covered in the documentation.
+These are things that aren't quite covered in the documentation yet.
 
 * API classes (how requests are mapped to members)
 * Returning data to clients

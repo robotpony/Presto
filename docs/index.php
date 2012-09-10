@@ -54,16 +54,18 @@
 <section><div>
 <article>
 	
-<?php 
-	include_once('lib/markdown/markdown.php'); 
+<?php
 	
-	if (!file_exists($file) || $code) { 
+	if ($page == 'tutorial.md') {
+		include_once(API_BASE.'/docs/tutorial.php');
+	} elseif (!file_exists($file) || $code) { 
 		if (empty($code)) $code = '404';
 ?>
 	<h1><var><?= $code ?></var> Not found</h1>
 	<p>The document you were looking for wasn't found.</p>
 <?php } else {
 	
+	include_once('lib/markdown/markdown.php'); 
 	$text = Markdown(file_get_contents($file));
 	$text = str_replace('<pre>', '<pre class="highlight" style="border: 0; padding: .75em;">', $text);
 ?>
@@ -76,15 +78,7 @@
 </div></section>
 
 <footer><div>
-<h5><strong>Presto</strong> was created by <a href="http://warpedvisions.org/">Bruce Alderson</a>.</h5>
-
-	<nav>
-		<a class="disabled" href="#prev"><i class="icon-caret-left"></i></a>
-		<a href="#about"><i class="icon-question-sign"></i></a>
-		<a href="http://twitter.com/robotpony"><i class="icon-twitter"></i></a>
-		<!-- <a href="/feed.xml"><i class="icon-rss"></i></a> -->	
-		<a class="disabled" href="#next"><i class="icon-caret-right"></i></a>
-	</nav>
+<h5><strong>Presto</strong> was created by <a href="/LICENSE.html">Bruce Alderson</a>.</h5>
 	
 </div></footer>
 
