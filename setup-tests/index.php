@@ -214,6 +214,14 @@ Inspecting for classes?
 -->
 </div>
 </section>
+
+</div></section>
+
+<footer><div>
+<h5><strong>Presto</strong> was created by <a href="/LICENSE.html">Bruce Alderson</a>.</h5>
+	
+</div></footer>
+
 <script type="text/javascript" src="http://balupton.github.com/jquery-syntaxhighlighter/scripts/jquery.syntaxhighlighter.min.js"></script>
 <script type="text/javascript">$.SyntaxHighlighter.init({'lineNumbers': false, 'theme': 'google'});</script>
 </body>
