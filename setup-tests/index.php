@@ -58,7 +58,7 @@
 	$ok = function_exists('curl_init');
 ?>
 	<summary>cURL PHP installed? <var class="<?= $ok ? 'pass' : 'fail' ?>"><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
-<?php if ($ok) { ?><p>cURL details: <pre class="highlight" style="border: 0; padding: .75em;"><?= print_r(curl_version()) ?></pre></p>
+<?php if ($ok) { ?><p>cURL details: <pre class="highlight"><?= print_r(curl_version()) ?></pre></p>
 <?php } else { ?><p>cURL is missing from your PHP installation.</p><?php } ?>
 </details>
 
@@ -77,7 +77,7 @@
 ?>
 	<summary>HTACCESS enabled? <var class="<?= $ok ? 'pass' : 'fail' ?>"><?= $ok ? 'PASS' : 'FAIL' ?></var></summary>
 	<p>Validates that both .htaccess rules and non-API delegation are functional.</p>
-<?php if (!$ok) { ?><pre class="highlight" style="border: 0; padding: .75em;">Missing Presto tag in GET request for this page.
+<?php if (!$ok) { ?><pre class="highlight">Missing Presto tag in GET request for this page.
 
 $_GET <?php print_r($_GET); ?>
 </pre><?php } ?>
@@ -86,7 +86,7 @@ $_GET <?php print_r($_GET); ?>
 
 <details class="delegate">
 	<summary>Presto delegation ok? <var></var></summary>
-	<p>Validates basic Presto delegation. This test looks for a valid Presto 404. <pre class="highlight" style="border: 0; padding: .75em;"></pre></p>
+	<p>Validates basic Presto delegation. This test looks for a valid Presto 404. <pre class="highlight"></pre></p>
 
 <script>	
 $(document).ready(function() {
@@ -123,7 +123,7 @@ $(document).ready(function() {
 
 <details class="delegate-actual">
 	<summary>Presto delegate execution? <var></var></summary>
-	<p>Validates sample Presto delegation. <pre class="highlight" style="border: 0; padding: .75em;"></pre></p>
+	<p>Validates sample Presto delegation. <pre class="highlight"></pre></p>
 
 <script>	
 $(document).ready(function() {
@@ -158,7 +158,7 @@ $(document).ready(function() {
 
 <details class="delegate-extras">
 	<summary>Presto header magic? <var></var></summary>
-	<p>Validates Presto header functions. <pre class="highlight" style="border: 0; padding: .75em;"></pre></p>
+	<p>Validates Presto header functions. <pre class="highlight"></pre></p>
 
 <script>	
 $(document).ready(function() {
@@ -199,7 +199,7 @@ $(document).ready(function() {
 
 <details>
 <summary>Request details</summary>
-<pre class="highlight" style="border: 0; padding: .75em;">
+<pre class="highlight">
 <?php print_r($_SERVER); ?>
 <?php print_r($_GET); ?>
 <?php print_r($_GET); ?>

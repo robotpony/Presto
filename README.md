@@ -53,8 +53,8 @@ Errors are handled by the toolkit as standard PHP exceptions and standard PHP er
 
 For example, if you encounter a parameter error you can simply throw an exception:
 
-if (empty($param))
-	throw new Exception("Missing required parameter", 400);
+	if (empty($param))
+		throw new Exception("Missing required parameter", 400);
 		
 Presto translates the exception into a `400` with an appropriately encoded body.
 

@@ -76,7 +76,7 @@
 </div></section>
 
 <footer><div>
-<h5><strong>pRESTo</strong> is <a href="#about">loosely Copyrighted &copy; 2009-2012 Bruce Alderson</a></h5>
+<h5><strong>Presto</strong> was created by <a href="http://warpedvisions.org/">Bruce Alderson</a>.</h5>
 
 	<nav>
 		<a class="disabled" href="#prev"><i class="icon-caret-left"></i></a>
