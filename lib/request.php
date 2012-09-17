@@ -201,9 +201,9 @@ class Request {
 							JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
 							JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
 						);
-					
 						throw new Exception('Invalid JSON request payload. ' . $errors[json_last_error()], 400);
 					}
+
 				break;
 				
 				case 'xml':
