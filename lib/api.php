@@ -103,9 +103,13 @@ class API extends REST {
 
 		if ( $filtered === null )
 			throw new Exception("Invalid or missing parameter(s)", 406);
-		elseif ( $f = array_keys($filtered, null) )
-			throw new Exception("Invalid or missing parameter(s): " . implode($f, ', '), 406);
-			
+
+		if ( $missing = array_filter( $filtered, function($v) { return $v === null; } ) )
+			throw new Exception("Missing parameter(s): " . implode(array_keys($missing), ', '), 406);
+		
+		if ( $invalid = array_filter( $filtered, function($v) { return $v === FALSE; } ) )
+			throw new Exception("Invalid parameter(s): " . implode(array_keys($invalid), ', '), 406);
+
 		return (object) $filtered;
 	}
 	
