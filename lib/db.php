@@ -20,7 +20,7 @@ class db extends PDO {
         global $_db;
         if ($_db !== null) return $_db; // return cached
         
-        if ($confg === null)
+        if ($config === null)
 	        $config = array( PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' );
         
         try {
