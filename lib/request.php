@@ -80,16 +80,18 @@ class Request {
 	public $post;
 
 	/* Set up  a request object (from PHP builtins) */	
-	public function __construct() {
+	public function __construct($r = null, $t = null) {
 
 		// Use the URI from either .htaccess routing or the raw request
-		$uri = $_SERVER['REQUEST_URI'];		
+		$uri = $_SERVER['REQUEST_URI'];
+
+		// Extract route and type from delegation
+		if (isset($r)) $_GET['r'] = $r; if (isset($t)) $_GET['t'] = $t; // override via ctor
 		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET))
-			throw new Exception('Missing rewrite delegation setup.', 500);
-			
+			throw new Exception('Missing rewrite delegation setup.', 500);						
 		$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
-		unset($_GET['t']);
 		$uri = $_GET['r'].'.'.$type;			
+		unset($_GET['t']);
 		unset($_GET['r']);
 
 		// bootstrap request parameters
