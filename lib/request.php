@@ -14,7 +14,7 @@ class URI {
 	
 	private $type		= '';
 	private $path		= '';
-	private $options 	= array();
+	public $options 	= array();
 
 	/* Decode a URI into parts */	
 	public function __construct($uri) {
@@ -31,7 +31,7 @@ class URI {
 
 		$this->parameters = explode('/', $this->path);
 
-		if (!empty($uri->query)) parse_str($uri->query, $this->options);
+		$this->options = $_GET;
 	}
 	
 	// get the resource type
@@ -81,14 +81,17 @@ class Request {
 
 	/* Set up  a request object (from PHP builtins) */	
 	public function __construct() {
-		
+
 		// Use the URI from either .htaccess routing or the raw request
 		$uri = $_SERVER['REQUEST_URI'];		
-		if (array_key_exists('r', $_GET)) {
-			$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
-			$uri = $_GET['r'].'.'.$type;
-		}
-		
+		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET))
+			throw new Exception('Missing rewrite delegation setup.', 500);
+			
+		$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
+		unset($_GET['t']);
+		$uri = $_GET['r'].'.'.$type;			
+		unset($_GET['r']);
+
 		// bootstrap request parameters
 		$this->uri = new URI($uri);
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);

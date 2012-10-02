@@ -91,6 +91,7 @@ class Presto extends REST {
 				'method' 	=> $method,
 				'res' 		=> self::$req->uri->type(), 
 				'params' 	=> self::$req->uri->parameters,
+				'options'   => self::$req->uri->options,
 				'exists' 	=> false);			
 	
 			// build the response object
