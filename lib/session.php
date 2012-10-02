@@ -19,14 +19,15 @@ class session {
 	public function __construct($serviceID, $settings = null) {
 	
 		$this->cfg = array(
-			'cookie_name' => SERVICE_COOKIE,
-			'service' => $serviceID
+			'cookie_name' 		=> SERVICE_COOKIE,
+			'service' 			=> $serviceID,
+			'api_key_header' 	=> null,
+			'sso_key' 			=> null,
+			'login-redirect' 	=> ''
 		);
 
-		if ($settings)
-			$this->cfg = (object) array_merge($settings, $this->cfg);
-		else
-			$this->cfg = (object) $this->cfg;
+		if ($settings) $this->cfg = (object) array_merge($settings, $this->cfg);
+		else $this->cfg = (object) $this->cfg;
 	}
 	
 
@@ -38,10 +39,10 @@ class session {
 			if ($this->supports_api_keying())
 				if ($this->valid_key()) return true;
 				
-			if (!isset($_COOKIE[SERVICE_COOKIE]))
+			if (!isset($_COOKIE[$this->cfg->cookie_name]))
 				return false; // not signed in
 				
-			$this->t = new token(@$_COOKIE[SERVICE_COOKIE]);
+			$this->t = new token($_COOKIE[$this->cfg->cookie_name]);
 			
 			if (!$this->t->ok()) 
 				return $this->redirect('log-in.html?a=token-revoked&m=Invalid&20token'); // invalid auth
@@ -96,12 +97,12 @@ class session {
 	public function user() { return is_object($this->t) && $this->t->ok() ? 
 		$this->t->parts() : false; }
 	// can an API key work?
-	private function supports_api_keying() { return false; }
+	private function supports_api_keying() { return $this->cfg->api_key_header; }
 	// is this a session for an API?
 	private function is_api() { return false; }
 	// is the API key valid?
 	private function valid_key() {
-		return ($this->supports_api_keying() && $_SERVER['HTTP_RX_KEY'] == SSO_API_KEY);
+		return ($this->supports_api_keying() && $_SERVER[$this->cfg->api_key_header] === $this->cfg->sso_key);
 	}
 	
 
