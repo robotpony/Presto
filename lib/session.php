@@ -22,9 +22,10 @@ class session {
 			'service' 			=> $serviceID,
 			'api_key_header' 	=> null,
 			'sso_key' 			=> null,
-			'login-redirect' 	=> '',
+			'login_redirect' 	=> '',
 			'domain'			=> COOKIE_DOMAIN,
-			'secure'			=> SECURED_COOKIE
+			'secure'			=> SECURED_COOKIE,
+			'api_keyed'			=> false
 		);
 
 		if ($settings) $this->cfg = (object) array_merge($settings, $this->cfg);
@@ -34,7 +35,6 @@ class session {
 			!isset($this->cfg->secure))
 			throw new Exception('Missing Session class configuration.', 500);
 	}
-
 
 	/* Is the request authorized? */
 	public function is_authorized() {
@@ -53,7 +53,10 @@ class session {
 				throw new Exception('Invalid authorization token.', 412); // invalid auth
 
 		} catch (Exception $e) {
-			throw new Exception('Authorization error.', 500, $e);
+			if ($e->getCode() != 401)
+				throw new Exception('Authorization error.', 500, $e);
+			else
+				throw $e;
 		}
 
 		return true; // signed in
@@ -103,13 +106,9 @@ class session {
 	public function user() { return is_object($this->t) && $this->t->ok() ?
 		$this->t->parts() : false; }
 	// can an API key work?
-	private function supports_api_keying() { return $this->cfg->api_key_header; }
+	private function supports_api_keying() { return $this->cfg->api_keyed && $this->cfg->api_key_header; }
 	// is this a session for an API?
 	private function is_api() { return class_exists('API') && class_exists('Presto'); }
 	// is the API key valid?
-	private function valid_key() {
-		return ($this->supports_api_keying() && $_SERVER[$this->cfg->api_key_header] === $this->cfg->sso_key);
-	}
-
-
+	private function valid_key() { return $_SERVER[$this->cfg->api_key_header] === $this->cfg->sso_key; }
 }
