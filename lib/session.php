@@ -1,5 +1,4 @@
 <?php
-require_once('config.php');
 
 /** Simple tokenized sessions
 
@@ -23,11 +22,17 @@ class session {
 			'service' 			=> $serviceID,
 			'api_key_header' 	=> null,
 			'sso_key' 			=> null,
-			'login-redirect' 	=> ''
+			'login-redirect' 	=> '',
+			'domain'			=> COOKIE_DOMAIN,
+			'secure'			=> SECURED_COOKIE
 		);
 
 		if ($settings) $this->cfg = (object) array_merge($settings, $this->cfg);
 		else $this->cfg = (object) $this->cfg;
+
+		if (empty($this->cfg->cookie_name) || !isset($this->cfg->domain) || 
+			!isset($this->cfg->secure))
+			throw new Exception('Missing Session class configuration.', 500);
 	}
 	
 
@@ -42,7 +47,7 @@ class session {
 			if (!isset($_COOKIE[$this->cfg->cookie_name]))
 				return false; // not signed in
 				
-			$this->t = new token($_COOKIE[$this->cfg->cookie_name]);
+			$this->t = new auth_token($_COOKIE[$this->cfg->cookie_name]);
 			
 			if (!$this->t->ok()) 
 				return $this->redirect('log-in.html?a=token-revoked&m=Invalid&20token'); // invalid auth
@@ -67,28 +72,30 @@ class session {
 		exit;
 	}
 	/* Redirect the client (this seems out of place) -- >> RESPONSE */
-	public function sso($target, $p = null) {
+	public function sso_target($target, $p = null) {
 		$params = '';
 		if (is_array($p) && count($p)) {
 			$params = '?';
 			foreach ($p as $k => $v) $params .= "$k=$v&";
-		} elseif (is_string($p)) $params = '?'.$p;
+		} elseif (is_string($p)) 
+			$params = '?'.$p;
 			
-		return header('Location: '.$target.$params);
-		print "Redirecting you to <a href='$target'>another page</a> ...";
-		exit;
+		return $target.$params;
 	}
+	
 	/* Save the session */
 	public function save($t, $r = false) { // TODO domain, secure, http-only
 		$expiry = $r ? 36000 : 600;
 
 		if (empty($this->cfg->cookie_name) 
-			|| !setcookie($this->cfg->cookie_name, $t, time() + $expiry, '/'))
+			|| !setcookie($this->cfg->cookie_name, $t, time() + $expiry, '/', 
+				$this->cfg->domain, $this->cfg->secure))
 			throw new Exception('Cookie monster sad :-(', 500);
 	}
 	/* Clear the session */
 	public function clear() {
-		setcookie($this->cfg->cookie_name, '', time() - 1, '/');
+		setcookie($this->cfg->cookie_name, '', time() - 1, '/', 
+			$this->cfg->domain, $this->cfg->secure);
 	}
 	
 	// get the current token
@@ -99,7 +106,7 @@ class session {
 	// can an API key work?
 	private function supports_api_keying() { return $this->cfg->api_key_header; }
 	// is this a session for an API?
-	private function is_api() { return false; }
+	private function is_api() { return class_exists('API') && class_exists('Presto'); }
 	// is the API key valid?
 	private function valid_key() {
 		return ($this->supports_api_keying() && $_SERVER[$this->cfg->api_key_header] === $this->cfg->sso_key);
