@@ -134,8 +134,13 @@ class tagged_sql {
 	there is no guarantee about the shape of the resulting DOM, except that it will
 	be wrong.
 	
+	The $stripMeta flag determines whether attributes will begin with the '@' symbol.
+	You may want this symbol stripped off if, for instance, you will be transmitting
+	the result of this call as JSON data to a client. This flag has no effect on the
+	special '@class' and '@label' reserved keys.
+	
 	*/
-	public function &dominate(&$rs, $asObj = true) {
+	public function &dominate(&$rs, $asObj = true, $stripMeta = false) {
 		$dom = array();
 		if (empty($rs)) return $dom;
 		
@@ -184,6 +189,7 @@ class tagged_sql {
 					// create the node (or attribute)
 					if (strpos($nodeName, '@') === 0) {
 						// create the attribute
+						$nodeName = $stripMeta ? substr($nodeName, 1) : $nodeName;
 						$currentNode[$nodeName] = $value;
 					}
 					else {
