@@ -97,6 +97,23 @@ class API extends REST {
 		return $this->validate_contentType($types);
 	}
 	
+	/* Get a filtered variable (get filter_var_array + exceptions) */
+	static function filtered($thing, $rules, $defaults = null) {
+		if ($defaults) $thing = array_merge((array)$thing, $defaults);
+		$filtered = filter_var_array((array)$thing, $rules);
+
+		if ( $filtered === null )
+			throw new Exception("Invalid or missing parameter(s)", 406);
+
+		if ( $missing = array_filter( $filtered, function($v) { return $v === null; } ) )
+			throw new Exception("Missing parameter(s): " . implode(array_keys($missing), ', '), 406);
+		
+		if ( $invalid = array_filter( $filtered, function($v) { return is_bool($v) && $v === FALSE; } ) )
+			throw new Exception("Invalid parameter(s): " . implode(array_keys($invalid), ', '), 406);
+
+		return (object) $filtered;
+	}
+	
 	private function validate_contentType($t) {
 		$in = self::$ctx->class . '::' . self::$ctx->method . '()';
 		$res = self::$ctx->res;
