@@ -77,6 +77,7 @@ class Presto extends REST {
 			// Create an an instance of the API subclass
 			//	(autoloads based on the path)
 			self::autoload_explicit($obj);
+			if (!class_exists($obj)) throw new Exception("API not found for $obj", 404);
 			$o = new $obj(); 
 
 			// validate that the concept noun is valid
@@ -90,6 +91,7 @@ class Presto extends REST {
 				'method' 	=> $method,
 				'res' 		=> self::$req->uri->type(), 
 				'params' 	=> self::$req->uri->parameters,
+				'options'   => self::$req->uri->options,
 				'exists' 	=> false);			
 	
 			// build the response object
