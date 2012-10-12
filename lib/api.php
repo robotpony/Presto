@@ -29,8 +29,7 @@ class API extends REST {
 			$concept = strtok('');
 
 			if (!empty($concept) && in_array($method, self::$METHODS))
-				$this->concepts[] = $concept;
-		
+				$this->concepts[] = $concept;		
 		}
 	}
 	/* Attach to Presto framework */

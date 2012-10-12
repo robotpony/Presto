@@ -26,7 +26,7 @@ class session {
 			'domain'			=> COOKIE_DOMAIN,
 			'secure'			=> SECURED_COOKIE,
 			'api_keyed'			=> false,
-			'key_lookup'		=> null
+			'key_auth'			=> null
 		);
 
 		if ($settings) $this->cfg = (object) array_merge($this->cfg, $settings);
@@ -117,12 +117,9 @@ class session {
 			return false; // no API key
 		
 		$key = $_SERVER[$this->cfg->api_key_header];
-		
-		if ($key === $this->cfg->sso_key)
-			return true; // a valid system key
 
 		// check as external key
-		return is_callable($this->cfg->key_lookup)
-			&& call_user_func($this->cfg->key_lookup, $key);
+		return is_callable($this->cfg->key_auth)
+			&& call_user_func($this->cfg->key_auth, $key);
 	}
 }
