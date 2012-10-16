@@ -3,6 +3,7 @@
 // Presto global config and constants
 
 define('PRESTO', 'presto.php');
+define('PRESTO_VERSION', 'presto-v0.98');
 define('PRESTO_DEBUG', 0);
 define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
@@ -16,13 +17,6 @@ define('HOST', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost
 define('PROTOCOL', isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443 ? 'https://': 'http://'); // TODO: handle common load balancers?
 define('BASE_URL', 	PROTOCOL.HOST);
 
-if (!defined('RX_BASE')) {
-	$host = 'app.rubrix.';
-	$host .= !empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] == '127.0.0.1' ? 'test' : 'com';
-	$ssl = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443 ? 's': '';
-
-	define('RX_BASE', "http{$ssl}://$host");
-}
 
 // Set up paths for simple auto class loading
 set_include_path(get_include_path()
