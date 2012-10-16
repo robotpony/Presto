@@ -51,7 +51,7 @@ class session {
 			$this->t = new auth_token($_COOKIE[$this->cfg->cookie_name]);
 
 			if (!$this->t->ok())
-				throw new Exception('Invalid authorization token.', 412); // invalid auth
+				throw new Exception('Invalid authorization token.', 401); // invalid token
 
 		} catch (Exception $e) {
 			if ($e->getCode() != 401)
