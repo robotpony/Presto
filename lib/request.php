@@ -87,8 +87,10 @@ class Request {
 
 		// Extract route and type from delegation
 		if (isset($r)) $_GET['r'] = $r; if (isset($t)) $_GET['t'] = $t; // override via ctor
+
 		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET))
-			throw new Exception('Missing rewrite delegation setup.', 500);						
+			throw new Exception('Missing rewrite delegation setup.', 500);
+			
 		$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
 		$uri = $_GET['r'].'.'.$type;			
 		unset($_GET['t']);
