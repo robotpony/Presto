@@ -84,8 +84,9 @@ class Response {
 		if ($this->sentHeaders) return true;
 		else $this->sentHeaders = 1;
 		
+		$v = defined('SERVICE_VERSION') ? SERVICE_VERSION : PRESTO_VERSION;
 		header("HTTP/1.0 {$c} {$message}");
-		header(VERSION_HEADER . ': ' . defined('SERVICE_VERSION') ? SERVICE_VERSION : PRESTO_VERSION);
+		header(VERSION_HEADER . ': ' . $v);
 		header('Cache-Control: no-cache');
 
 		if (in_array($c, array('201', '204'), true))
