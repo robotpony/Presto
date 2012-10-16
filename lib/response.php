@@ -37,11 +37,10 @@ class Response {
 
 
 	/* Set up the response */
-	public function __construct($ctx = null, $ver = null) {
+	public function __construct($ctx = null) {
 		if ($ctx === null) $ctx = (object) array('res' => 'json');
 
 		$this->call = $ctx;
-		self::$ver = $ver;
 
 		// register default type handlers
 
@@ -85,10 +84,8 @@ class Response {
 		if ($this->sentHeaders) return true;
 		else $this->sentHeaders = 1;
 		
-		if (!isset(self::$ver)) self::$ver = defined('SERVICE_VERSION') ? SERVICE_VERSION : PRESTO_VERSION;		
-		
 		header("HTTP/1.0 {$c} {$message}");
-		header(VERSION_HEADER . ': ' . self::$ver);
+		header(VERSION_HEADER . ': ' . defined('SERVICE_VERSION') ? SERVICE_VERSION : PRESTO_VERSION);
 		header('Cache-Control: no-cache');
 
 		if (in_array($c, array('201', '204'), true))

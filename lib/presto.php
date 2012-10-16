@@ -95,7 +95,7 @@ class Presto extends REST {
 				'exists' 	=> false);			
 	
 			// build the response object
-			self::$resp = new response($this->call, $o::$version);
+			self::$resp = new response($this->call);
 				
 			// verify the request
 			
