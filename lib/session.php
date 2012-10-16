@@ -25,10 +25,11 @@ class session {
 			'login_redirect' 	=> '',
 			'domain'			=> COOKIE_DOMAIN,
 			'secure'			=> SECURED_COOKIE,
-			'api_keyed'			=> false
+			'api_keyed'			=> false,
+			'key_auth'			=> null
 		);
 
-		if ($settings) $this->cfg = (object) array_merge($settings, $this->cfg);
+		if ($settings) $this->cfg = (object) array_merge($this->cfg, $settings);
 		else $this->cfg = (object) $this->cfg;
 
 		if (empty($this->cfg->cookie_name) || !isset($this->cfg->domain) ||
@@ -50,7 +51,7 @@ class session {
 			$this->t = new auth_token($_COOKIE[$this->cfg->cookie_name]);
 
 			if (!$this->t->ok())
-				throw new Exception('Invalid authorization token.', 412); // invalid auth
+				throw new Exception('Invalid authorization token.', 401); // invalid token
 
 		} catch (Exception $e) {
 			if ($e->getCode() != 401)
@@ -101,14 +102,24 @@ class session {
 	}
 
 	// get the current token
-	public function token() { return $this->t->ok() ? $this->t->encoded() : false; }
+	public function token() { return isset($this->t) && $this->t->ok() ? $this->t->encoded() : false; }
 	// get info about the current user
 	public function user() { return is_object($this->t) && $this->t->ok() ?
 		$this->t->parts() : false; }
 	// can an API key work?
-	private function supports_api_keying() { return $this->cfg->api_keyed && $this->cfg->api_key_header; }
+	private function supports_api_keying() { return $this->cfg->api_keyed && $this->cfg->api_key_header && array_key_exists($this->cfg->api_key_header, $_SERVER); }
 	// is this a session for an API?
 	private function is_api() { return class_exists('API') && class_exists('Presto'); }
 	// is the API key valid?
-	private function valid_key() { return $_SERVER[$this->cfg->api_key_header] === $this->cfg->sso_key; }
+	private function valid_key() { 
+
+		if (!array_key_exists($this->cfg->api_key_header, $_SERVER))
+			return false; // no API key
+		
+		$key = $_SERVER[$this->cfg->api_key_header];
+
+		// check as external key
+		return is_callable($this->cfg->key_auth)
+			&& call_user_func($this->cfg->key_auth, $key);
+	}
 }

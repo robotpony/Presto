@@ -43,7 +43,7 @@ class db extends PDO {
 	function select_row($sql, $bound_parameters = array()) {
     	$r = $this->select($sql, $bound_parameters);
     	$c = count($r);
-    	if ($c === 0) throw new Exception("Missing row from '$sql'", 500);
+    	if ($c === 0) throw new Exception("Found 0 rows", 500);
     	elseif ($c !== 1) throw new Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
     	return $r[0];
 	}
