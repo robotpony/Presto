@@ -172,7 +172,7 @@ class Service {
 				
 			case 'put':
 			case 'options':
-				curl_setopt($c, CURLOPT_PUT, 1);
+				curl_setopt($c, CURLOPT_POST, 1);
 				curl_setopt($c, CURLOPT_POSTFIELDS, $this->params());
 				$this->call->headers[] = $this->contentType();
 			break;					
