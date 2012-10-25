@@ -19,6 +19,7 @@ class session {
 
 		$this->cfg = array(
 			'cookie_name' 		=> SERVICE_COOKIE,
+			'token_header'		=> '',
 			'service' 			=> $serviceID,
 			'api_key_header' 	=> null,
 			'sso_key' 			=> null,
@@ -32,8 +33,7 @@ class session {
 		if ($settings) $this->cfg = (object) array_merge($this->cfg, $settings);
 		else $this->cfg = (object) $this->cfg;
 
-		if (empty($this->cfg->cookie_name) || !isset($this->cfg->domain) ||
-			!isset($this->cfg->secure))
+		if (empty($this->cfg->cookie_name) || !isset($this->cfg->domain) || !isset($this->cfg->secure))
 			throw new Exception('Missing Session class configuration.', 500);
 	}
 
@@ -41,14 +41,21 @@ class session {
 	public function is_authorized() {
 
 		try {
+			$t = '';
 
 			if ($this->supports_api_keying())
 				if ($this->valid_key()) return true;
 
-			if (!isset($_COOKIE[$this->cfg->cookie_name]))
-				throw new Exception('Not authorized (no session cookie).', 401); // not signed in
+			if (isset($_COOKIE[$this->cfg->cookie_name])) {
+				$t = $_COOKIE[$this->cfg->cookie_name];
+			} else {
+				if (!empty($this->cfg->token_header) && !isset($_SERVER[$this->cfg->token_header]))					
+					throw new Exception('Not authorized (no session cookie).', 401); // not signed in
+				else
+					$t = urldecode($_SERVER[$this->cfg->token_header]);
+			}
 
-			$this->t = new auth_token($_COOKIE[$this->cfg->cookie_name]);
+			$this->t = new auth_token($t);
 
 			if (!$this->t->ok())
 				throw new Exception('Invalid authorization token.', 401); // invalid token
