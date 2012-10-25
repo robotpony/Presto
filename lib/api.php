@@ -98,7 +98,7 @@ class API extends REST {
 	
 	/* Get a filtered variable (get filter_var_array + exceptions) */
 	static function filtered($thing, $rules, $defaults = null) {
-		if ($defaults) $thing = array_merge((array)$thing, $defaults);
+		if ($defaults) $thing = array_merge($defaults, (array)$thing);
 		$filtered = filter_var_array((array)$thing, $rules);
 
 		if ( $filtered === null )
