@@ -51,7 +51,7 @@ class session {
 			} else {
 				if (!empty($this->cfg->token_header) && !isset($_SERVER[$this->cfg->token_header]))					
 					throw new Exception('Not authorized (no session cookie).', 401); // not signed in
-				else
+				elseif (!empty($this->cfg->token_header))
 					$t = urldecode($_SERVER[$this->cfg->token_header]);
 			}
 
