@@ -125,11 +125,14 @@ class auth_token {
 	
 	/* Decrypt a token into parts (thows on errors) */
 	private function decrypt() {		
+		if (empty($this->t))
+			throw new Exception('Token is empty.', 401);
+
 		$t = openssl_decrypt($this->t, 
 			TOKEN_ENCRYPTION, TOKEN_SIGNING_KEY, false, SIGNING_INIT);
 
 		if (empty($t))
-			throw new Exception('Token empty.', 401);
+			throw new Exception('Token seems invalid.', 401);
 
 		parse_str( $t, $p );
 
