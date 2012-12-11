@@ -85,11 +85,14 @@ class auth_token {
 		// apply defaults
 		$this->set($p['t'], time(), $strict);
 		$this->set($p['w'], 60, $strict);
-				
+
 		// check for required elements
-		foreach (array('name', 'email', 'id', 'acct', 'a', 'c', 's') as $k)
+		foreach (array('name', 'id', 'acct', 'a', 'c', 's') as $k)
 			if (empty($p[$k])) // missing a required token element
 				throw new Exception('Invalid credentials, missing: '.$k, 401);
+				
+		if (empty($p['email']) && empty($p['key']))
+			throw new Exception('Invalid credentials, missing email and key, at least one is required', 401);
 
 		foreach ($p as $k => &$v) $v = urldecode($v); // remove URI encoding
 				
