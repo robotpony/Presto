@@ -10,7 +10,7 @@ try {
     $token = trim(file_get_contents("php://stdin"));
     $creds = trim($argv[1]);
     
-    $TLD = '';
+    $TLD = ''; // disable
     require($creds);
     
     $t = new auth_token($token);
@@ -20,9 +20,7 @@ try {
 } catch (Exception $e) { 
     $c = $e->getCode();
     
-    print $c . ': ' . $e->getMessage() . "\n";
-
-    print "\n\nToken : $token\n";
+    print $c . ': ' . $e->getMessage() . "\n\n";
     
     if ($c == 500) { ?>
      
