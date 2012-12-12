@@ -22,7 +22,7 @@ class auth_token {
 	private $t;
 	private $p;
 	private $hash;
-	public $roles = array();
+	private $roles = array();
 	
 	/* Create a token from parts or a token string */
 	public function __construct($v) {
@@ -107,7 +107,6 @@ class auth_token {
 				if (count($cap) !== 2) throw new Exception('Invalid token capabilities.', 401);
 				$role = $cap[0];
 				parse_str($cap[1], $list);
-				
 				$this->roles[$role] = array_keys($list);
 			}
 		}
@@ -152,11 +151,11 @@ class auth_token {
 		if (empty($p))
 			throw new Exception('Token format invalid.', 401);
 		
-		$this->build( $p );
-		$this->hash = sha1($this->checked_parts());
-			
-		if ($this->hash != $this->p->h)
+		if (!$this->build( $p ))
 			throw new Exception('Token integrity check failed.', 401);	
+			
+		if ($this->p->t + $this->p->w <= time())
+			throw new Exception('Token has expired', 401);
 			
 		return $this->p;
 	}
