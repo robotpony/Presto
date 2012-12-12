@@ -20,7 +20,7 @@ class db extends PDO {
         global $_db;
         if ($_db !== null) return $_db; // return cached
         
-        if ($confg === null)
+        if ($config === null)
 	        $config = array( PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' );
         
         try {
@@ -39,7 +39,14 @@ class db extends PDO {
 		$resultset = $this->statement->fetchAll(PDO::FETCH_CLASS);
 		$this->errors();
 		return $resultset;
-	} 
+	}
+	function select_row($sql, $bound_parameters = array()) {
+    	$r = $this->select($sql, $bound_parameters);
+    	$c = count($r);
+    	if ($c === 0) throw new Exception("Found 0 rows", 500);
+    	elseif ($c !== 1) throw new Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
+    	return $r[0];
+	}
 	
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, &$bound_parameters = array()) {

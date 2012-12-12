@@ -29,8 +29,7 @@ class API extends REST {
 			$concept = strtok('');
 
 			if (!empty($concept) && in_array($method, self::$METHODS))
-				$this->concepts[] = $concept;
-		
+				$this->concepts[] = $concept;		
 		}
 	}
 	/* Attach to Presto framework */
@@ -96,6 +95,23 @@ class API extends REST {
 	*/
 	public function restrictTo($types) {
 		return $this->validate_contentType($types);
+	}
+	
+	/* Get a filtered variable (get filter_var_array + exceptions) */
+	static function filtered($thing, $rules, $defaults = null) {
+		if ($defaults) $thing = array_merge($defaults, (array)$thing);
+		$filtered = filter_var_array((array)$thing, $rules);
+
+		if ( $filtered === null )
+			throw new Exception("Invalid or missing parameter(s)", 406);
+
+		if ( $missing = array_filter( $filtered, function($v) { return $v === null; } ) )
+			throw new Exception("Missing parameter(s): " . implode(array_keys($missing), ', '), 406);
+		
+		if ( $invalid = array_filter( $filtered, function($v) { return is_bool($v) && $v === FALSE; } ) )
+			throw new Exception("Invalid parameter(s): " . implode(array_keys($invalid), ', '), 406);
+
+		return (object) $filtered;
 	}
 	
 	private function validate_contentType($t) {
