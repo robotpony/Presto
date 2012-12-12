@@ -3,6 +3,7 @@
 // Presto global config and constants
 
 define('PRESTO', 'presto.php');
+define('PRESTO_VERSION', 'presto-v0.99');
 define('PRESTO_DEBUG', 0);
 define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
@@ -15,6 +16,7 @@ if (empty($_SERVER['HOST'])) $_SERVER['HOST'] = 'localhost';
 define('HOST', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
 define('PROTOCOL', isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443 ? 'https://': 'http://'); // TODO: handle common load balancers?
 define('BASE_URL', 	PROTOCOL.HOST);
+
 
 // Set up paths for simple auto class loading
 set_include_path(get_include_path()

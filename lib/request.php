@@ -12,9 +12,12 @@ class URI {
 	public $raw 		= '';
 	public $parameters 	= array();
 	
+	/* Response type implied by request extension. */
 	private $type		= '';
+	/* Content-type of request payload. */
+	private $payloadType = '';
 	private $path		= '';
-	private $options 	= array();
+	public $options 	= array();
 
 	/* Decode a URI into parts */	
 	public function __construct($uri) {
@@ -31,11 +34,15 @@ class URI {
 
 		$this->parameters = explode('/', $this->path);
 
-		if (!empty($uri->query)) parse_str($uri->query, $this->options);
+		$this->options = $_GET;
+		
+		$this->payloadType = $this->content_type($this->type);
 	}
 	
 	// get the resource type
 	public function type() { return $this->type; }
+	// get the resource type of the request payload
+	public function payloadType() { return $this->payloadType; }
 	// get the resource extension
 	public function ext() { return !empty($this->type) ? '.'.$this->type : ''; }
 	// get the resource name
@@ -56,6 +63,33 @@ class URI {
 	}
 	// bump a parameter off this URI
 	public function bump() { return array_pop($this->parameters); }
+	
+	/*
+		Helper: determine the content type of the call using $_SERVER['CONTENT_TYPE'] if possible.
+		If not default to the extension initially parsed off of the request URI.
+	*/
+	private function content_type($ext) {
+		
+		if (empty($_SERVER['CONTENT_TYPE'])) return $ext;
+		
+		$ct = strtolower($_SERVER['CONTENT_TYPE']);
+		$ct = explode(';', $ct);
+		
+		foreach ($ct as $v) {
+			$candidate = trim($v);
+		
+			switch ($candidate) {
+				case 'text/html':
+					return 'html';
+					
+				case 'application/json':
+					return 'json';
+	
+				default:
+					return $ext;
+			}
+		}
+	}
 	
 }
 
@@ -80,15 +114,22 @@ class Request {
 	public $post;
 
 	/* Set up  a request object (from PHP builtins) */	
-	public function __construct() {
-		
+	public function __construct($r = null, $t = null) {
+
 		// Use the URI from either .htaccess routing or the raw request
-		$uri = $_SERVER['REQUEST_URI'];		
-		if (array_key_exists('r', $_GET)) {
-			$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
-			$uri = $_GET['r'].'.'.$type;
-		}
-		
+		$uri = $_SERVER['REQUEST_URI'];
+
+		// Extract route and type from delegation
+		if (isset($r)) $_GET['r'] = $r; if (isset($t)) $_GET['t'] = $t; // override via ctor
+
+		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET))
+			throw new Exception('Missing rewrite delegation setup.', 500);
+			
+		$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
+		$uri = $_GET['r'].'.'.$type;			
+		unset($_GET['t']);
+		unset($_GET['r']);
+
 		// bootstrap request parameters
 		$this->uri = new URI($uri);
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
@@ -188,7 +229,7 @@ class Request {
 			
 			if (empty($body)) return $decoded_body; // no data, not an error
 
-			switch ($this->uri->type()) {
+			switch ($this->uri->payloadType()) {
 				case 'json':
 
 					if ( ! ($decoded_body = json_decode($body)) ) {
@@ -201,9 +242,9 @@ class Request {
 							JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
 							JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
 						);
-					
 						throw new Exception('Invalid JSON request payload. ' . $errors[json_last_error()], 400);
 					}
+
 				break;
 				
 				case 'xml':
