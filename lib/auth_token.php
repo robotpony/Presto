@@ -154,9 +154,6 @@ class auth_token {
 		if (!$this->build( $p ))
 			throw new Exception('Token integrity check failed.', 401);	
 			
-		if ($this->p->t + $this->p->w <= time())
-			throw new Exception('Token has expired', 401);
-			
 		return $this->p;
 	}
 
