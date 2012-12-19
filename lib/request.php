@@ -41,7 +41,10 @@ class URI {
 	
 	// get the resource type
 	public function type() { return $this->type; }
+	// is the resource a folder?
     public function isFolder() { return empty($this->path) || substr($this->path, -1) === '/'; }
+    // get the resource full path
+    public function path() { return empty($this->path) ? '/' : $this->path; }
 	// get the resource type of the request payload
 	public function payloadType() { return $this->payloadType; }
 	// get the resource extension
