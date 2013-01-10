@@ -21,10 +21,7 @@
 		"ext-fileinfo": ">=1.0.0",
 		"ext-date": ">=5.3.0",
 		"ext-json": ">=1.2.1",
-		"ext-PDO ": ">=1.0.4",
 		"lib-openssl": ">=0.9",
-		"lib-curl": ">=7.24.0",
-		"ext-pdo_mysql": ">=1.0.2"
-
+		"lib-curl": ">=7.24.0"
     }
 }
