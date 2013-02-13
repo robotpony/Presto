@@ -22,7 +22,8 @@ class auth_token {
 	private $t;
 	private $p;
 	private $hash;
-
+	private $roles = array();
+	
 	/* Create a token from parts or a token string */
 	public function __construct($v) {
 
@@ -97,8 +98,19 @@ class auth_token {
 		foreach ($p as $k => &$v) $v = urldecode($v); // remove URI encoding
 				
 		$this->p = (object) $p; // objectize for convinience
-		parse_str($this->p->c, $this->roles); // pull out roles (if available)
 
+		// extract capabilities+roles
+		if (strlen($this->p->c)) {
+			$roles = explode(',', $this->p->c);
+			foreach ($roles as $tuple) {
+				$cap = explode('/', $tuple);
+				if (count($cap) !== 2) throw new Exception('Invalid token capabilities.', 401);
+				$role = $cap[0];
+				parse_str($cap[1], $list);
+				$this->roles[$role] = array_keys($list);
+			}
+		}
+		
 		// lastly, apply a default value to the CRC (if needed/possible)
 		$this->set($this->p->h, sha1($this->checked_parts()), $strict);		
 		$this->hash = sha1($this->checked_parts());
@@ -139,10 +151,7 @@ class auth_token {
 		if (empty($p))
 			throw new Exception('Token format invalid.', 401);
 		
-		$this->build( $p );
-		$this->hash = sha1($this->checked_parts());
-			
-		if ($this->hash != $this->p->h)
+		if (!$this->build( $p ))
 			throw new Exception('Token integrity check failed.', 401);	
 			
 		return $this->p;
