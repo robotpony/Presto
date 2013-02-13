@@ -6,8 +6,12 @@ set_error_handler('handleError');
 try {
 
     if (count($argv) < 2) throw new Exception('Missing expected parameters.', 500);
-    
-    $token = trim(file_get_contents("php://stdin"));
+  	
+	if (count($argv) == 3 && $argv[2] == '-urldecode')
+		$token = urldecode( trim(file_get_contents("php://stdin")) );
+	else
+		$token = trim(file_get_contents("php://stdin"));
+	
     $creds = trim($argv[1]);
     
     $TLD = ''; // disable
@@ -26,7 +30,7 @@ try {
      
 Usage:
 
-    cat $token-file | php <?= $argv[0] ?> $path-to-token-variables
+    cat $token-file | php <?= $argv[0] ?> $path-to-token-variables [-urldecode]
         
 <?php    }
 }

@@ -236,6 +236,8 @@ class Service {
 	public function code() { return $this->call->info->http_code; }
 	public function payload() { return $this->result->body; }
 	public function info() { return $this->call; }
+	public function responseHeaders() { return $this->result->header; }
+	public function responseHeader($k) { return !empty($this->result->header[$k]) ? $this->result->header[$k] : null; }
 	// get the details of the last request
 	public function details() { return print "{$this->call->method} {$this->call->uri}{$this->call->id}"; }
 	public function opt($k,$v) { $this->options->$k = $v; }
