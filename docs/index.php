@@ -66,7 +66,7 @@
 <?php } else {
 
 	if (!(include('lib/markdown/markdown.php')))
-		$text = "<h1>Installation errror</h1><p>Your installation is missing the markdown submodule. Please run <code>git submodule init; git submodule update</code> from the Presto root.</p>";
+		$text = "<h1>Installation error</h1><p>Your installation is missing the markdown submodule. Please run <code>git submodule init; git submodule update</code> from the Presto root.</p>";
 	else {
 		$text = Markdown(file_get_contents($file));
 		$text = str_replace('<pre>', '<pre class="highlight" style="border: 0; padding: .75em;">', $text);
