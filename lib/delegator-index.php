@@ -1,12 +1,16 @@
 <?php include_once('inc.php');
 
-/* Presto: delegate API requests */
+/* Presto request delegator
 
-$p = null;
-
+	Symlink or copy this into your API folder. Requires .htaccess (see htaccess-example for details)
+*/
 try {
+	$p = null;
 	$p = new Presto();
 } catch (Exception $e) {
+	/* Last chance exception handler
+		Attempts to produce sane RESTful output if other error mechanisms have failed. Limited to JSON responses.
+	*/
 	$n = $e->getCode();
 	$message = $e->getMessage();
 	$via = $e->getPrevious();
@@ -20,7 +24,8 @@ try {
 
 	if ($via) $payload['error'] = array('message' => $via->getMessage(), 'code' => $via->getCode());
 
-	error_log(json_encode($payload)); // also send to syslop
+	if (PRESTO_DEBUG)
+		error_log(json_encode($payload)); // also send to syslop
 
 	header("HTTP/1.0 $n API error");
 	header("Content-Type: application/json");
