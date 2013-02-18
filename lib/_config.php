@@ -1,9 +1,9 @@
-<?php 
+<?php
 
 // Presto global config and constants
 
 define('PRESTO', 'presto.php');
-define('PRESTO_VERSION', 'presto-v0.99');
+define('PRESTO_VERSION', 'presto-v1.01');
 define('PRESTO_DEBUG', 0);
 define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
@@ -20,26 +20,27 @@ define('BASE_URL', 	PROTOCOL.HOST);
 
 // Set up paths for simple auto class loading
 set_include_path(get_include_path()
-  . PATH_SEPARATOR . PRESTO_BASE
-  . PATH_SEPARATOR . API_BASE
-  . PATH_SEPARATOR . API_BASE . '/lib/'
-  . PATH_SEPARATOR . API_BASE . '/lib/extras/');	
+	. PATH_SEPARATOR . PRESTO_BASE
+	. PATH_SEPARATOR . API_BASE
+	. PATH_SEPARATOR . API_BASE . '/lib/'
+	. PATH_SEPARATOR . API_BASE . '/lib/extras/'
+	. PATH_SEPARATOR . API_BASE . '/lib/encoders/');
 
 // Set up a base exception for PHP errors (redirects most PHP errors as Exeptions for more consistent handling from APIs)
-class PrestoException extends Exception { 
+class PrestoException extends Exception {
 	public static function errorHandlerCallback($code, $string, $file, $line, $context) {
-	
+
 		if (error_reporting() != 0)
-			return; 
-			
+			return;
+
 		$e = new self($string, $code);
-		
+
 		$e->line = $line;
 		$e->file = $file;
 
 		throw $e;
 	}
-} 
+}
 
 // Set up PHP error handling (note these settings are overriden by explicit PHP ini settigns, we should address this)
 
