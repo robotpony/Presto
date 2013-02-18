@@ -1,6 +1,7 @@
 <?php include_once('_config.php');
 
 include_once(PRESTO_BASE.'/_helpers.php');
+include_once(PRESTO_BASE.'/autoloader.php');
 include_once(PRESTO_BASE.'/api.php');
 
 /* Presto micro web services framework
@@ -24,14 +25,6 @@ class Presto extends REST {
 		}
 	}
 
-	private static function autoload_explicit($class) {
-		// First look in the base directory for the web app
-		$class_file = strtolower($class) . ".php";
-		if (file_exists($class_file))
-			return require_once($class_file);
-
-		throw new Exception("API `$class` not found.", 404);
-	}
 
 	/* Dispatch requests to classes and class methods */
 	private function dispatch() {
@@ -44,7 +37,7 @@ class Presto extends REST {
 
 			// Create an an instance of the API subclass (autoloaded)
 			
-			self::autoload_explicit($obj);
+			autoload_explicit($obj);
 			if (!class_exists($obj)) throw new Exception("API not found for $obj", 404);
 			$o = new $obj();
 
