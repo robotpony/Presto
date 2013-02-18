@@ -8,12 +8,8 @@ class session {
 	private $t;
 	private $cfg;
 
-	/* Set up session
+	/* Create a new session
 
-	## Parameters
-
-		session name
-		extra settings
 	*/
 	public function __construct($serviceID, $settings = null) {
 
