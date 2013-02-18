@@ -1,5 +1,8 @@
 <?php
 
+/* A PrestoPHP HTTP response
+
+*/
 class Response {
 	private $call;
 	private $sentHeaders = 0;
@@ -12,7 +15,7 @@ class Response {
 			'204' => 'No Content', // (NO BODY)
 			'205' => 'Reset Content', // (NO BODY)
 			'206' => 'Partial Content', // (ADD'L HEADERS)
-			
+
 			'304' => 'Not modified',
 
 			'400' => 'Bad request',
@@ -80,10 +83,10 @@ class Response {
 	/* Generate an appropriate HTTP header */
 	public function hdr($c = '200', $h = null) {
 		$message = array_key_exists($c, $this->codes) ? $this->codes[$c] : 'Internal error';
-		
+
 		if ($this->sentHeaders) return true;
 		else $this->sentHeaders = 1;
-		
+
 		$v = defined('SERVICE_VERSION') ? SERVICE_VERSION : PRESTO_VERSION;
 		header("HTTP/1.0 {$c} {$message}");
 		header(VERSION_HEADER . ': ' . $v);
@@ -110,7 +113,7 @@ class Response {
 
 		if (strpos($this->call->res, '/')) return $this->call->res; // already a content-type
 
-		// map obvious content types (should be an array?)
+		// map obvious content types
 		switch ($this->call->res) {
 			case 'html':
 			case 'htm':
@@ -143,43 +146,3 @@ class Response {
 
 	public function __toString() { return print_r($this, true); }
 }
-
-/* Simple HTML encoder */
-function _encode_html($node,  $map = null) {
-	static $d = 0;
-	static $mapper;
-
-	if ($mapper === null && $map !== null) $mapper = $map;
-
-	if (!isset($d) || $map !== null) {
-		$d = -1;
-		return _encode_html(array('html' => array('body' => $node)));
-	}
-
-	$indent = str_repeat("\t", $d);	// indent for pretty printing
-
-	if (is_string($node)) return print "\n$indent$node";
-	elseif (is_array($node)) {
-
-		// descend into child nodes
-
-		$d++;
-		foreach ($node as $k => &$v) {
-			$a = '';
-
-			if (empty($k) || is_numeric($k))
-				$k = 'li'; // assume lists are LIs
-
-			if (is_callable($mapper))
-				$k = $mapper($k, $v, $a, $d);
-
-			// print node
-
-			print "\n$indent<$k$a>";
-			_encode_html($v); // recurse
-			print "\n$indent</$k>";
-		}
-		$d--;
-	}
-}
-
