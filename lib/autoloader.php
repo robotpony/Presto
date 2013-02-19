@@ -27,8 +27,8 @@ function presto_autoloader($class) {
 // Register the autoloader.
 spl_autoload_register('presto_autoloader');
 
-
-function autoload_explicit($class) {
+// Explicit autoloading (for delegation)
+function autoload_simple($class) {
 	// First look in the base directory for the web app
 	$class_file = strtolower($class) . ".php";
 	if (file_exists($class_file))

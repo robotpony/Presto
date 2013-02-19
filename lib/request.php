@@ -57,9 +57,9 @@ class URI {
 	// get all of the URI optins as an object
 	public function options() { return (object) $this->options; }
 	// get the concept that this URI refers to
-	public function concept() { return !empty($this->parameters[1]) ? presto_lib::cleanup($this->parameters[1]) : ''; }
+	public function concept() { return !empty($this->parameters[1]) ? presto_lib::_cleanup($this->parameters[1]) : ''; }
 	// get the component that this URI refers to
-	public function component($d) { return presto_lib::coalesce(presto_lib::cleanup( reset($this->parameters)), $d ); }
+	public function component($d) { return presto_lib::coalesce(presto_lib::_cleanup( reset($this->parameters)), $d ); }
 
 	/*
 		Helper: determine the content type of the call using $_SERVER['CONTENT_TYPE'] if possible.
@@ -90,7 +90,7 @@ class URI {
 
 }
 
-/** A REST request
+/* A REST request
 
 	Decodes and makes available various portions of a request, including: the URI, and the encoded request body.
 */
@@ -100,6 +100,7 @@ class Request {
 	public $method;
 	public $action;
 	public $service;
+	public $container;
 	public $uri;
 	public $query;
 	public $get;
@@ -111,23 +112,18 @@ class Request {
 		// Use the URI from either .htaccess routing or the raw request
 		$uri = $_SERVER['REQUEST_URI'];
 
-		$container = isset($_GET['c']) ? $_GET['c'] : '';
-		
-presto_lib::_trace($container);
+		$container = presto_lib::_get('c');
+		$route = presto_lib::_get('r', $r);
+		$type = presto_lib::_get('t', $t);
+		$type = presto_lib::_c($type, 'json');
+		$uri = !empty($container) ? "$container/$route.$type" : "$route.$type";
+		if (empty($route)) throw new Exception('Missing rewrite delegation setup.', 500);
 
-		// Extract route and type from delegation
-		if (isset($r)) $_GET['r'] = $r; if (isset($t)) $_GET['t'] = $t; // override via ctor
-
-		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET))
-			throw new Exception('Missing rewrite delegation setup.', 500);
-
-		$type = array_key_exists('t', $_GET) ? $_GET['t'] : 'json';
-		$uri = $_GET['r'].'.'.$type;
-		unset($_GET['t']);
-		unset($_GET['r']);
+		unset($_GET['t']); unset($_GET['r']); unset($_GET['c']);
 
 		// bootstrap request parameters
 		$this->uri = new URI($uri);
+		$this->container = $container;
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
 		$this->action = presto_lib::coalesce($this->method, 'get');
 		$this->host = $_SERVER['HTTP_HOST'];
@@ -137,7 +133,7 @@ presto_lib::_trace($container);
 		$_GET = array();
 	}
 
-	/** Get a GET value (or values)
+	/* Get a GET value (or values)
 
 	Relies on PHP's built in filtering mechanics. These are a reliable, thourough set
 	of filters. Learn them. Use them.
@@ -161,7 +157,7 @@ presto_lib::_trace($container);
 		throw new Exception('Missing or invalid GET parameter', 400);
 	}
 
-	/** Get a post value (or values)
+	/* Get a post value (or values)
 
 	Relies on PHP's built in filtering mechanics. These are a reliable, thourough set
 	of filters. Learn them. Use them.
@@ -206,7 +202,7 @@ presto_lib::_trace($container);
 		return false;
 	}
 
-	/** Get a request body
+	/* Get a request body
 
 	Currently supports:
 	
