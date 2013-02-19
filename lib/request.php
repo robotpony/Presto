@@ -55,8 +55,8 @@ class URI {
 		? $this->options[$k] : NULL ; }
 	// get all of the URI optins as an object
 	public function options() { return (object) $this->options; }
-	// get the concept that this URI refers to
-	public function concept() { return !empty($this->parameters[1]) ? presto_lib::_cleanup($this->parameters[1]) : ''; }
+	// get the root resource concept that this URI refers to
+	public function root() { return !empty($this->parameters[1]) ? presto_lib::_cleanup($this->parameters[1]) : ''; }
 	// get the component that this URI refers to
 	public function component($d) { return presto_lib::coalesce(presto_lib::_cleanup( reset($this->parameters)), $d ); }
 
@@ -95,12 +95,15 @@ class URI {
 */
 class Request {
 
+	public $uri;
+
+	public $type;
+
 	public $host;
 	public $method;
 	public $action;
 	public $service;
 	public $container;
-	public $uri;
 	public $query;
 	public $get;
 	public $post;
@@ -122,7 +125,8 @@ class Request {
 
 		// setup request parameters
 		
-		$this->uri = new URI($uri, $route, $type, $container);
+		$this->uri = new URI($uri, $type);
+		$this->type = $type;
 		$this->container = $container;
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
 		$this->action = presto_lib::_c($this->method, 'get');

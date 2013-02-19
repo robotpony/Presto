@@ -31,24 +31,25 @@ class Presto extends REST {
 
 		try {
 
-			$obj = self::$req->uri->component(/* defaults to */ 'error');
-			$action = self::$req->action;	// determines the request action (method)
-			$concept = self::$req->uri->concept(); // determine the thing (resource)
-			$type = self::$req->uri->type();
+			$in = self::$req->container;
+			$obj = self::$req->uri->component($in, 'error');
+			$action = self::$req->action;	// the request action (method)
+			$res = self::$req->uri->root(); // the root resource
+			$type = self::$req->type;
 			
 			// Create an an instance of the API subclass (autoloaded)
 			
-			autoload_simple($obj, self::$req->container);
+			autoload_simple($obj, $in);
 			if (!class_exists($obj)) throw new Exception("API not found for $obj", 404);
 			$o = new $obj();
 
 			// Calidate that the concept (noun) is valid
 			
-			if (!$o->is_valid_concept($concept)) $concept = ''; // no concept available
+			if (!$o->is_valid_concept($res)) $res = ''; // no concept available
 
 			// Build the call pseudo object
 
-			$method = (strlen($concept)) ? "{$action}_{$concept}" : $action;
+			$method = (strlen($res)) ? "{$action}_{$res}" : $action;
 			
 			$this->call = (object) array(
 				'class' 	=> $obj,
