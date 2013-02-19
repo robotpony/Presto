@@ -17,6 +17,6 @@ class presto_lib {
 	// simple trace (to apache error log)	
 	static function _trace() {
 		if (PRESTO_DEBUG == 0) return;
-		error_log("PRESTO: ".implode("\n\t", func_get_args()));
+		error_log("PRESTO: ".implode(', ', func_get_args()));
 	}
 }
