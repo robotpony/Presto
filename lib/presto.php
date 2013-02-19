@@ -107,17 +107,18 @@ class Presto extends REST {
 		}
 
 		// build the resulting error object
-		$details = (object) array(
+		$details = json_encode( (object) array(
 			'status' => $status,
 			'code' => $n,
 			'error' => $text,
 			'file' => $file,
 			'line' => $line,
 			'ctx' => $ctx
-		);
-
+		));
+		
+		presto_lib::_trace('FATAL', $status, $details);
 		self::$resp->hdr($status);
-		print json_encode($details);
+		print $details;
 		die;
 	}
 
