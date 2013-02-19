@@ -16,7 +16,7 @@ class presto_lib {
 	static function _cleanup($p) { return str_replace('-', '_', $p); }
 	// simple trace (to apache error log)	
 	static function _trace() {
-		if (PRESTO_DEBUG == 0) return;
+		if (PRESTO_TRACE == 0) return;
 		error_log("PRESTO: ".implode(', ', func_get_args()));
 	}
 }

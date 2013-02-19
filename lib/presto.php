@@ -31,14 +31,14 @@ class Presto extends REST {
 
 		try {
 
-			$obj = self::$req->uri->component('error' /* default */);
+			$obj = self::$req->uri->component(/* defaults to */ 'error');
 			$action = self::$req->action;	// determines the request action (method)
 			$concept = self::$req->uri->concept(); // determine the thing (resource)
 			$type = self::$req->uri->type();
 			
 			// Create an an instance of the API subclass (autoloaded)
 			
-			autoload_simple($obj);
+			autoload_simple($obj, self::$req->container);
 			if (!class_exists($obj)) throw new Exception("API not found for $obj", 404);
 			$o = new $obj();
 

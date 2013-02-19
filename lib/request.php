@@ -13,8 +13,8 @@ class URI {
 	public $raw 		= '';
 	public $parameters 	= array();
 	public $options 	= array();
-	private $type		= ''; 		/* Response type implied by request extension. */
-	private $payloadType = ''; 		/* Content-type of request payload. */
+	private $type		= ''; 		/* Response type */
+	private $payloadType = ''; 		/* Content-type (of request payload) */
 	private $path		= '';
 
 	/* Decode a URI into parts */
@@ -24,15 +24,14 @@ class URI {
 		$uri = (object) parse_url(ltrim($uri, '/'));
 
 		if (empty($uri->path)) $uri->path = '';
-
 		$this->type = pathinfo($uri->path, PATHINFO_EXTENSION);
-
 		$uri->path = str_replace('.'.$this->type, '', $uri->path);
 		$this->path = str_replace($this->type, '', $uri->path);
 
 		$this->parameters = explode('/', $this->path);
 
 		$this->options = $_GET;
+		$_GET = array(); // discourage use of $_GET
 
 		$this->payloadType = $this->content_type($this->type);
 	}
@@ -121,16 +120,14 @@ class Request {
 
 		unset($_GET['t']); unset($_GET['r']); unset($_GET['c']);
 
-		// bootstrap request parameters
-		$this->uri = new URI($uri);
+		// setup request parameters
+		
+		$this->uri = new URI($uri, $route, $type, $container);
 		$this->container = $container;
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
-		$this->action = presto_lib::coalesce($this->method, 'get');
+		$this->action = presto_lib::_c($this->method, 'get');
 		$this->host = $_SERVER['HTTP_HOST'];
 		$this->service = strstr($this->host, '.', -1);
-
-		// reset wrapped globals
-		$_GET = array();
 	}
 
 	/* Get a GET value (or values)
