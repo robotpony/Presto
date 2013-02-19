@@ -56,15 +56,10 @@ class URI {
 		? $this->options[$k] : NULL ; }
 	// get all of the URI optins as an object
 	public function options() { return (object) $this->options; }
-	// get the thing that this URI refers to
-	public function thing() { return !empty($this->parameters[1]) ? str_replace('-', '_', $this->parameters[1]): ''; }
+	// get the concept that this URI refers to
+	public function concept() { return !empty($this->parameters[1]) ? presto_lib::cleanup($this->parameters[1]) : ''; }
 	// get the component that this URI refers to
-	public function component($d) {
-		return presto_lib::coalesce(
-			str_replace('-', '_', reset($this->parameters)), $d );
-	}
-	// bump a parameter off this URI
-	public function bump() { return array_pop($this->parameters); }
+	public function component($d) { return presto_lib::coalesce(presto_lib::cleanup( reset($this->parameters)), $d ); }
 
 	/*
 		Helper: determine the content type of the call using $_SERVER['CONTENT_TYPE'] if possible.
@@ -116,6 +111,10 @@ class Request {
 		// Use the URI from either .htaccess routing or the raw request
 		$uri = $_SERVER['REQUEST_URI'];
 
+		$container = isset($_GET['c']) ? $_GET['c'] : '';
+		
+presto_lib::_trace($container);
+
 		// Extract route and type from delegation
 		if (isset($r)) $_GET['r'] = $r; if (isset($t)) $_GET['t'] = $t; // override via ctor
 
@@ -136,8 +135,6 @@ class Request {
 
 		// reset wrapped globals
 		$_GET = array();
-
-
 	}
 
 	/** Get a GET value (or values)
