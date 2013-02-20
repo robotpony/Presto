@@ -6,6 +6,8 @@ class presto_lib {
 	// return the first valid value
 	static function coalesce() { return array_shift(@array_filter(func_get_args())); }
 	static function _c() { return array_shift(@array_filter(func_get_args())); }
+	//
+	static function _at($a, $k, $d = '') { return isset($a[$k]) ? $a[$k] : $d; }
 	// get wrapper (with default)
 	static function _get($k, $d = '') { return isset($_GET[$k]) ? $_GET[$k] : $d; }
 	// post wrapper (with default)

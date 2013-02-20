@@ -116,7 +116,7 @@ class API extends REST {
 
 	private function validate_contentType($t) {
 		$in = self::$ctx->class . '::' . self::$ctx->method . '()';
-		$res = self::$ctx->res;
+		$res = self::$ctx->resource;
 
 		if (!is_array($t)) $t = array($t);
 		if (!in_array($res, $t)) throw new Exception("Unsupported media type $res for $in.", 415);

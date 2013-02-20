@@ -28,12 +28,9 @@ function presto_autoloader($class) {
 spl_autoload_register('presto_autoloader');
 
 // Explicit autoloading (for delegation)
-function autoload_simple($class, $container) {
+function autoload_simple($call) {
 
-presto_lib::_trace('AUTOLOAD', $class, $container);
-	$class_file = strtolower($class) . ".php";
-	if (file_exists($class_file))
-		return require_once($class_file);
+	if (file_exists($call->file)) return require_once($call->file);
 
-	throw new Exception("API `$class` not found.", 404);
+	throw new Exception("API `$call->class` not found in `$call->file`.", 404);
 }

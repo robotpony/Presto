@@ -31,34 +31,30 @@ class Presto extends REST {
 
 		try {
 
-			$in = self::$req->container;
-			$obj = self::$req->uri->component($in, 'error');
-			$action = self::$req->action;	// the request action (method)
-			$res = self::$req->uri->root(); // the root resource
-			$type = self::$req->type;
+			$this->call = self::$req->scheme();
 			
+			$in = self::$req->container;
+			$obj = self::$req->route;
+			$action = self::$req->action;	// the request action (method)
+			$res = $this->call->resource; // the root resource
+			$type = self::$req->type;
+			$method = $this->call->method;
+
+			presto_lib::_trace('DISPATCH', "[$action] ($in) $obj + $res ($type)");
+presto_lib::_trace( 'DISPATCH II', json_encode(self::$req->scheme()) );
+
 			// Create an an instance of the API subclass (autoloaded)
 			
-			autoload_simple($obj, $in);
-			if (!class_exists($obj)) throw new Exception("API not found for $obj", 404);
+			autoload_simple($this->call);
+			
+			if (!class_exists($obj))
+				throw new Exception("API not found for $obj", 404);
 			$o = new $obj();
 
 			// Calidate that the concept (noun) is valid
 			
-			if (!$o->is_valid_concept($res)) $res = ''; // no concept available
+			if (!$o->is_valid_concept($res)) $res = ''; // no concept available TODO
 
-			// Build the call pseudo object
-
-			$method = (strlen($res)) ? "{$action}_{$res}" : $action;
-			
-			$this->call = (object) array(
-				'class' 	=> $obj,
-				'method' 	=> $method,
-				'res' 		=> $type,
-				'params' 	=> self::$req->uri->parameters,
-				'options'	=> self::$req->uri->options,
-				'exists' 	=> false
-			);
 
 			// Start the response setup
 			
@@ -69,8 +65,8 @@ class Presto extends REST {
 			if ($obj == 'error') // disallow root component access
 				throw new Exception('Root access not allowed', 403);
 
-			if (!method_exists($obj, $method)) // check that the resource is valid
-				throw new Exception("Can't find $obj->$method()", 404);
+			if (!method_exists($obj, $this->call->method)) // valid route?
+				throw new Exception("Can't find $obj->$method", 404);
 
 			$this->call->exists = true;
 			presto_lib::_trace("Dispatching to $obj::$method");
@@ -116,7 +112,7 @@ class Presto extends REST {
 			'ctx' => $ctx
 		));
 		
-		presto_lib::_trace('FATAL', $status, $details);
+		error_log('FATAL', $status, $details);
 		self::$resp->hdr($status);
 		print $details;
 		die;
