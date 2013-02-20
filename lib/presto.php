@@ -34,19 +34,23 @@ class Presto extends REST {
 			$this->call = self::$req->scheme();
 			
 			$in = self::$req->container;
-			$obj = self::$req->route;
 			$action = self::$req->action;	// the request action (method)
-			$res = $this->call->resource; // the root resource
-			$type = self::$req->type;
+			$obj = $this->call->class;
 			$method = $this->call->method;
+			$type = self::$req->type;
+
+			$res = $this->call->resource; // the root resource
 
 			// Create an an instance of the API subclass (autoloaded)
 			
 			autoload_simple($this->call);
 			
 			if (!class_exists($obj))
-				throw new Exception("API not found for $obj", 404);
+				throw new Exception("API class not found for $obj::$method", 404);
+				
 			$o = new $obj();
+
+presto_lib::_trace('DISPATCH', "[{$this->call->file}] $obj::$method ({$this->call->type})");
 
 			// Calidate that the concept (noun) is valid
 			

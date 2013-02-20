@@ -15,7 +15,7 @@ class presto_lib {
 	// build a valid path (false if it's not valid)
 	static function _pathinate($p,$b = API_BASE) { return realpath($b . '/' . $p); }
 	// cleanup a uri string (this is not sanitize)
-	static function _cleanup($p) { return str_replace('-', '_', $p); }
+	static function _cleanup($p) { return str_replace(array('-', '%20'), '_', $p); }
 	// simple trace (to apache error log)	
 	static function _trace() {
 		if (PRESTO_TRACE == 0) return;

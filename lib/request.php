@@ -64,13 +64,13 @@ class Request {
 		$method = empty($this->$res) ? $this->method : $this->method . '_' . $res;
 		
 		return (object) array(
-			'container' => $this->container,
-			'class' 	=> $class,
+			'container' => presto_lib::_cleanup($this->container),
+			'class' 	=> presto_lib::_cleanup($class),
 			'file'		=> $file,
 			'resource' 	=> $res,
 			'type'		=> $this->type,
-			'verb'		=> $this->method,
-			'method' 	=> $method,
+			'action'	=> $this->method,
+			'method' 	=> presto_lib::_cleanup($method),
 			'params' 	=> $this->params(),
 			'options' 	=> $this->options
 		);
