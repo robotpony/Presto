@@ -37,7 +37,7 @@ class Request {
 		$this->type = presto_lib::_c(presto_lib::_get('t', $t), 'json');
 		$params = $this->params();
 		
-		presto_lib::_trace('REQUEST', "$this->uri ($this->container) $this->route ($this->type)");
+//		presto_lib::_trace('REQUEST', "$this->uri ($this->container) $this->route ($this->type)");
 
 		if (empty($this->route) || empty($this->type))
 			throw new Exception("Missing rewrite delegation setup for $uri.", 500);
@@ -68,6 +68,7 @@ class Request {
 			'class' 	=> $class,
 			'file'		=> $file,
 			'resource' 	=> $res,
+			'type'		=> $this->type,
 			'verb'		=> $this->method,
 			'method' 	=> $method,
 			'params' 	=> $this->params(),

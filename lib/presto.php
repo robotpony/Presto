@@ -40,9 +40,6 @@ class Presto extends REST {
 			$type = self::$req->type;
 			$method = $this->call->method;
 
-			presto_lib::_trace('DISPATCH', "[$action] ($in) $obj + $res ($type)");
-presto_lib::_trace( 'DISPATCH II', json_encode(self::$req->scheme()) );
-
 			// Create an an instance of the API subclass (autoloaded)
 			
 			autoload_simple($this->call);
