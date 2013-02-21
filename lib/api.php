@@ -18,6 +18,8 @@ class API extends REST {
 	/* Initialization */
 	public function __construct($v = '' /* version for headers */) {
 		self::$version = $v;
+		
+		if (func_num_args() == 2) throw new Exception('Code upgrade required (Presto base classes have changed).', 500);
 	}
 	
 	/* Attach to Presto framework */
