@@ -3,7 +3,7 @@
 // Presto global config and constants
 
 define('PRESTO', 'presto.php');
-define('PRESTO_VERSION', 'presto-v1.01');
+define('PRESTO_VERSION', 'presto-v1.10');
 define('PRESTO_DEBUG', 0);
 define('PRESTO_TRACE', 1);
 define('VERSION_HEADER', 'X-Api-Version');
