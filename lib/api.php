@@ -7,8 +7,7 @@
 */
 class API extends REST {
 
-	private $concepts;
-	private $delegates = array();
+	private $filters = array();
 	private $status = 200;
 	private $headers = array();
 	public static $version;
@@ -17,21 +16,10 @@ class API extends REST {
 	public static $req;
 
 	/* Initialization */
-	public function __construct($c /* class for introspection */, $v = '' /* version for headers */) {
-
+	public function __construct($v = '' /* version for headers */) {
 		self::$version = $v;
-
-		// learn valid REST concepts from class members
-
-		foreach (get_class_methods($c) as $fn) {
-
-			$method = strtok($fn, '_');
-			$concept = strtok('');
-
-			if (!empty($concept) && in_array($method, self::$METHODS))
-				$this->concepts[] = $concept;
-		}
 	}
+	
 	/* Attach to Presto framework */
 	public function attach($ctx, $resp, $req) {
 		self::$ctx = $ctx;
@@ -50,24 +38,20 @@ class API extends REST {
 	}
 	public function headers() { return $this->headers; }
 
-	/* Test if a route refers to a valid concept (member) */
-	public function is_valid_concept($c) { return !empty($this->concepts)
-		&& in_array($c, $this->concepts); }
-
 	/*	Advanced route mapping
 
-		Adds a mapping between a URI pattern and a callback to delegate to. Used to route complex
-		sub delegates, for things like hierarchical resources.
+		Adds a mapping between a URI pattern and a callback to filter to. Used to route complex
+		sub filters, for things like hierarchical resources.
 	*/
-	public function add_delegate($regex, $delegateFn) {
+	public function add_filter($regex, $filterFn) {
 
-		// check for conflicts in previously added delegates.
-		if (array_key_exists($regex, $this->delegates))
-			throw new Exception("URI delegate already exists: pattern collision for '$regex'", 500);
+		// check for conflicts in previously added filters.
+		if (array_key_exists($regex, $this->filters))
+			throw new Exception("URI filter already exists: pattern collision for '$regex'", 500);
 
 		// preflight (and compile + cache) the regex ... errors handled by Presto.
 		preg_match($regex, '');
-		$this->delegates[$regex] = $delegateFn;
+		$this->filters[$regex] = $filterFn;
 	}
 
 	/* Do delegation for hierarchical sub-routes
@@ -76,12 +60,12 @@ class API extends REST {
 
 		Throws if delegation fails.
 	*/
-	public function delegate($ctx, $data = null) {
-		if (empty($this->delegates) || empty($ctx) || empty($ctx->params))
+	public function filter($ctx, $data = null) {
+		if (empty($this->filters) || empty($ctx) || empty($ctx->params))
 			throw new Exception('Unserviceable internal delegation attempt.', 501);
 
 		$path = implode('/', array_slice($ctx->params, 1));
-		foreach ($this->delegates as $p => $d) {
+		foreach ($this->filters as $p => $d) {
 			if (preg_match($p, $path)) {
 				if (empty($data)) return $this->$d($ctx);
 				else return $this->$d($ctx, $data);
