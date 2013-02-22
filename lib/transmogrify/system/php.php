@@ -1,15 +1,8 @@
 <?php
 
-/* An API for returning information
+/* PHP compatibility tests
 
-	Notice that the classname matches the filename, which will match the URLs it serves.
-
-	This class will service requests like:
-
-		example.com/info.json
-		example.com/info/some/path.json
-
-	The requests will be mapped to class functions named <method>_<thing>.<resource type>.
+	* Internal testing route for the Presto install tools
 */
 class php extends API {
 

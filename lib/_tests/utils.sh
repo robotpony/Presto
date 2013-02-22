@@ -25,7 +25,10 @@ get() {
 
     # TODO - check return type
     # TODO - get status
-x
-	if [ ${DEBUG} ] ; then echo ${response} | python -mjson.tool; fi
+
+	if [ ${DEBUG} ] ; then 
+        echo ${response}
+        echo ${response} | python -mjson.tool
+    fi
 }
 
