@@ -16,7 +16,9 @@ get() {
 		* )
 			echo -e " #$? ${OK}"			
 	esac
-	
+
+    # TODO - check return type
+    # TODO - get status
 	if [ ${DEBUG} ] ; then echo ${response} | python -mjson.tool; fi
 }
 
