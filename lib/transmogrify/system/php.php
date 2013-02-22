@@ -30,4 +30,11 @@ class php extends API {
 		$this->restrictTo('html');
 		return phpinfo();
 	}
+	
+	public function get_version() {
+		$ver = explode('.', phpversion());
+		$ok = ($ver[0] >= '5' && $ver[1] >= 3);
+		
+		return array('is_compatible' => (boolean) $ok, 'version' => $ver);
+	}
 }
