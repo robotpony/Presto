@@ -35,6 +35,15 @@ class php extends API {
 		$ver = explode('.', phpversion());
 		$ok = ($ver[0] >= '5' && $ver[1] >= 3);
 		
-		return array('is_compatible' => (boolean) $ok, 'version' => $ver);
+		$libs = array(
+			'curl' => array( 'is_compatible' => (boolean) function_exists('curl_init'), 'version' => curl_version() ),
+			'json*' => array('is_compatible' => (boolean) function_exists('json_encode'), 'version' => '' )
+		);
+
+		return array(
+			'is_compatible' => (boolean) $ok, 
+			'version' => $ver,
+			'libs' => $libs
+		);
 	}
 }
