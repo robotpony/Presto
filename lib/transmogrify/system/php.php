@@ -24,6 +24,7 @@ class php extends API {
 		return phpinfo();
 	}
 	
+	// Gets php versioning and compatibility
 	public function get_version() {
 		$ver = explode('.', phpversion());
 		$ok = ($ver[0] >= '5' && $ver[1] >= 3);
