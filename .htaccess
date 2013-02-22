@@ -4,6 +4,15 @@ RewriteEngine On
 RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(transmogrify/(?:info|system|tests))/(.*)\.(.*)$ /lib/delegator-index.php?r=$2&t=$3&c=$1 [L]
+RewriteRule ^(transmogrify/(?:info|system|tests))/$ /lib/delegator-index.php?r=$1&t=LIST [L]
+RewriteRule ^(transmogrify/.*)\.(.*)$ /lib/delegator-index.php?r=$1&t=$2 [L]
+RewriteRule ^(transmogrify/.*)$ /lib/delegator-index.php?r=$1&t=LIST [L]
+
+
+
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ /docs/index.php?presto&page=$1 [NC,L]
 </IfModule>
 

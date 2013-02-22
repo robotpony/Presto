@@ -1,6 +1,7 @@
 <?php include_once('_config.php');
 
 include_once(PRESTO_BASE.'/_helpers.php');
+include_once(PRESTO_BASE.'/autoloader.php');
 include_once(PRESTO_BASE.'/api.php');
 
 /* Presto micro web services framework
@@ -24,46 +25,32 @@ class Presto extends REST {
 		}
 	}
 
-	private static function autoload_explicit($class) {
-		// First look in the base directory for the web app
-		$class_file = strtolower($class) . ".php";
-		if (file_exists($class_file))
-			return require_once($class_file);
-
-		throw new Exception("API `$class` not found.", 404);
-	}
 
 	/* Dispatch requests to classes and class methods */
 	private function dispatch() {
 
 		try {
 
-			$obj = self::$req->uri->component('error' /* default to an error route */);
-			$action = self::$req->action;	// determines the request action (method)
-			$thing = self::$req->uri->thing(); // determine the thing (resource)
+			$this->call = self::$req->scheme();
+
+			$action = self::$req->action;	// the request action (method)
+			$obj = $this->call->class;
+			$method = $this->call->method;
+			$type = self::$req->type;
+
+			$res = $this->call->resource; // the root resource
+
+			presto_lib::_trace('DISPATCH', "[{$this->call->file}] $obj::$method ({$this->call->type})", 
+				json_encode($this->call->params), json_encode($this->call->options));
 
 			// Create an an instance of the API subclass (autoloaded)
 			
-			self::autoload_explicit($obj);
-			if (!class_exists($obj)) throw new Exception("API not found for $obj", 404);
-			$o = new $obj();
-
-			// Calidate that the concept (noun) is valid
+			autoload_delegate($this->call);
 			
-			if (!$o->is_valid_concept($thing))
-				$thing = ''; // no concept available, assume root resource
-
-			// Build the call pseudo object
-
-			$method = (strlen($thing)) ? "{$action}_{$thing}" : $action;
-			$this->call = (object) array(
-				'class' 	=> $obj,
-				'method' 	=> $method,
-				'res' 		=> self::$req->uri->type(),
-				'params' 	=> self::$req->uri->parameters,
-				'options'	=> self::$req->uri->options,
-				'exists' 	=> false
-			);
+			if (!class_exists($obj))
+				throw new Exception("API class not found for $obj::$method", 404);
+				
+			$o = new $obj();
 
 			// Start the response setup
 			
@@ -74,11 +61,10 @@ class Presto extends REST {
 			if ($obj == 'error') // disallow root component access
 				throw new Exception('Root access not allowed', 403);
 
-			if (!method_exists($obj, $method)) // check that the resource is valid
-				throw new Exception("Can't find $obj->$method()", 404);
+			if (!method_exists($obj, $this->call->method)) // valid route?
+				throw new Exception("Can't find $obj->$method", 404);
 
 			$this->call->exists = true;
-			self::_trace("Dispatching to $obj :: $method");
 
 			// Perform the actual sub delegation
 			
@@ -112,17 +98,18 @@ class Presto extends REST {
 		}
 
 		// build the resulting error object
-		$details = (object) array(
+		$details = json_encode( (object) array(
 			'status' => $status,
 			'code' => $n,
 			'error' => $text,
 			'file' => $file,
 			'line' => $line,
 			'ctx' => $ctx
-		);
-
+		));
+		
+		error_log('FATAL', $status, $details);
 		self::$resp->hdr($status);
-		print json_encode($details);
+		print $details;
 		die;
 	}
 
@@ -144,10 +131,4 @@ class REST {
 	public static $req;
 	public static $resp;
 	public static $sess;
-
-	public static function _trace() {
-		if (PRESTO_DEBUG == 0) return;
-		error_log("TRACE: ".implode("\n\t", func_get_args()));
-	}
-
 }
