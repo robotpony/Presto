@@ -15,7 +15,7 @@ class httpd extends API {
 	public function get($ctx) {
 
 		$this->restrictTo('json');
-		return array('example' => 'This is some example information');
+		return array('example' => 'HTTPD test');
 	}
 
 }

@@ -32,8 +32,7 @@ class Presto extends REST {
 		try {
 
 			$this->call = self::$req->scheme();
-			
-			$in = self::$req->container;
+
 			$action = self::$req->action;	// the request action (method)
 			$obj = $this->call->class;
 			$method = $this->call->method;
@@ -41,21 +40,17 @@ class Presto extends REST {
 
 			$res = $this->call->resource; // the root resource
 
+			presto_lib::_trace('DISPATCH', "[{$this->call->file}] $obj::$method ({$this->call->type})", 
+				json_encode($this->call->params), json_encode($this->call->options));
+
 			// Create an an instance of the API subclass (autoloaded)
 			
-			autoload_simple($this->call);
+			autoload_delegate($this->call);
 			
 			if (!class_exists($obj))
 				throw new Exception("API class not found for $obj::$method", 404);
 				
 			$o = new $obj();
-
-presto_lib::_trace('DISPATCH', "[{$this->call->file}] $obj::$method ({$this->call->type})");
-
-			// Calidate that the concept (noun) is valid
-			
-			if (!$o->is_valid_concept($res)) $res = ''; // no concept available TODO
-
 
 			// Start the response setup
 			
@@ -70,7 +65,6 @@ presto_lib::_trace('DISPATCH', "[{$this->call->file}] $obj::$method ({$this->cal
 				throw new Exception("Can't find $obj->$method", 404);
 
 			$this->call->exists = true;
-			presto_lib::_trace("Dispatching to $obj::$method");
 
 			// Perform the actual sub delegation
 			
