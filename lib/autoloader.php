@@ -1,5 +1,7 @@
 <?php
-/* Automatically load classes that aren't included.
+/* Automatically load classes that aren't included .
+
+	Allows Presto to load most of its parts automatically.
 
  	@param string $class (Required) The classname to load.
  	@return boolean Whether or not the file was successfully loaded.
@@ -23,14 +25,26 @@ function presto_autoloader($class) {
 	// We can't find it so we let other autoloaders try
 	return false;
 }
-
 // Register the autoloader.
 spl_autoload_register('presto_autoloader');
 
-// Explicit autoloading (for delegation)
-function autoload_simple($call) {
 
-	if (file_exists($call->file)) return require_once($call->file);
+// Delegation autoloading=
+function autoload_delegate($call) {
+	$in = $call->container;
+	$error = "API `$call->class` not found";
+	
+	if ( !file_exists($call->file) ) {
+		$extra = " ({$call->file} not found).";
+		
+		if ( !empty($in) && !is_dir($in) )
+			$extra = " ({$call->file} not found, $in missing)."; // aid debugging of routes-in-folders
+			
+		throw new Exception($error .$extra, 404);
+	}
+	
+	if ( !(require_once $call->file) )
+		throw new Exception($error . " ({$call->file} not loadable).", 500);
 
-	throw new Exception("API `$call->class` not found in `$call->file`.", 404);
+	
 }
