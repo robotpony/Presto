@@ -14,9 +14,8 @@
 class info extends API {
 
 	public function __construct() {
-		parent::__construct(get_class(), 'presto-example-1');
-
-		// other startup here
+		parent::__construct('presto-example-1');
+		// other startup would go here
 	}
 
 	// info.json (root get request)
@@ -39,15 +38,15 @@ class info extends API {
 		return array('test' => 'ok');
 	}
 
-	// Test binary json values
+	// Test binary json values (this should fail)
 	public function get_utf8($ctx) {
 
 		$this->restrictTo('json');
 		return array('status' => 'fail', 'expected' => 'fail', 'invalidUTF8' => pack("H*" ,'c32e') );
 	}
 
+	// Get the PHP version on this server
 	public function get_php_version() {
-
 		return array(phpinfo());
 	}
 }
