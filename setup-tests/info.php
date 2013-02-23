@@ -19,11 +19,11 @@ class info extends API {
 	}
 
 	// info.json (root get request)
-	public function get($ctx) {
+	public function get($p) {
 
 		$this->restrictTo('json');
 
-		if (count($ctx->params) > 1)
+		if (count($p) > 1)
 			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
 
 		return array('example' => 'This is some example information'); // will be returned as json, if json is requested
