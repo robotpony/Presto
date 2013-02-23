@@ -40,7 +40,7 @@ class Presto extends REST {
 
 			$res = $this->call->resource; // the root resource
 
-			presto_lib::_trace('DISPATCH', "[{$this->call->file}] $obj::$method ({$this->call->type})", 
+			presto_lib::_trace('REQUEST', "[{$this->call->file}] $obj::$method ({$this->call->type})", 
 				json_encode($this->call->params), json_encode($this->call->options));
 
 			// Create an an instance of the API subclass (autoloaded)
@@ -73,6 +73,8 @@ class Presto extends REST {
 
 			// Produce a response for the client
 			
+			presto_lib::_trace( PRESTO_TRACE_KEY, json_encode(Presto::trace_info()) );
+
 			$encode = (is_object($this->call->data) || is_array($this->call->data));
 			return self::$resp->ok( $this->call, $encode, $o->status(), $o->headers() );
 

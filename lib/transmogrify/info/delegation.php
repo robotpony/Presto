@@ -18,7 +18,7 @@ class delegation extends API {
 		This is an example of how a concrete call is routed
 	*/
 	public function get() {
-	
+		$this->restrictTo('json');
 		return self::$req->scheme();
 	}
 }
