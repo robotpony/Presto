@@ -12,7 +12,7 @@ class httpd extends API {
 	}
 
 	// info.json (root get request)
-	public function get($ctx) {
+	public function get($p, $o, $b, $t) {
 
 		$this->restrictTo('json');
 		return array('example' => 'HTTPD test');
@@ -20,7 +20,7 @@ class httpd extends API {
 	
 
 	// Test custom header values
-	public function get_headers($ctx) {
+	public function get_headers($p, $o, $b, $t) {
 		$this->restrictTo('json');
 
 		$this->status(201);

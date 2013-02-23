@@ -6,6 +6,7 @@ define('PRESTO', 'presto.php');
 define('PRESTO_VERSION', 'presto-v1.10');
 define('PRESTO_DEBUG', 0);
 define('PRESTO_TRACE', 1);
+define('PRESTO_TRACE_KEY', '_presto_trace');
 define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
 define('PRESTO_BASE', dirname(__FILE__));

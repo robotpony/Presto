@@ -69,7 +69,7 @@ class Presto extends REST {
 			// Perform the actual sub delegation
 			
 			$o->attach( $this->call, self::$resp, self::$req );
-			$this->call->data = $o->$method( $this->call, self::$req->body() );
+			$this->call->data = $o->$method( $this->call->params, $this->call->options, self::$req->body(), $this->call->type );
 
 			// Produce a response for the client
 			
@@ -97,15 +97,19 @@ class Presto extends REST {
 			default: $status = 500;
 		}
 
-		// build the resulting error object
-		$details = json_encode( (object) array(
+		$details = array(
 			'status' => $status,
 			'code' => $n,
 			'error' => $text,
 			'file' => $file,
 			'line' => $line,
 			'ctx' => $ctx
-		));
+		);
+		
+		if (PRESTO_TRACE) $details[PRESTO_TRACE_KEY] = Presto::trace_info();
+
+		// build the resulting error object
+		$details = json_encode( (object) $details);
 		
 		error_log('FATAL', $status, $details);
 		self::$resp->hdr($status);
@@ -113,6 +117,15 @@ class Presto extends REST {
 		die;
 	}
 
+	// Get trace info for a call
+	static public function trace_info() {
+		return array(
+			'routing_scheme' => self::$req->scheme(),
+			'request' => self::$req->uri,
+			'version' => PRESTO_VERSION
+		);
+				
+	}
 	/** Debugging dump of Presto delegator */
 	public function __toString() { return print_r($this, true); }
 }

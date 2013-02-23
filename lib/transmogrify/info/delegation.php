@@ -13,18 +13,12 @@ class delegation extends API {
 		// other startup would go here
 	}
 
-	/* Gets details about the routing of this request
+	/* Gets debug information for routing to this class
 		
 		This is an example of how a concrete call is routed
 	*/
 	public function get() {
 	
 		return self::$req->scheme();
-	}
-	
-	public function debug($p) {
-	
-		return array();
-		
 	}
 }

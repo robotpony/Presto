@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEBUG=$1||0
+TRACE=$2||0
 DIR="${BASH_SOURCE%/*}"
 . "${DIR}/utils.sh"
 

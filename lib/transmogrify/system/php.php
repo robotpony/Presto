@@ -12,20 +12,23 @@ class php extends API {
 	}
 
 	// Test binary json values (this should fail)
-	public function get_utf8($ctx) {
+	public function get_utf8($p, $o, $b, $t) {
 
 		$this->restrictTo('json');
 		return array('status' => 'fail', 'expected' => 'fail', 'invalidUTF8' => pack("H*" ,'c32e') );
 	}
 
 	// Get the PHP info on this server
-	public function get_info() {
+	public function get_info($p, $o, $b, $t) {
 		$this->restrictTo('html');
 		return phpinfo();
 	}
 	
 	// Gets php versioning and compatibility
-	public function get_version() {
+	public function get_version($p, $o, $b, $t) {
+
+		$this->restrictTo('json');
+
 		$ver = explode('.', phpversion());
 		$ok = ($ver[0] >= '5' && $ver[1] >= 3);
 		
