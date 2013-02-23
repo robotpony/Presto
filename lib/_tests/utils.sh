@@ -23,7 +23,9 @@ curlr() {
     
     printf "\033[38;1;34m[%s]\x1b[0m %s " "$m" "$2"
 
-	response=`curl -X ${m} ${extra} -s ${BASE_URL}/$2`
+    cmd="curl -X ${m} ${extra} -s ${BASE_URL}/$2"
+    echo $cmd
+	response=$($cmd)
 	
 	case $? in
 		22 )
