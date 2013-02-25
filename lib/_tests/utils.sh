@@ -9,7 +9,12 @@ LINE='=================================================='
 
 section() {
     TEXT="$1"
-    printf "\n\033[38;1;34m%s [ %s ] %s\x1b[0m \n\n" ${LINE:${#TEXT}} "$TEXT" ${LINE:${#TEXT}}
+    printf "\n\033[38;1;34m%s [ %s ] %s\x1b[0m \n" ${LINE:${#TEXT}} "$TEXT" ${LINE:${#TEXT}}
+}
+
+tests() {
+	TEXT="$1"
+	printf "\n\033[1;33m%s \x1b[0m \n\n" "$TEXT"
 }
 
 # make a curl request (helper)
