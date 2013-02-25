@@ -39,9 +39,7 @@ class API extends REST {
 	}
 	public function headers() { return $this->headers; }
 
-	/* Restrict the valid contentTypes for this API or API route
-
-	*/
+	/* Restrict the valid contentTypes for this API or API route */
 	public function restrictTo($types) {
 		return $this->supports_contentType($types);
 	}
