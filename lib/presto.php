@@ -25,7 +25,6 @@ class Presto extends REST {
 		}
 	}
 
-
 	/* Dispatch requests to classes and class methods */
 	private function dispatch() {
 
@@ -36,7 +35,9 @@ class Presto extends REST {
 			$action = self::$req->action;	// the request action (method)
 			$obj = $this->call->class;
 			$method = $this->call->method;
+			$preflight = $this->call->preflight;
 			$type = self::$req->type;
+			$model = null;
 
 			$res = $this->call->resource; // the root resource
 
@@ -61,15 +62,42 @@ class Presto extends REST {
 			if ($obj == 'error') // disallow root component access
 				throw new Exception('Root access not allowed', 403);
 
-			if (!method_exists($obj, $this->call->method)) // valid route?
-				throw new Exception("Can't find $obj->$method", 404);
+			$o->attach( $this->call, self::$resp, self::$req );
+
+			if (!method_exists($obj, $preflight)) {
+				
+				// skip + trace missing preflight functions (data will be passed as standard HTTP params)
+				
+				presto_lib::_trace('PREFLIGHT', 'skipped', 
+					"[{$this->call->file}] $obj::$preflight ({$this->call->type})", 
+					json_encode($this->call->params), json_encode($this->call->options));
+					
+			} else {
+			
+				// attempt a "preflight" call (into the user class to generate a model)
+			
+				$model = $o->$preflight(
+					$this->call->params, 
+					$this->call->options, 
+					self::$req->body(), 
+					$this->call->type );
+			}
+
+			if (!method_exists($obj, $method)) // valid route?
+				throw new Exception("Resource $obj->$method not found.", 404);
 
 			$this->call->exists = true;
 
 			// Perform the actual sub delegation
 			
-			$o->attach( $this->call, self::$resp, self::$req );
-			$this->call->data = $o->$method( $this->call->params, $this->call->options, self::$req->body(), $this->call->type );
+			if (isset($model))
+				$this->call->data = $o->$method( $model, $this->call->type );
+			else
+				$this->call->data = $o->$method( 
+					$this->call->params, 
+					$this->call->options, 
+					self::$req->body(), 
+					$this->call->type );
 
 			// Produce a response for the client
 			

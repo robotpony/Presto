@@ -60,6 +60,7 @@ class Request {
 		$res = presto_lib::_at($p, 1, '');
 		$file = empty($this->container) ? "$class.php" : "$this->container/$class.php";
 		$method = empty($res) ? $this->method : $this->method . '_' . $res;
+		$preflight = "{$method}_model";
 		
 		return (object) array(
 			'container' => presto_lib::_cleanup($this->container),
@@ -69,6 +70,7 @@ class Request {
 			'type'		=> $this->type,
 			'action'	=> $this->method,
 			'method' 	=> presto_lib::_cleanup($method),
+			'preflight'	=> presto_lib::_cleanup($preflight),
 			'params' 	=> $this->params(),
 			'options' 	=> $this->options
 		);
