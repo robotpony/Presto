@@ -7,7 +7,6 @@
 */
 class API extends REST {
 
-	private $filters = array();
 	private $status = 200;
 	private $headers = array();
 	public static $version;
@@ -40,47 +39,11 @@ class API extends REST {
 	}
 	public function headers() { return $this->headers; }
 
-	/*	Advanced route mapping
-
-		Adds a mapping between a URI pattern and a callback to filter to. Used to route complex
-		sub filters, for things like hierarchical resources.
-	*/
-	public function add_filter($regex, $filterFn) {
-
-		// check for conflicts in previously added filters.
-		if (array_key_exists($regex, $this->filters))
-			throw new Exception("URI filter already exists: pattern collision for '$regex'", 500);
-
-		// preflight (and compile + cache) the regex ... errors handled by Presto.
-		preg_match($regex, '');
-		$this->filters[$regex] = $filterFn;
-	}
-
-	/* Do delegation for hierarchical sub-routes
-
-		Provides internal delegation to registered callbacks.
-
-		Throws if delegation fails.
-	*/
-	public function filter($ctx, $data = null) {
-		if (empty($this->filters) || empty($ctx) || empty($ctx->params))
-			throw new Exception('Unserviceable internal delegation attempt.', 501);
-
-		$path = implode('/', array_slice($ctx->params, 1));
-		foreach ($this->filters as $p => $d) {
-			if (preg_match($p, $path)) {
-				if (empty($data)) return $this->$d($ctx);
-				else return $this->$d($ctx, $data);
-			}
-		}
-		throw new Exception("Bad request. No sub method exists for resource $path", 404);
-	}
-
 	/* Restrict the valid contentTypes for this API or API route
 
 	*/
 	public function restrictTo($types) {
-		return $this->validate_contentType($types);
+		return $this->supports_contentType($types);
 	}
 
 	/* Get a filtered variable (get filter_var_array + exceptions) */
@@ -100,7 +63,7 @@ class API extends REST {
 		return (object) $filtered;
 	}
 
-	private function validate_contentType($t) {
+	private function supports_contentType($t) {
 		$in = self::$ctx->class . '::' . self::$ctx->method . '()';
 		$type = self::$ctx->type;
 
