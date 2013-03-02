@@ -37,8 +37,8 @@ class Request {
 		$this->type = presto_lib::_c(presto_lib::_get('t', $t), 'json');
 		$params = $this->params();
 
-		if (empty($this->route) || empty($this->type))
-			throw new Exception("Missing rewrite delegation setup for $uri.", 500);
+		if ($this->route === null || $this->type === null)
+			throw new Exception("Missing rewrite delegation setup for {$this->uri}.", 500);
 
 		unset($_GET['t']); unset($_GET['r']); unset($_GET['c']); // pop routing parameters
 
