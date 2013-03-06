@@ -1,9 +1,23 @@
-Presto for PHP - developer documentation
-========================================
-
-
-Finding your way around
+Developer documentation
 -----------------------
+
+[License](/LICENSE.html)
+
+[Installation instructions](/INSTALL.html)
+
+[Frequently Asked Things (FAQ)](/docs/faq.html)
+
+[Application state](/docs/application-state.html)
+
+[Configuring Presto](/docs/configuration.html)
+
+[Output adapters](/docs/generating-output.html)
+
+
+Missing topics
+==============
+
+These are things that aren't quite covered in the documentation yet.
 
 * API classes (how requests are mapped to members)
 * Returning data to clients

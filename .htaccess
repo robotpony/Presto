@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /docs/index.php?presto&page=$1 [NC,L]
+</IfModule>
+
+
+ErrorDocument 404 /docs/index.php?presto&error=404
+ErrorDocument 500 /docs/index.php?presto&error=500
+ErrorDocument 401 /docs/index.php?presto&error=401
+ErrorDocument 403 /docs/index.php?presto&error=403

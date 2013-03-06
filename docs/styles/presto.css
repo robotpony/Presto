@@ -1,0 +1,20 @@
+body{font:115%/150% "freight-sans-pro","Helvetica Neau",Helvetica;}body header,body section,body footer{width:100%;position:relative;}
+body header>div,body section>div,body footer>div{position:relative;width:40em;margin:0 auto;}
+body>a{position:fixed;right:0;top:0;z-index:999;display:block;width:125px;height:125px;}
+body a,body a:visited,body a:hover{color:#963232;text-decoration:none;}
+body h1,body h2,body h4,body h5{margin:2em 0 0;}
+body h3{margin:1.75em 0 0;font-size:smaller;font-weight:400;text-transform:uppercase;}
+body code,body pre{font:10pt/100% Menlo,Monaco,"Andale Mono",monospace;}
+body pre{background-color:rgba(0, 0, 0, 0.1);padding:.75em 1em;-webkit-border-radius:0.5em;-moz-border-radius:0.5em;border-radius:0.5em;-moz-background-clip:padding;-webkit-background-clip:padding-box;background-clip:padding-box;overflow:hidden;}
+body pre.highlight{border:0 !important;padding:.75em !important;width:97% !important;font:10pt/100% Menlo,Monaco,"Andale Mono",monospace !important;}
+body p{margin:.25em 0 1em;}
+body p>code{background-color:rgba(0, 0, 0, 0.1);padding:.35em .25em;margin:0 .25em 0 0;-webkit-border-radius:0.25em;-moz-border-radius:0.25em;border-radius:0.25em;-moz-background-clip:padding;-webkit-background-clip:padding-box;background-clip:padding-box;}
+body header h1{margin:0 0 .5em;}body header h1 em{display:block;font-size:10pt;font-style:normal;font-weight:lighter;color:#333;}
+body header nav{position:absolute;right:0;top:.5em;width:auto;}body header nav a{display:block;float:left;width:5em;line-height:95%;margin-right:1em;padding-bottom:.25em;font-size:11pt;font-weight:lighter;text-align:center;text-transform:uppercase;border-bottom:4px solid transparent;}
+body header nav a:hover{border-color:#963232;}
+body footer div{border-top:1px solid rgba(0, 0, 0, 0.25);margin-top:3em;}body footer div h5{font-weight:200;}
+body details:nth-child(1){margin-top:2em;}
+body details{border:1px solid rgba(0, 0, 0, 0.25);padding:.25em .5em;margin:.25em .5em;}body details summary::-webkit-details-marker{content:'...';}
+body details summary{position:relative;font-weight:bold;outline:none;cursor:pointer;}body details summary var{position:absolute;right:0;top:0;width:3em;text-align:center;font-style:normal;font-weight:bold;background-color:rgba(0, 0, 0, 0.25);color:rgba(0, 0, 0, 0.5);}
+body details summary var.fail,body details summary var.off{background-color:#963232;color:#fff;}
+body details summary var.pass,body details summary var.on{background-color:green;color:#fff;}

@@ -1,0 +1,2 @@
+Application state (AKA, sessions)
+---------------------------------

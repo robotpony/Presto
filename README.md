@@ -1,86 +1,75 @@
-Presto - PHP REST toolkit
-=========================
+Presto is a toolkit for building RESTful APIs in PHP 5. It's lightweight, decoupled, and focused on making web apps the right way; using APIs and clean URLs to produce output in standard formats like JSON, HTML, and XML.  It encourages separating views completely from your model and controller code, and to animate your user interfaces in HTML, CSS, and JavaScript. It also uses existing tools and libraries for what they're good at, like letting Apache deal with routing, and letting PHP load and execute a mininimal amount of dynamic code.
 
-Presto is a small library for building simple, RESTful APIs using PHP. It's lightweight, decoupled, and focused on making web apps the right way; using APIs with clean URLs, which produce simple, clean output in standard formats like JSON, HTML, and XML.
+How is Presto different?
+========================
 
-How is it different?
---------------------
+Presto does away with standard MVC. It focuses on APIs built from simple classes, relying on the web server for routing and on PHP autoloading for delegating requests to class member calls. User interfaces are left to static HTML views, animated with JavaScript and CSS.
 
-Presto has no views, no models, and no controllers[^1]. Instead it focuses on APIs built from simple classes. It encourages applications to be based on APIs, which feed web applications animated with HTML/CSS/JavaScript.
+### A quick example 
 
-A Presto API is simply a PHP class that maps to a resource or tree of resources. It has:
+An API is a class with members named for each resource (or tree of resources). For example, an `apple` is a resource. You can request an `apple` over HTTP:
 
-* Public members that map to requests (`GET thing/details.json` would map to `$thing->get_details()`)
-* Request parameters and input payloads that are packaged up and sanitized
-* Each route returns data as DOMs, which are automatically adapted to the requested `ContentType`
-* Errors are automatically converted into returned HTTP statuses
+	GET apples/spartan.json&large+red
 
-The resulting code is focused on resources and the rules for those resources, and not boilerplate, excessive error checking, routing, and output generation.
 
-[^1]: Note that Presto avoids MVC by solving a smaller problem and relying on built in functionality for delegation and generating output. 
+Presto maps the request to a file, class, and class member automatically. It loads the file, creates an instance of the class, and executes the member that best fits:
 
-How it works
-------------
 
-Presto uses the best parts of PHP and Apache, as they're intended to be used. It relies on `.htaccess` for routing, and built-in PHP behaviours for delegation and class loading. The principle is that relying on existing, simple approaches results in less framework, fewer bugs, and less to learn that isn't useful elsewhere.
-
-*Note: PHP 5.3 or better is requried, as Presto relies on anonymous functions, and other newer PHP features. This makes it possible to write very clean, simple web services.*
-
-An example API
---------------
-
-	class info 
-		extends API {
-		
-		// Set up the API
-		public function __construct() {
-			parent::__construct(get_class());	
-			if (!self::isSignedIn()) throw new Exception('Auth required', 401);
+	/* Loaded from 'apples.php' */
+	
+	class apples extends API {
+	
+		public function get($ctx) {
+			
+			$thing = array(
+				'name' => @$ctx->params[0],
+				'size' => @$ctx->params[1]
+				// etc
+			);
+			
+			return $thing;
 		}
-		
-		// GET info/time.json - gets the local machine time
-		public function get_time($ctx) { 
-			$dom = (object) getdate();
-			return $dom; // <-- returns the DOM as JSON
-		}
-		
-		// PUT info/time.json
-		public function put_time($ctx) { throw new Exception('Not implemented', 501); }
-		// POST info/time.json
-		public function post_time($ctx) { throw new Exception('Not implemented', 501); }
 	}
 
-The class promises a GET, PUT, and POST interface for time. All other requests will return a standard 404. The PUT and POST are not implemented yet, so they return a 501 (not implemented).
 
-Presto maps requests to PHP files and objects, providing parameters and other calling information in the `$ctx` parameter. A request like:
+The `$thing` is automatically converted by Presto to the requested `Content-Type`, either implied by the request or the appropriate HTTP header. For formats not supported by default, *Output Adapters* can be defined and registered, or the type can be passed through for resources that are not based DOM style data.
 
-	GET /info/time.json
-	
-Maps to:
+Any HTTP request type is mapped automatically. For example, you can request a list of `apple` types available from the API:
 
-	[info.php] info->get_time($ctx);
-	
-The context includes the call parameters, the `content-type`, and request method. Handling of `content-type` is built in for simple cases, so that any data returned from an API is automatically transformed into the required type. For our simple example, returning the result of `datetime()` to the request produces:
+	LIST apples.json&red
 
-	{
-		"seconds" => 40
-	    "minutes" => 58
-	    "hours"   => 21
-	    "mday"    => 17
-	    "wday"    => 2
-	    "mon"     => 6
-	    "year"    => 2003
-	    "yday"    => 167
-	    "weekday" => "Tuesday"
-	    "month"   => "June"
-	    "0"       => 1055901520
-	}
+A LIST request is mapped to a function of the same name:
 
-Advanced features
------------------
+	public function list($ctx) { return array(); }
 
-There are a number of ways you can extend Presto. You can:
+
+More complex resources are possible by either delegating (based on regex patterns), or by adding specific handlers. For example, you could add a `seeds` branch to the `apple` resource. Getting a list of seeds would map to:
+
+	public function list_seeds($ctx) { array(); }
+
+### What about errors?
+
+Errors are handled by the toolkit as standard PHP exceptions and standard PHP errors are remapped (where possible) to exceptions to ensure that logic and code errors are returned to clients as valid API returns. This means that individual APIs do not need to check return values, nor do they need to `try` and `catch` unless they need to do something special. Presto maps the standard exceptions to HTTP statuses and output in whatever format was requested where possible.
+
+For example, if you encounter a parameter error you can simply throw an exception:
+
+	if (empty($param))
+		throw new Exception("Missing required parameter", 400);
+		
+Presto translates the exception into a `400` with an appropriately encoded body.
+
+The resulting API code is much more focused on carefully testing parameters, retrieving appropriate resources, and building rich DOMs instead of boilerplate code, managing responses, excessive error checking, routing, and other complex output generation.
+
+
+
+
+Other interesting features
+==========================
+
+You can also:
 
 * Add additional `content-types` by adding *output adapters* (`JSON`, simple `XML`, and simple `HTML` are built in)
 * Add `content-type` filters to define what types of payloads a given resource supports.
 * Add *custom delegation* for special resource types
+
+**Note that PHP 5.3 or better is requried, as Presto relies on anonymous functions and other newer PHP features. This makes it possible to write very clean, simple web services.**

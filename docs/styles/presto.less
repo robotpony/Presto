@@ -1,0 +1,148 @@
+@import 'elements.less';
+
+@hl: rgba(150, 50, 50, 100);
+@bad: rgba(150, 50, 50, 100); 
+@good: rgba(50, 150, 50, 100);
+@light: rgba(0,0,0,.25);
+@med: rgba(0,0,0,.5);
+@shadow: rgba(0,0,0,.75);
+
+body {
+	font: 115%/150% "freight-sans-pro", "Helvetica Neau", Helvetica;
+		
+	/* Page layout, grid, and colours */
+	header,	section, footer {
+		width: 100%;
+		position: relative;
+	}
+	header>div, section>div, footer>div {
+		position: relative;
+		width: 40em;
+		margin: 0 auto;
+	}
+
+	/* Overrides */	
+
+	> a {
+		position: fixed; right: 0; top: 0; z-index: 999;
+		display: block;
+		width: 125px; height: 125px;
+	}
+	a, a:visited, a:hover {
+		color: @hl;
+		text-decoration: none;
+	}
+	h1, h2, h4, h5 {
+		margin: 2em 0 0;
+	}
+	h3 {
+		margin: 1.75em 0 0;
+		font-size: smaller;
+		font-weight: 400;
+		text-transform: uppercase;
+	}
+	
+	code, pre {
+		font: 10pt/100% Menlo, Monaco, "Andale Mono", monospace;
+	}
+	pre {
+		background-color: rgba(0,0,0,.1);
+		padding: .75em 1em;
+		.rounded(.5em);
+		overflow: hidden;
+	}
+	pre.highlight {
+		border: 0 !important;
+		padding: .75em !important;
+		width: 97% !important;
+		font: 10pt/100% Menlo, Monaco, "Andale Mono", monospace !important;
+	}
+
+	p {
+		margin: .25em 0 1em;
+	}
+	p>code {
+		background-color: rgba(0,0,0,.1);
+		padding: .35em .25em; margin: 0 .25em 0 0;
+		.rounded(.25em);
+	}
+	
+
+	/* Sections */
+	
+	header {
+		h1 {
+			margin: 0 0 .5em;
+			
+			em {
+				display: block;
+				font-size: 10pt;
+				font-style: normal;
+				font-weight: lighter;
+				color: #333;
+			}
+		}
+		
+		nav {
+			position: absolute; right: 0; top: .5em;
+			width: auto;
+			
+			a {
+				display: block; float: left;
+				width: 5em; line-height: 95%;
+				margin-right: 1em; padding-bottom: .25em;
+				font-size: 11pt;
+				font-weight: lighter;
+				text-align: center;
+				text-transform: uppercase;
+				border-bottom: 4px solid transparent;
+			}
+			a:hover {
+				border-color: @hl;
+			}
+		}
+	}
+	
+	footer {
+		div {
+			border-top: 1px solid @light;
+			margin-top: 3em;
+		
+			h5 {
+				font-weight: 200;
+			}
+		}
+	}
+	
+	/* Test blocks */
+	
+	details:nth-child(1) {
+		margin-top: 2em;
+	}
+	
+	details {
+		border: 1px solid rgba(0,0,0,.25);
+		padding: .25em .5em; margin: .25em .5em;
+
+		summary::-webkit-details-marker { content: '...'; }
+
+		summary {
+			position: relative;
+			font-weight: bold;
+			outline: none;
+			cursor: pointer;
+			
+			var {
+				position: absolute; right: 0; top: 0;
+				width: 3em;
+				text-align: center;
+				font-style: normal;
+				font-weight: bold;
+				background-color: @light; color: @med;
+			}
+			var.fail, var.off { background-color: @bad; color: #fff; }
+			var.pass, var.on { background-color: green; color: #fff; }
+		}
+	}
+
+}
