@@ -80,7 +80,7 @@ class API extends REST {
 		if (empty($this->delegates) || empty($ctx) || empty($ctx->params))
 			throw new Exception('Unserviceable internal delegation attempt.', 501);
 
-		$path = implode('/', array_slice($ctx->params, 1));
+		$path = implode('/', $ctx->params);
 		foreach ($this->delegates as $p => $d) {
 			if (preg_match($p, $path)) {
 				if (empty($data)) return $this->$d($ctx);
