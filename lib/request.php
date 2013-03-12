@@ -174,7 +174,7 @@ class Request {
 
 			if (empty($body)) return $decoded_body; // no data, not an error
 
-			switch ($this->content_type()) {
+			switch ($this->content_type($this->type)) {
 				case 'json':
 
 					if ( ! ($decoded_body = json_decode($body)) ) {
