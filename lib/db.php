@@ -14,6 +14,7 @@ class db extends PDO {
 	private $statement;
 	const USR_DEF_DB_ERR 	= '45000';
 	const DB_NO_ERR 		= '00000';
+	
 
 	/* Create (or reuse) an instance of a PDO database */
 	static function _instance($dsn, $user, $password, $config = null) {
@@ -51,8 +52,6 @@ class db extends PDO {
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, &$bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
-		if ($this->statement->rowCount() === 0)
-			throw new Exception('Update failed: resource was not found.', 404);
 	}
 	/*
 		General query. Use this when no specific results are expected. Example: attempting to delete a resource
@@ -70,7 +69,6 @@ class db extends PDO {
 					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
 			}
 		}
-
 		$this->statement->execute();
 		$this->errors();
 	}
