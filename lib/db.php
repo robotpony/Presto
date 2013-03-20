@@ -79,7 +79,7 @@ class db extends PDO {
 	function insert($sql, &$bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
-			throw new Exception('Insert failed: no rows were inserted.', 500);
+			throw new Exception('Insert failed: no rows were inserted.', 409);
 	}
 
 	/* Provide a wrapper for deletes which is really just an alias for the query function. */
