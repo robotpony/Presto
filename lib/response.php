@@ -105,11 +105,14 @@ class Response {
 
 		return true;
 	}
-	public function redirect($target) {
-		return header('Location: /'.$target);
-		print "Redirecting you to <a href='/$target'>another page</a> ...";
+	
+	/* Redirect client */
+	public function redirect($t = '500.html', $o = null) {
+		$opt = isset($o) ? '?' . http_build_query($o) : '';
+		return header("Location: /$t$opt");
 		exit;
 	}
+	
 	/** Determine the content-type */
 	private function content_type() {
 		if (!isset($this->call) || empty($this->call->type))
