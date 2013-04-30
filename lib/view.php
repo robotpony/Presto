@@ -22,11 +22,9 @@ class View {
 
 		$this->d = array('dom' => $data); // namespaced into "dom"
 		$this->f = $view;
-
-		return $this->render();
 	}
 
-	protected function render() {
+	public function render() {
 		try {
 			// verify and load view
 
