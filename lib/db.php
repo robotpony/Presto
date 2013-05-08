@@ -104,7 +104,7 @@ class db extends PDO {
 		if (empty($e[0]) || $e[0] === self::DB_NO_ERR) return;
 		if (!empty($e[0]) && $e[0] === self::USR_DEF_DB_ERR) {
 			$msg = !empty($e[2]) ? $e[2] : 'Application defined SQL error occurred.';
-			throw new Exception($msg, 412);
+			throw new Exception($msg, 400);
 		}
 		else if (!empty($e[0]) && !empty($e[2])) {
 			throw new Exception($e[2], 500);
