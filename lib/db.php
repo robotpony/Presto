@@ -18,6 +18,7 @@ class db extends PDO {
 	/* Create (or reuse) an instance of a PDO database */
 	static function _instance($dsn, $user, $password, $config = null) {
         global $_db;
+        
         if ($_db !== null) return $_db; // return cached
         
         if ($config === null)
@@ -70,9 +71,12 @@ class db extends PDO {
 					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
 			}
 		}
-		
-		$this->statement->execute();
-		$this->errors();	
+		try {
+			$this->statement->execute();
+        } catch (Exception $e) {		
+			$this->errors();
+		}
+		$this->errors();
 	}
 	
 	/* Provide a wrapper for inserts which is really just an alias for the query function. */
