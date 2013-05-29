@@ -16,12 +16,19 @@ class View {
 	private $f;
 	public static $root;
 
+	public static function htmlize($v, $d) {
+		$v = new View($v, $d);
+		return $v->render();	
+	}
+	
 	public function __construct($view = 'index', $data = null) {
 
 		// hook view parameters
 
 		$this->d = array('dom' => $data); // namespaced into "dom"
 		$this->f = $view;
+		
+		return $this;
 	}
 
 	public function render() {
