@@ -24,6 +24,7 @@ define('BASE_URL', 	PROTOCOL.HOST);
 set_include_path(get_include_path()
 	. PATH_SEPARATOR . PRESTO_BASE
 	. PATH_SEPARATOR . API_BASE
+	. PATH_SEPARATOR . API_BASE . '/api/'
 	. PATH_SEPARATOR . API_BASE . '/lib/'
 	. PATH_SEPARATOR . API_BASE . '/lib/extras/'
 	. PATH_SEPARATOR . API_BASE . '/lib/encoders/');
