@@ -14,7 +14,6 @@ class View {
 	private $v;
 	private $r;
 	private $f;
-	public static $root;
 
 	public static function htmlize($v, $d) {
 		$v = new View($v, $d);
@@ -35,12 +34,10 @@ class View {
 		try {
 			// verify and load view
 
-			if (!is_dir(self::$root)) self::$root = realpath(__DIR__) . '/';
-			if (empty(self::$root)) self::$root = PRESTO_BASE . '../_views';
-			$this->v = self::$root."/{$this->f}.php";
+			$this->v = "{$this->f}.php";
 
-			if (!is_file($this->v))
-				throw new Exception("View ({$this->f}) not found in '".self::$root."'.", 501);
+			if (!stream_resolve_include_path($this->v))
+				throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 501);
 
 			// render view and return
 
