@@ -97,12 +97,13 @@ class Request {
 		http://php.net/manual/en/function.filter-input-array.php
 		http://www.php.net/manual/en/function.filter-input.php
 	*/
-	public function get($f = null) {
+	public function get($f = null, $throw = true) {
 
 		if ( $this->get = $this->filter(INPUT_GET, $f) )
 			return (object)	$this->get;
 
-		throw new Exception('Missing or invalid GET parameter', 400);
+		if ($throw)
+			throw new Exception('Missing or invalid GET parameter', 400);
 	}
 
 	/* Get a post value (or values)
@@ -121,12 +122,13 @@ class Request {
 		http://php.net/manual/en/function.filter-input-array.php
 		http://www.php.net/manual/en/function.filter-input.php
 	*/
-	public function post($f = null) {
+	public function post($f = null, $throw = true) {
 
 		if ( $this->post = $this->filter(INPUT_POST, $f) )
 			return (object)	$this->post;
 
-		throw new Exception('Missing or invalid POST parameter', 400);
+		if ($throw)
+			throw new Exception('Missing or invalid POST parameter', 400);
 	}
 
 	private function filter($type, $f = null) {
