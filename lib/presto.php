@@ -102,6 +102,7 @@ class Presto extends REST {
 			// Produce a response for the client
 			
 			presto_lib::_trace( PRESTO_TRACE_KEY, json_encode(Presto::trace_info()) );
+			presto_lib::_trace( PRESTO_TRACE_KEY, json_encode(Profiler::profiles()) );
 
 			$encode = (is_object($this->call->data) || is_array($this->call->data));
 			return self::$resp->ok( $this->call, $encode, $o->status(), $o->headers() );
