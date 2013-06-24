@@ -2,6 +2,11 @@
     "name": "napkinware/presto",
     "version": "1.0.0",
     "description": "A simple RESTful API library for PHP.",
+	"keywords": ["REST", "framework", "PHP"],
+	"homepage": "http://presto.napkinware.com",
+	"support": {
+		"issues": "https://github.com/robotpony/Presto/issues"
+	},
     "license": "MIT",
     "authors": [
         {
@@ -24,5 +29,8 @@
 		"ext-json": ">=1.2.1",
 		"lib-openssl": ">=0.9",
 		"lib-curl": ">=7.24.0"
-    }
+		},
+	"require-dev": {
+		
+	}
 }
