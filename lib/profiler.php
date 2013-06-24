@@ -17,7 +17,7 @@ class Profiler {
 	public static function track($key, $extra = null) {
 		if (!array_key_exists($key, self::$processes)) {
 			// initialize
-			self::$processes[$key] = array(
+			self::$processes[$key] = (object) array(
 				'duration' => 0,
 				'duration_units' => 'microseconds',
 				'last_started' => microtime(true) * 1000000,
@@ -29,15 +29,15 @@ class Profiler {
 		
 		$p = &self::$processes[$key];
 		
-		if ($p['state'] === 'running') {
+		if ($p->state === 'running') {
 			// toggle off
-			$p['duration'] += microtime(true) * 1000000 - $p['last_started'];
-			$p['state'] = 'stopped';
+			$p->duration += microtime(true) * 1000000 - $p->last_started;
+			$p->state = 'stopped';
 		}
 		else {
 			// toggle on
-			$p['last_started'] = microtime(true) * 1000000;
-			$p['state'] = 'running';
+			$p->last_started = microtime(true) * 1000000;
+			$p->state = 'running';
 		}
 	
 		if (is_array($extra))
@@ -49,9 +49,9 @@ class Profiler {
 		if (empty(self::$processes)) return;
 	
 		foreach (self::$processes as &$p) {
-			if ($p['state'] === 'running') {
+			if ($p->state === 'running') {
 				// calc current durations for output
-				$p['duration'] += microtime(true) * 1000000 - $p['last_started'];
+				$p->duration += microtime(true) * 1000000 - $p->last_started;
 			}
 		}
 		
