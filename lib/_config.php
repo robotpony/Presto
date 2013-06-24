@@ -3,8 +3,10 @@
 // Presto global config and constants
 
 define('PRESTO', 'presto.php');
-define('PRESTO_VERSION', 'presto-v1.01');
+define('PRESTO_VERSION', 'presto-v1.11');
 define('PRESTO_DEBUG', 0);
+define('PRESTO_TRACE', 1);
+define('PRESTO_TRACE_KEY', '_presto_trace');
 define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
 define('PRESTO_BASE', dirname(__FILE__));
@@ -22,9 +24,13 @@ define('BASE_URL', 	PROTOCOL.HOST);
 set_include_path(get_include_path()
 	. PATH_SEPARATOR . PRESTO_BASE
 	. PATH_SEPARATOR . API_BASE
+	. PATH_SEPARATOR . API_BASE . '/api/'
 	. PATH_SEPARATOR . API_BASE . '/lib/'
 	. PATH_SEPARATOR . API_BASE . '/lib/extras/'
 	. PATH_SEPARATOR . API_BASE . '/lib/encoders/');
+	
+if (PRESTO_DEBUG)	set_include_path(get_include_path()
+	. PATH_SEPARATOR . '/lib/transmogrify/');
 
 // Set up a base exception for PHP errors (redirects most PHP errors as Exeptions for more consistent handling from APIs)
 class PrestoException extends Exception {
