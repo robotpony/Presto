@@ -1,6 +1,6 @@
 <?php
 
-/* An API for returning information
+/* Presto API for learning about system setup
 
 	Notice that the classname matches the filename, which will match the URLs it serves.
 
@@ -14,16 +14,17 @@
 class info extends API {
 
 	public function __construct() {
-		parent::__construct('presto-example-1');
-		// other startup would go here
+		parent::__construct(get_class(), 'presto-example-1');
+
+		// other startup here
 	}
 
 	// info.json (root get request)
-	public function get($p) {
+	public function get($ctx) {
 
 		$this->restrictTo('json');
 
-		if (count($p) > 1)
+		if (count($ctx->params) > 1)
 			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
 
 		return array('example' => 'This is some example information'); // will be returned as json, if json is requested
@@ -38,15 +39,15 @@ class info extends API {
 		return array('test' => 'ok');
 	}
 
-	// Test binary json values (this should fail)
+	// Test binary json values
 	public function get_utf8($ctx) {
 
 		$this->restrictTo('json');
 		return array('status' => 'fail', 'expected' => 'fail', 'invalidUTF8' => pack("H*" ,'c32e') );
 	}
 
-	// Get the PHP version on this server
 	public function get_php_version() {
+
 		return array(phpinfo());
 	}
 }

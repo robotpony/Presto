@@ -1,4 +1,5 @@
 <?php
+include_once('encoders/html.php');
 
 /* A PrestoPHP HTTP response
 
@@ -105,22 +106,29 @@ class Response {
 
 		return true;
 	}
-
+	
+	/* Redirect client */
+	public function redirect($t = '500.html', $o = null) {
+		$opt = isset($o) ? '?' . http_build_query($o) : '';
+		return header("Location: /$t$opt");
+		exit;
+	}
+	
 	/** Determine the content-type */
 	private function content_type() {
-		if (!isset($this->call) || empty($this->call->res))
+		if (!isset($this->call) || empty($this->call->type))
 			return 'text/plain';
 
-		if (strpos($this->call->res, '/')) return $this->call->res; // already a content-type
+		if (strpos($this->call->type, '/')) return $this->call->res; // already a content-type
 
 		// map obvious content types
-		switch ($this->call->res) {
+		switch ($this->call->type) {
 			case 'html':
 			case 'htm':
 				return 'text/html';
 
 			default:
-				return 'application/' . $this->call->res;
+				return 'application/' . $this->call->type;
 		}
 	}
 
