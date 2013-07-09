@@ -14,7 +14,7 @@ class db extends PDO {
 	private $statement;
 	const USR_DEF_DB_ERR 	= '45000';
 	const DB_NO_ERR 		= '00000';
-	
+
 
 	/* Create (or reuse) an instance of a PDO database */
 	static function _instance($dsn, $user, $password, $config = null) {
@@ -35,7 +35,7 @@ class db extends PDO {
 
 	/* Returns an array of classes based on the given SQL and bound parameters (see PDO docs for details) */
 	function select($sql, $bound_parameters = array()) {
-	
+
 		// Expand any array parameters
 		$this->expand_select_params($sql, $bound_parameters);
 
@@ -65,10 +65,10 @@ class db extends PDO {
 		that parameter's PDO datatype.
 	 */
 	function query($sql, &$bound_parameters = array()) {
-	
+
 		// Expand any array parameters
 		$this->expand_query_params($sql, $bound_parameters);
-		
+
 		$this->statement = $this->prepare($sql);
 		if (!empty($bound_parameters)) {
 			foreach ($bound_parameters as $key => &$param) {
@@ -77,8 +77,14 @@ class db extends PDO {
 					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
 			}
 		}
-		$this->statement->execute();
-		$this->errors();
+
+		try {
+			$this->statement->execute();
+			$this->errors();
+		} catch (Exception $e) {
+			$this->errors(); // force errors() to run even after exceptions (for PDO::ERRMODE_EXCEPTION)
+		}
+
 	}
 
 	/* Provide a wrapper for inserts which is really just an alias for the query function. */
@@ -113,104 +119,104 @@ class db extends PDO {
 		}
 		else throw new Exception('Update failed for unknown reason.', 500);
 	}
-	
+
 	/*
 		Utility: expand any parameters passed in as an array (as PDO does not yet support this).
-		
+
 		For any parameter `p => array( k1 => v1, k2 => v2, ..., kn => vn)` in `$params`,
 		`p` is expanded to `p_k1 => v1, p_k2 => v2, ..., p_kn => vn` all members of `$params`.
-		
+
 		For any label `:p` in `$sql`, `p` is replaced with `:p_k1, :p_k2, ..., :p_kn` in `$sql`.
 	*/
 	private function expand_select_params(&$sql, &$params) {
 
 		$expanded = array(); // store expanded parameters until we're done
 		$expandedKeys = array(); // store the keys of expanded arrays so we can unset them when we're done
-		
+
 		foreach ($params as $p => $arrayParam) {
-		
+
 			// only worry about non-empty arrays
 			if (!is_array($arrayParam) || empty($arrayParam)) continue;
-			
+
 			$expandedKeys[] = $p;
 			$names = ''; // list of labels `:p_k1, :p_k2, ..., :p_kn` with which to replace `:p` in $sql
 			foreach ($arrayParam as $k => $v) {
-			
+
 				// Ensure validity of members
 				if ((!empty($v) && !is_scalar($v))) {
 					$t = gettype($v);
 					throw new Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
 				}
-				
+
 				$expanded["{$p}_{$k}"] = $v;
 				$names .= ":{$p}_{$k}, ";
 			}
-			
+
 			// replace :p in $sql with $names
 			$names = rtrim($names, " ,");
 			$sql = str_replace(":$p", $names, $sql);
 		}
-		
+
 		// Nothing expanded
 		if (empty($expandedKeys)) return;
-		
+
 		// Get rid of the now expanded array params
 		foreach ($expandedKeys as $v)
 			unset($params[$v]);
-			
+
 		// Merge in the expanded values
 		$params = array_merge($params, $expanded);
 	}
-	
+
 	/*
 		Utility: expand any parameters passed in as an array (as PDO does not yet support this).
-		
+
 		For any parameter `p => array('value' => array( k1 => v1, k2 => v2, ..., kn => vn), 'pdoType' => PDO::SOME_PDO_TYPE)` in `$params`,
-		`p` is expanded to 
-			`p_k1 => array('value' => v1, 'pdoType' => PDO::SOME_PDO_TYPE), 
-			p_k2 => array('value' => v2, 'pdoType' => PDO::SOME_PDO_TYPE), 
-			..., 
-			p_kn => array('value' => vn, 'pdoType' => PDO::SOME_PDO_TYPE)` 
+		`p` is expanded to
+			`p_k1 => array('value' => v1, 'pdoType' => PDO::SOME_PDO_TYPE),
+			p_k2 => array('value' => v2, 'pdoType' => PDO::SOME_PDO_TYPE),
+			...,
+			p_kn => array('value' => vn, 'pdoType' => PDO::SOME_PDO_TYPE)`
 		all members of `$params`.
-		
+
 		For any label `:p` in `$sql`, `p` is replaced with `:p_k1, :p_k2, ..., :p_kn` in `$sql`.
 	*/
 	private function expand_query_params(&$sql, &$params) {
 
 		$expanded = array(); // store expanded parameters until we're done
 		$expandedKeys = array(); // store the keys of expanded arrays so we can unset them when we're done
-		
+
 		foreach ($params as $p => $arrayParam) {
-		
+
 			// only worry about non-empty arrays
 			if (!is_array($arrayParam['value']) || empty($arrayParam['value'])) continue;
-			
+
 			$expandedKeys[] = $p;
 			$names = ''; // list of labels `:p_k1, :p_k2, ..., :p_kn` with which to replace `:p` in $sql
 			foreach ($arrayParam['value'] as $k => $v) {
-			
+
 				// Ensure validity of members
 				if ((!empty($v) && !is_scalar($v))) {
 					$t = gettype($v);
 					throw new Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
 				}
-				
+
 				$expanded["{$p}_{$k}"] = array('value' => $v, 'pdoType' => $arrayParam['pdoType']);
 				$names .= ":{$p}_{$k}, ";
 			}
-			
+
 			// replace :p in $sql with $names
 			$names = rtrim($names, " ,");
 			$sql = str_replace(":$p", $names, $sql);
 		}
-		
+
 		// Nothing expanded
 		if (empty($expandedKeys)) return;
-		
+
 		// Get rid of the now expanded array params
 		foreach ($expandedKeys as $v)
 			unset($params[$v]);
-			
+
 		// Merge in the expanded values
 		$params = array_merge($params, $expanded);
 	}
