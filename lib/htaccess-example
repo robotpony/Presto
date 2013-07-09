@@ -13,7 +13,7 @@ RewriteRule lib/(.*) /404.html [R,L]
 
 # Route API requests
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule (.*)\.(.*)$ /delegator.php?r=$1&t=$2& [QSA,L]
+RewriteRule (.*)\.(.*)$ /delegator.php?r=$1&t=$2 [QSA,L]
 RewriteRule ^(.*)\.html$ $1.php [NC,L]
 
 # General requests (enable for standard php/index delegate behaviour)

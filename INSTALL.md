@@ -25,7 +25,7 @@ This file sets up Presto's delegator features, so that your classes are called i
 
 4. Copy the example API file and test:
 
-<pre>$ cp lib/presto/examples/info.php .
+<pre>$ cp lib/presto/setup-tests/info.php .
 $ curl [YOUR WEBROOT]/info.json	
 {"example":"This is some example information"}</pre>
 
