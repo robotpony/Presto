@@ -21,7 +21,7 @@ class info extends API {
 	// info.json (root get request)
 	public function get($p) {
 
-		$this->restrictTo('json');
+		$this->restrictTo(array('json', 'js'));
 
 		if (count($p) > 1)
 			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
@@ -31,7 +31,7 @@ class info extends API {
 
 	// Test custom header values
 	public function get_header_test($ctx) {
-		$this->restrictTo('json');
+		$this->restrictTo(array('json', 'js'));
 
 		$this->status(201);
 		$this->add_header('CUSTOM_HEADER', 'TEST');
@@ -41,7 +41,7 @@ class info extends API {
 	// Test binary json values (this should fail)
 	public function get_utf8($ctx) {
 
-		$this->restrictTo('json');
+		$this->restrictTo(array('json', 'js'));
 		return array('status' => 'fail', 'expected' => 'fail', 'invalidUTF8' => pack("H*" ,'c32e') );
 	}
 

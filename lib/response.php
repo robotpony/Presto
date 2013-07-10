@@ -48,12 +48,33 @@ class Response {
 
 		// register default type handlers
 
+		// JSON
 		self::add_type_handler('application/json', function ($dom) {
 			$json = json_encode($dom);
 			if (json_last_error() !== JSON_ERROR_NONE) throw new Exception('JSON encoding error #' . json_last_error(), 400);
 			print $json;
 		} );
 
+		// JSONP
+		self::add_type_handler('application/js', function ($dom, $ctx, $map) {
+
+			if ($ctx === null || !array_key_exists('callback', $ctx->options))
+				throw new Exception('JSONP missing callback option', 400);
+
+			$callback = $ctx->options['callback'];
+
+			if (strlen($callback) === 0 || !preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+				throw new Exception("Invalid JSONP callback name: $callback", 400);
+
+			$json = json_encode($dom);
+
+			if (json_last_error() !== JSON_ERROR_NONE)
+				throw new Exception('JSON encoding error in JSONP request - #' . json_last_error(), 400);
+
+			print "$callback($json);";
+		} );
+
+		// Built in HTML
 		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
 
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
@@ -72,7 +93,7 @@ class Response {
 		if (!$this->hdr($c, $h))
 			return false; // returns if status does not allow a body
 
-		if ($enc) return self::encode($this->content_type(), $ctx->data);
+		if ($enc) return self::encode($this->content_type(), $ctx->data, $ctx);
 		else return print $ctx->data;
 	}
 	/* Respond with a failure */
@@ -106,14 +127,14 @@ class Response {
 
 		return true;
 	}
-	
+
 	/* Redirect client */
 	public function redirect($t = '500.html', $o = null) {
 		$opt = isset($o) ? '?' . http_build_query($o) : '';
 		return header("Location: /$t$opt");
 		exit;
 	}
-	
+
 	/** Determine the content-type */
 	private function content_type() {
 		if (!isset($this->call) || empty($this->call->type))
@@ -133,7 +154,7 @@ class Response {
 	}
 
 	/* Encode the response using type handlers */
-	private static function encode($type, $dom) {
+	private static function encode($type, $dom, $ctx = array()) {
 		$h = false;
 
 		// find encoder
@@ -147,9 +168,8 @@ class Response {
 
 		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
 
-		$encode = $h->enc;
-		$map = $h->map;
-		$encode($dom, $map);
+		$encoder_fn = $h->enc;
+		$encoder_fn($dom, (object) $ctx, $h->map);
 	}
 
 	public function __toString() { return print_r($this, true); }
