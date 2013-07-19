@@ -220,12 +220,12 @@ class Service {
 		curl_close($c);
 				
 		if ($this->result->data === false)
-			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
+			throw new Exception("HTTP service error, no data: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 
 		if ($this->call->info->http_code != 200) {
 			$dump = ($this->options->debug) ? print_r($this->result, true) 
 				: print_r($this->result->data, true);
-			throw new Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
+			throw new Exception("HTTP service error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
 		}
 		
 		return $this->data();
