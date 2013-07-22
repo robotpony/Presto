@@ -135,8 +135,14 @@ class db extends PDO {
 
 		foreach ($params as $p => $arrayParam) {
 
-			// only worry about non-empty arrays
-			if (!is_array($arrayParam) || empty($arrayParam)) continue;
+			// only worry about arrays
+			if (!is_array($arrayParam)) continue;
+			
+			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
+			if (empty($arrayParam)) {
+				$params[$p] = '';
+				continue;
+			}
 
 			$expandedKeys[] = $p;
 			$names = ''; // list of labels `:p_k1, :p_k2, ..., :p_kn` with which to replace `:p` in $sql
@@ -188,8 +194,14 @@ class db extends PDO {
 
 		foreach ($params as $p => $arrayParam) {
 
-			// only worry about non-empty arrays
-			if (!is_array($arrayParam['value']) || empty($arrayParam['value'])) continue;
+			// only worry about arrays
+			if (!is_array($arrayParam['value'])) continue;
+			
+			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
+			if (empty($arrayParam['value'])) {
+				$params[$p] = array('value' => '', 'pdoType' => PDO::PARAM_STR);
+				continue;
+			}
 
 			$expandedKeys[] = $p;
 			$names = ''; // list of labels `:p_k1, :p_k2, ..., :p_kn` with which to replace `:p` in $sql
