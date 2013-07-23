@@ -10,20 +10,22 @@ include_once('_helpers.php');
 */
 class Request {
 
-	public $uri;
+	public $uri;		// source URI
 
-	public $container;
-	public $route;
-	public $type;
+	public $container;	// target API container
+	public $route;		// target API route
+	public $type;		// resource type (based on URI)
 
-	public $host;
-	public $method;
-	public $action;
-	public $service;
-	public $query;
-	public $get;
-	public $post;
-	public $options;
+	public $host;		// hostname
+	public $tld;		// top level domain name
+	public $scheme;		// request scheme (http, https, etc.)
+	public $method;		// requested method
+	public $action;		// presto's target action
+	public $service;	// service name
+	public $query;		// query parameters
+	public $get;		// get parameters
+	public $post;		// post parameters
+	public $options;	// query options
 
 	/* Set up	a request object (from PHP builtins) */
 	public function __construct($r = null, $t = null, $c = null) {
@@ -47,7 +49,12 @@ class Request {
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
 		$this->action = presto_lib::_c($this->method, 'get'); // default to GET
 		$this->host = $_SERVER['HTTP_HOST'];
+
 		$this->service = strstr($this->host, '.', -1);
+		$this->tld = pathinfo($this->host, PATHINFO_EXTENSION);
+		$this->scheme = _server_has('HTTPS', 'on')
+			|| _server_has('HTTP_X_FORWARDED_PROTO', 'https')
+			|| _server_has('HTTP_X_FORWARDED_SSL', 'on') ? 'https' : 'http';
 
 		$this->options = $_GET;
 		$_GET = array(); // discourage use of $_GET
@@ -61,7 +68,7 @@ class Request {
 		$file = empty($this->container) ? "$class.php" : "$this->container/$class.php";
 		$method = empty($res) ? $this->method : $this->method . '_' . $res;
 		$preflight = "{$method}_model";
-		
+
 		return (object) array(
 			'container' => presto_lib::_cleanup($this->container),
 			'class' 	=> presto_lib::_cleanup($class),
@@ -245,3 +252,10 @@ class Request {
 	// dump the object to a string
 	public function __toString() { return print_r($this, true); }
 }
+
+/* Request helpers */
+
+// safely get a server variable with a default
+function _server($k, $d = false) { return array_key_exists($k, $_SERVER) ? $_SERVER[$k] : $d; }
+// safely check to see if a server variable is a particular value
+function _server_has($k, $v, $d = false) { return array_key_exists($k, $_SERVER) ? $_SERVER[$k] == $v : $d; }
