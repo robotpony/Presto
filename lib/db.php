@@ -54,7 +54,7 @@ class db extends PDO {
 	}
 
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
-	function update($sql, &$bound_parameters = array()) {
+	function update($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 	}
 	/*
@@ -64,7 +64,7 @@ class db extends PDO {
 		$bound_parameters is an array of arrays with the 'value' member as the value to bind and the 'pdoType' as
 		that parameter's PDO datatype.
 	 */
-	function query($sql, &$bound_parameters = array()) {
+	function query($sql, $bound_parameters = array()) {
 
 		// Expand any array parameters
 		$this->expand_query_params($sql, $bound_parameters);
@@ -88,14 +88,14 @@ class db extends PDO {
 	}
 
 	/* Provide a wrapper for inserts which is really just an alias for the query function. */
-	function insert($sql, &$bound_parameters = array()) {
+	function insert($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Insert failed: no rows were inserted.', 409);
 	}
 
 	/* Provide a wrapper for deletes which is really just an alias for the query function. */
-	function delete($sql, &$bound_parameters = array()) {
+	function delete($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Delete failed: resource does not exist.', 404);
