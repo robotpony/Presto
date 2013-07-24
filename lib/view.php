@@ -32,18 +32,34 @@ class View {
 
 	public function render() {
 		try {
-			// verify and load view
-
-			$this->v = "{$this->f}.php";
-
-			if (!stream_resolve_include_path($this->v))
-				throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 501);
 
 			// render view and return
-
 			extract($this->d);
 			ob_start();
-			include($this->v);
+		
+			if (!is_array($this->f)) {
+				// verify and load simple view
+				$this->v = "{$this->f}.php";
+	
+				if (!stream_resolve_include_path($this->v))
+					throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 501);
+					
+				include($this->v);
+			}
+			else {
+				if (empty($this->f))
+					throw new Exception('Missing multipart view paths.', 501);
+			
+				// verify and load multipart view
+				foreach ($this->f as $f) {
+					$this->v = "{$f}.php";
+		
+					if (!stream_resolve_include_path($this->v))
+						throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 501);
+						
+					include($this->v);
+				}
+			}
 			$output = ob_get_contents();
 			ob_end_clean();
 			return $output;
