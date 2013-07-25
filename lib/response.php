@@ -17,6 +17,7 @@ class Response {
 			'205' => 'Reset Content', // (NO BODY)
 			'206' => 'Partial Content', // (ADD'L HEADERS)
 
+			'303' => 'See other',
 			'304' => 'Not modified',
 
 			'400' => 'Bad request',
