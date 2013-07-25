@@ -25,7 +25,7 @@ class View {
 		// hook view parameters
 
 		$this->d = array('dom' => $data); // namespaced into "dom"
-		$this->f = $view;
+		$this->f = is_array($view) ? $view : array($view);
 		
 		return $this;
 	}
@@ -37,29 +37,19 @@ class View {
 			extract($this->d);
 			ob_start();
 		
-			if (!is_array($this->f)) {
-				// verify and load simple view
-				$this->v = "{$this->f}.php";
+			if (empty($this->f))
+				throw new Exception('You did not specify any view paths.', 501);
+		
+			// verify and load multipart view
+			foreach ($this->f as $f) {
+				$this->v = $f;
 	
 				if (!stream_resolve_include_path($this->v))
 					throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 501);
 					
 				include($this->v);
 			}
-			else {
-				if (empty($this->f))
-					throw new Exception('Missing multipart view paths.', 501);
-			
-				// verify and load multipart view
-				foreach ($this->f as $f) {
-					$this->v = "{$f}.php";
-		
-					if (!stream_resolve_include_path($this->v))
-						throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 501);
-						
-					include($this->v);
-				}
-			}
+				
 			$output = ob_get_contents();
 			ob_end_clean();
 			return $output;
