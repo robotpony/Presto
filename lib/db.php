@@ -106,6 +106,8 @@ class db extends PDO {
 					$p = explode($t, $key);
 					$type = $p[1];
 					$key = $p[0];
+				} else { // Reset type to null if it isn't set to prevent type cascade
+					$type = null;
 				}
 				// extract keys
 			    $keys = strpos($key, $d) ? explode($d, $key) : array($key);
@@ -118,6 +120,8 @@ class db extends PDO {
 			        if (!isset($ptr[$k])) $ptr[$k] = array();
 			        $ptr = &$ptr[$k];
 			    }
+				error_log(print_r($type,1),3,"/tmp/debug.log");
+				error_log(print_r("\n",1),3,"/tmp/debug.log");
 
 				// adjust type if needed
 				if (!empty($type)) settype($value, $type);
