@@ -45,6 +45,7 @@ class db extends PDO {
 		$this->errors();
 		return $resultset;
 	}
+	/* Return a single row (throws on > 1 row) */
 	function select_row($sql, $bound_parameters = array()) {
 		$r = $this->select($sql, $bound_parameters);
 		$c = count($r);
@@ -52,6 +53,85 @@ class db extends PDO {
 		elseif ($c !== 1) throw new Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
 		return $r[0];
 	}
+	
+	/* Return a simple type and object mapped set of records 
+		
+		Uses column aliases and type designation to generate object hierarchy.
+		
+		Features:
+		
+			* simple key format `any.number.of.subkeys:optional_type`
+			* order of columns is not important
+			* allows values to be type cast
+			
+		Not supported:
+		
+			* combining rows into sub-objects
+			
+		Example:
+		
+			SELECT
+				SomeID AS `id:int`,
+				FirstName AS `name.first`,
+				LastName AS `name.last`,
+				AnotherColumn AS `other`
+			FROM SomeTable
+			
+		
+			[{
+				id: 1234,
+				name: {
+					'first': "Sideshow",
+					'last': "Bob"
+				},
+				other: "some value"
+			}, ...]
+	*/
+	function select_objects($sql, $bound_parameters = array()) {
+	
+		$rows = $this->select($sql, $bound_parameters);
+
+		$d = '.'; $t = ':'; // delimiters for depth and type
+		$o = array(); // output
+		
+		foreach ($rows as $r) { // each row in result set
+			
+			$row = array();
+			$type = '';
+			
+			foreach ($r as $key => $value) { // each column
+
+				// extract type :type if it exists
+				if (strpos($key, $t)) {
+					$p = explode($t, $key);
+					$type = $p[1];
+					$key = $p[0];
+				}
+				// extract keys
+			    $keys = strpos($key, $d) ? explode($d, $key) : array($key);
+
+			    $ptr = &$row; // reduce re-allocs (using a ref)
+
+				// create objects as needed
+			    foreach ($keys as $k) {
+			    
+			        if (!isset($ptr[$k])) $ptr[$k] = array();
+			        $ptr = &$ptr[$k];
+			    }
+
+				// adjust type if needed
+				if (!empty($type)) settype($value, $type);
+				
+				// insert column value
+			    if (empty($ptr)) $ptr = $value;
+			    else $ptr[] = $value;
+			}
+			
+			$o[] = $row; // add row to output
+		}
+
+		return $o;
+	}	
 
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, $bound_parameters = array()) {
