@@ -54,9 +54,9 @@ class db extends PDO {
 		return $r[0];
 	}
 	
-	/* Return a simpletype/tree mapped set of records 
+	/* Return a simple type and object mapped set of records 
 		
-		Uses column aliases to generate object hierarchy.
+		Uses column aliases and type designation to generate object hierarchy.
 		
 		Features:
 		
@@ -85,7 +85,7 @@ class db extends PDO {
 					'last': 'Bob'
 				},
 				other: "some value"
-			}]
+			}, ...]
 	*/
 	function select_objects($sql, $bound_parameters = array()) {
 	
