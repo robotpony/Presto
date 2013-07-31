@@ -81,8 +81,8 @@ class db extends PDO {
 			[{
 				id: 1234,
 				name: {
-					'first': 'Sideshow',
-					'last': 'Bob'
+					'first': "Sideshow",
+					'last': "Bob"
 				},
 				other: "some value"
 			}, ...]
