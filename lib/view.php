@@ -45,7 +45,7 @@ class View {
 				$this->v = $f;
 	
 				if (!stream_resolve_include_path($this->v))
-					throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 501);
+					throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 404);
 					
 				include($this->v);
 			}
@@ -55,6 +55,7 @@ class View {
 			return $output;
 
 		} catch (Exception $e) {
+			if ($e->getCode() === 404) throw $e;
 			throw new Exception('Failed to render view.', 500, $e);
 		}
 	}
