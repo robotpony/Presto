@@ -43,6 +43,11 @@
 ?>
 <section><div>
 
+<article>
+<p>These tests inspect your local Presto installation. All tests should pass.</p>
+<p>For unit tests, see <code>presto/unit-tests</code>.</p>
+</article>
+
 <details>
 <?php 
 	$ver = explode('.', phpversion());
