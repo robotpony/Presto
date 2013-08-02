@@ -1,6 +1,6 @@
 <?php include_once('_config.php');
 
-include_once(PRESTO_BASE.'helpers/misc.php');
+include_once(PRESTO_BASE.'/helpers/misc.php');
 include_once(PRESTO_BASE.'/autoloader.php');
 include_once(PRESTO_BASE.'/api.php');
 
@@ -102,9 +102,6 @@ class Presto extends REST {
 			// Produce a response for the client
 			
 			presto_lib::_trace( PRESTO_TRACE_KEY, json_encode(Presto::trace_info()) );
-			$profiles = Profiler::profiles(); // add any process profiling to trace
-			if (!empty($profiles))
-				presto_lib::_trace( PROFILER_TRACE_KEY, json_encode($profiles) );
 
 			$encode = (is_object($this->call->data) || is_array($this->call->data));
 			return self::$resp->ok( $this->call, $encode, $o->status(), $o->headers() );
