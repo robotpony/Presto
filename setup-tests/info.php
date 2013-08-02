@@ -19,14 +19,52 @@ class info extends API {
 	}
 
 	// info.json (root get request)
-	public function get($p) {
-
+	public function get($p, $o, $b, $t) {
+	
 		$this->restrictTo(array('json', 'js'));
-
-		if (count($p) > 1)
+		
+		if (count($p) != 0)
 			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
 
-		return array('example' => 'This is some example information'); // will be returned as json, if json is requested
+		return array('pass' => 'Simple GET'); // will be returned as json, if json is requested
+	}
+
+	// info/params.json (params tests)
+	public function get_params($p, $o, $b, $t) {
+	
+		$this->restrictTo(array('json', 'js'));
+		$c = count($p);
+		
+		switch ($c) {
+			case 0:
+				return array('pass' => 'Object GET');
+				
+			case 1: 
+			case 6:
+				return array('pass' => "Object GET - $c parameters", 'parameters' => $p);
+				
+			default:
+				throw new Exception("Invalid number of parameters ($c)", 400);
+		}
+	}
+
+	// info/params.json (params tests)
+	public function get_otions($p, $o, $b, $t) {
+	
+		$this->restrictTo(array('json', 'js'));
+		$c = count($o);
+		
+		switch ($c) {
+			case 0:
+				return array('pass' => 'Object GET');
+				
+			case 1: 
+			case 6:
+				return array('pass' => "Object GET - $c options", 'options' => $o);
+				
+			default:
+				throw new Exception("Invalid number of options ($c)", 400);
+		}
 	}
 
 	// Test custom header values
