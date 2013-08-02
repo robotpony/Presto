@@ -1,6 +1,6 @@
 <?php
 
-/* Presto global helper functions */
+/* Misc. Presto global helper functions */
 
 class presto_lib {
 	// return the first valid value

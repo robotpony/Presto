@@ -2,7 +2,7 @@
 /* A PrestoPHP HTTP request object (and direct dependencies) */
 
 include_once('_config.php');
-include_once('_helpers.php');
+include_once('helpers/misc.php');
 
 /* A REST request
 

@@ -1,6 +1,6 @@
 <?php include_once('_config.php');
 
-include_once(PRESTO_BASE.'/_helpers.php');
+include_once(PRESTO_BASE.'helpers/misc.php');
 include_once(PRESTO_BASE.'/autoloader.php');
 include_once(PRESTO_BASE.'/api.php');
 
