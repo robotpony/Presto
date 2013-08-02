@@ -6,19 +6,22 @@ BASE=http://presto.napkinware.test/setup-tests
 
 SEP="--------------------------------------------------------------------------------"
 
-all: get-tests post-tests header-tests intro-tests
+all: startup get-tests post-tests header-tests intro-tests
+
+startup: 
+	@echo; 
 	
 get-tests: get-delegation-root get-delegation-object get-delegation-object-param get-delegation-object-params
-	@echo ${SEP}; echo "GET tests complete" ; echo ${SEP}; \
+	@echo; echo; \
 
-post-tests:
-	@echo ${SEP}; echo "POST tests complete" ; echo ${SEP}; \
+post-tests: post-simple
+	@echo; echo; \
 	
 header-tests:
-	@echo ${SEP}; echo "HEADER tests complete" ; echo ${SEP}; \
+	@echo; echo; \
 
 intro-tests:
-	@echo ${SEP}; echo "INTROSPECTION tests complete" ; echo ${SEP}; \
+	@echo; echo; \
 
 
 get-delegation-root:
@@ -40,3 +43,10 @@ get-delegation-object-params:
 	@echo ${SEP}; echo "GET delegation ..." ; echo ${SEP}; \
 	curl -X GET -H ${ACCEPT} -H ${CONTENT} ${BASE}/info/params/param/param-2/another-param/4/5/6.json 2>&1 ; \
 	echo	
+	
+	
+post-simple:
+	@echo ${SEP}; echo "POST simple ..." ; echo ${SEP}; \
+	curl -X POST --data @data/simple.json  -H ${ACCEPT} -H ${CONTENT} ${BASE}/info.json 2>&1 ; \
+	echo
+	

@@ -66,7 +66,18 @@ class info extends API {
 				throw new Exception("Invalid number of options ($c)", 400);
 		}
 	}
-
+	
+	// info/params.json (params tests)
+	public function post($p, $o, $b, $t) {
+	
+		$this->restrictTo(array('json', 'js'));
+		
+		if (empty($b))
+			throw new Exception('Missing POST body', 500);
+					
+		return array('pass' => "Simple POST", 'body' => $b);
+	}	
+	
 	// Test custom header values
 	public function get_header_test($ctx) {
 		$this->restrictTo(array('json', 'js'));

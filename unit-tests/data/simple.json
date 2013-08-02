@@ -1,1 +1,1 @@
-{"key": "value"}
+{"stringThing": "A string value", "intThing": 1234, "boolKey": true, "nullThing": null}
