@@ -6,9 +6,20 @@ BASE=http://presto.napkinware.test/setup-tests
 
 SEP="--------------------------------------------------------------------------------"
 
-all: get-tests
+all: get-tests post-tests header-tests intro-tests
 	
 get-tests: get-delegation-root get-delegation-object get-delegation-object-param get-delegation-object-params
+	@echo ${SEP}; echo "GET tests complete" ; echo ${SEP}; \
+
+post-tests:
+	@echo ${SEP}; echo "POST tests complete" ; echo ${SEP}; \
+	
+header-tests:
+	@echo ${SEP}; echo "HEADER tests complete" ; echo ${SEP}; \
+
+intro-tests:
+	@echo ${SEP}; echo "INTROSPECTION tests complete" ; echo ${SEP}; \
+
 
 get-delegation-root:
 	@echo ${SEP}; echo "GET delegation ..." ; echo ${SEP}; \
