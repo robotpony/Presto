@@ -1,5 +1,5 @@
 <aside style="border: 1px solid rgba(0,0,0,.15); padding: 1em .5em; background-color: rgba(0,0,0,.05); text-align: center; font-size: 16pt; letter-spacing: 2px; margin-top: 2em;">
-What's changed in version 1.2? See [Github](https://github.com/robotpony/Presto/pulls?direction=desc&page=1&sort=created&state=closed) for details.
+What's <a href="#1-2">planned for 1.2?</a> What's <a href="https://github.com/robotpony/Presto/pulls?direction=desc&page=1&sort=created&state=closed">changed so far in version 1.2</a>? 
 </aside>
 
 # Presto is different
@@ -96,18 +96,19 @@ Presto translates the exception into an HTTP `400` status with an appropriately 
 
 The API code that results is much more focused on carefully testing parameters, retrieving appropriate resources, and building rich DOMs, rather than boilerplate code, managing responses, excessive error checking, routing, and other complex output generation.
 
-## Version 1.2 and beyond
+## <a id="1-2"></a> Version 1.2 and beyond
 
-*These are some notes for 1.2 toolkit feature candidates and other hidden gems in the tools we've developed*
+*These are some notes for 1.2 toolkit feature candidates and other hidden gems in the tools we've developed.*
 
-* Simple DB to object mappings
-* File listings
-* Mockup tools (simple JSON loading)
-* Introspection
-* Testing tools
-* Profiling tools
-* Documentation tools
-* New website (INFO|EXAMPLE … long page)
+1. Install and command line helpers
+2. Simple DB to object mappings
+3. File listing helpers (from Chronicle.md)
+4. Mockup tools (simple JSON loading)
+5. Introspection
+6. Testing tools
+7. Profiling tools (by @adam-patterson)
+8. Documentation tools
+9. New website (INFO|EXAMPLE … long page)
 
 The focus of 1.2 is in making standard API code simpler for production. This includes all API tasks, not just code. Development, debugging, deployment, testing, profiling, and documentation. The completion of these and solid install / examples is the goal.
 
