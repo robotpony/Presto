@@ -109,6 +109,7 @@ The API code that results is much more focused on carefully testing parameters, 
 7. Profiling tools (by @adam-patterson)
 8. Documentation tools
 9. New website (INFO|EXAMPLE … long page)
+10. Other features from Chronicle?
 
 The focus of 1.2 is in making standard API code simpler for production. This includes all API tasks, not just code. Development, debugging, deployment, testing, profiling, and documentation. The completion of these and solid install / examples is the goal.
 
