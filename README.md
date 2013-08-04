@@ -8,26 +8,28 @@ PrestoPHP makes building RESTful web services APIs trivial. It's a tiny toolkit 
 
 Presto obsesses over APIs as a distinct, straightforward layer, and we think you should too.
 
-## A quick example 
+## How simple is simple?
 
-An API is built as a class with members named for each resource (or tree of resources). For example, an `apple` is a resource. You can request an `apple` over HTTP:
+An API is built as a PHP class with members named for each resource (or tree of resources). For example, an `apple` is a resource. You can request an `apple` over HTTP.
 
-	GET fruit/apples/spartan.json?tags=large+red
+	GET fruit/apples/ripe.json?tags=large+red
 
 Presto maps this request to a PHP file and class, as well as the specific class member. It loads the file, creates an instance of the class, and executes the member that relates to the request.
 
-    Presto automatically loads 'fruit/apples.php'
+    Presto loads 'fruit/apples.php'
 
-The mapping is straightforward enough that navigating your code isn't a chore. Within the class file, it executes member functions based on the nature of the request, passing the parameters split by purpose.
+The mapping is straightforward enough that navigating your code isn't a chore. Within the class file, it executes member functions based on the nature of the request, passing the parameters split by what they're for. It provides *parameters*, *options*, the *body* (if there is one), and the request *type*.
 
 	apples->get(
-		array('spartan'), 
-		array('tags' => array('large', ''red)),
- 		array(), 'json');
+		array('ripe'),							/* parameters */
+		array('tags' => array('large', ''red)), /* options */
+ 		array()									/* body */,
+		'json'									/* requested content type */
+	);
 
-How this mapping works can be configured simply in your Apache rewrite rules, though the built in mappings suffice for the majority of APIs we have encountered.
+How this mapping works can be configured simply in your Apache rewrite rules, though the built in mappings suffice for the majority of APIs you will encounter.
 
-The entire class looks something like:
+The `apples` class is based on the PrestoPHP `API` base.
 
 	
 	class apples extends API {
@@ -56,9 +58,9 @@ The entire class looks something like:
 
 There are a few exciting things to notice in the example:
 
-1.  The `$dom` is automatically converted to the requested `Content-Type`, if it's a type that maps easily. This means that `JSON` and `XML` APIs require no *view* code.
-2. Status codes are returned automatically from all exceptions. This makes error handling trivial and incredibly clean. Presto maps the various requirements of each `HTTP` status to the exception code and message as required by the specification.
-3. Any HTTP request *verb* is mapped to calls automatically. For example, you can request a `LIST` of `apple` types available from the API too. This makes crafting expressive APIs simpler.
+1.  The `$dom` is automatically converted to the requested `Content-Type`, if it's a type that maps easily. This means that `JSON` and `XML` APIs require no view code at all!
+2. Status codes are returned automatically from any exception. This simplifies error handling and keeps it easy to read. PrestoPHP guarantees that all errors result in coherent service API responses.
+3. HTTP request *verbs* are mapped to calls automatically. For example, you could request a `LIST` of `apple` types available, `DELETE` a specific `apple`, or provide a map of `OPTIONS`. This makes crafting expressive APIs possible.
 
 Mapping verbs allows requests like:
 
