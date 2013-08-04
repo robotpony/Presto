@@ -2,13 +2,15 @@
 What's changed in version 1.2? See [Github](https://github.com/robotpony/Presto/pulls?direction=desc&page=1&sort=created&state=closed) for details.
 </aside>
 
-# How is Presto different?
+# Presto is different
 
-Presto simplifies building web services APIs. It reduces both the amount and complexity of the code required by each API request, using straightforward class delegation and exceptions. It relies on the right tool for each portion of each request; the web server for routing, and PHP for autoloading, annotating request parameters, and for delegating to class member calls. User interfaces are left to other toolkits, though Presto does serve up fragments of HTML as APIs quite nicely. Presto focuses on APIs as a distinct layer, and we think you should too.
+PrestoPHP makes building RESTful web services APIs trivial. It's a tiny toolkit that cuts down on what you need to learn and how much code it takes to build a solid web service. It relies on the right tool for each part of a request; the web server for routing and PHP for autoloading, annotating request parameters, and for delegating to class member calls.
+
+Presto obsesses over APIs as a distinct, straightforward layer, and we think you should too.
 
 ## A quick example 
 
-A REST style API is built as a class with members named for each resource (or tree of resources). For example, an `apple` is a resource. You can request an `apple` over HTTP:
+An API is built as a class with members named for each resource (or tree of resources). For example, an `apple` is a resource. You can request an `apple` over HTTP:
 
 	GET fruit/apples/spartan.json?tags=large+red
 
@@ -58,7 +60,7 @@ There are a few exciting things to notice in the example:
 2. Status codes are returned automatically from all exceptions. This makes error handling trivial and incredibly clean. Presto maps the various requirements of each `HTTP` status to the exception code and message as required by the specification.
 3. Any HTTP request *verb* is mapped to calls automatically. For example, you can request a `LIST` of `apple` types available from the API too. This makes crafting expressive APIs simpler.
 
-An example verb mapping:
+Mapping verbs allows requests like:
 
 	LIST apples.json?colour=red
 
@@ -66,9 +68,18 @@ The request is mapped to a function of the same name:
 
 	public function list(/* … */) { return array(); }
 
-More complex resources are possible using container requests, custom rewrite rules, and by adding specific handlers. For example, you could add a `seeds` branch to the `apple` resource. Getting a list of seeds would map to:
+More complex resources are possible using container requests a, multipart delegation, and custom rewrite rules. For example, you could add a `seeds` branch to the `apple` resource.
 
+	/* Built in multipart delegation */
 	public function list_seeds(/* … */) { return array(); }
+
+Additional segments of a URI automatically map to parameters.
+
+	/* GET apples/seeds/14421.json */
+	public function get_seeds(array(14421), /*…*/) { return array(); }
+
+Containers are just folders of APIs, which are mapped by specific `HTACCESS` rules. By default, all APIs are assumed to be at the API route or in containers. More specific rules can be added to improve performance, or just to specifically limit the responses your service gives.
+
 
 ## Errors and statuses
 
@@ -83,7 +94,7 @@ Presto translates the exception into an HTTP `400` status with an appropriately 
 
 The API code that results is much more focused on carefully testing parameters, retrieving appropriate resources, and building rich DOMs, rather than boilerplate code, managing responses, excessive error checking, routing, and other complex output generation.
 
-## Other niceties 
+## Version 1.2 and beyond
 
 *These are some notes for 1.2 toolkit feature candidates and other hidden gems in the tools we've developed*
 
@@ -94,5 +105,10 @@ The API code that results is much more focused on carefully testing parameters, 
 * Testing tools
 * Profiling tools
 * Documentation tools
+* New website (INFO|EXAMPLE … long page)
 
 The focus of 1.2 is in making standard API code simpler for production. This includes all API tasks, not just code. Development, debugging, deployment, testing, profiling, and documentation. The completion of these and solid install / examples is the goal.
+
+### Database to object mappings
+
+*Part of `lib/helpers/db.php`, a lightweight PDO wrapper that ensures useful exception handling, and adds a few handy helpers.*
