@@ -81,7 +81,7 @@
 </div></section>
 
 <footer><div>
-<h5><strong>Presto</strong> was created by <a href="/LICENSE.html">Bruce Alderson</a>.</h5>
+<h5><a href="/"><strong>Presto</strong></a> was created by <a href="http://warpedvisions.org">Bruce Alderson</a>, <a href="https://github.com/adam-patterson">Adam Patterson</a>, and <a href="https://github.com/ngallagher87">Nathan Gallagher</a> and is <a href="/LICENSE.html">Copyright 2011-2013 Bruce Alderson</a>.</h5>
 	
 </div></footer>
 
