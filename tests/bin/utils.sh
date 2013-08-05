@@ -21,22 +21,20 @@ tests() {
 #
 # METHOD URL [STATUS] [EXTRA SETTINGS] [TYPE]
 curlr() {
-    m=`echo $1 | tr '[a-z]' '[A-Z]'`
-    x="-X ${m}"
+    m=`echo "$1" | tr '[a-z]' '[A-Z]'`; x="-X ${m}"
+    url="${BASE_URL}/$2"
     expected="$3"; expected=${expected:-200 application/json}
-    extra="$4"
+    extra=$4
     t="$5"; t=${t:-json}
 
-    if [ "${x}" == 'GET' ] ; then x='' ; fi
-    
     # get the status code (this results in running each test twice)
-    code=$(curl -sL -o /dev/null -w "%{http_code} %{content_type}\\n" -X ${m} ${extra} -s ${BASE_URL}/$2)
-    
+    code=$(curl -sL -o /dev/null -w "%{http_code} %{content_type}" -X ${m} ${extra} -s ${url})
+
     # display codes and test method
-    if [ "${code}" ]; then printf "\n\033[38;1;34m[%s]\x1b[0m %s" "$m" "$2"; fi
+    if [ "${code}" ]; then printf "\n\033[38;1;34m[%s]\x1b[0m %s" "$m" "${url}"; fi
     
     # run the test
-    cmd="curl -s -X ${m} ${extra} -s ${BASE_URL}/$2"
+    cmd="curl -s -X ${m} ${extra} -s ${url}"
 	response=$($cmd)
 
     printf "\n\033[38;1;34m[%s]\x1b[0m [expected: %s] [curl: %s] " "$code" "$expected" "$?"

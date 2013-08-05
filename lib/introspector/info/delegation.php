@@ -21,4 +21,10 @@ class delegation extends API {
 		$this->restrictTo('json');
 		return self::$req->scheme();
 	}
+	
+	public function options() {
+		$this->restrictTo('json');
+		return self::$req->scheme();
+	}
+	
 }

@@ -9,12 +9,12 @@ DIR="${BASH_SOURCE%/*}"
 
 section "Debugging API Tests"
 
-get "transmogrify/system/php/version.json"
-get "transmogrify/system/httpd/headers/content-type.json"
-get "transmogrify/system/httpd/headers.json"
+get "introspector/system/php/version.json"
+get "introspector/system/httpd/headers/content-type.json"  "201 application/json"
+get "introspector/system/httpd/headers.json"  "201 application/json"
 
-get "transmogrify/info/delegation.json"
-get "transmogrify/info/delegation/debug/transmogrify/system/php/version.json&method=get&type=json"
-get "transmogrify/info/delegation.json" "json" "-H 'x-presto-option: trace'"
+get "introspector/info/delegation.json"
 
-options "transmogrify/info/delegation.json"
+get "introspector/info/delegation.json" "200 application/json" "-H 'x-presto-option: trace'"
+
+options "introspector/info/delegation.json"
