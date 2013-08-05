@@ -1,7 +1,7 @@
 # PrestoPHP tests
 
 DEBUG=1
-TRACE=0
+TRACE=
 
 all: startup dispatch-tests debug-tests done
 

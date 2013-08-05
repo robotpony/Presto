@@ -23,34 +23,35 @@ tests() {
 curlr() {
     m=`echo $1 | tr '[a-z]' '[A-Z]'`
     x="-X ${m}"
-    expected="$3"; expected=${expected:-200}
+    expected="$3"; expected=${expected:-200 application/json}
     extra="$4"
     t="$5"; t=${t:-json}
 
     if [ "${x}" == 'GET' ] ; then x='' ; fi
     
     # get the status code (this results in running each test twice)
-    code=$(curl -sL -o /dev/null -w "%{http_code}\\n" -X ${m} ${extra} -s ${BASE_URL}/$2)
+    code=$(curl -sL -o /dev/null -w "%{http_code} %{content_type}\\n" -X ${m} ${extra} -s ${BASE_URL}/$2)
     
     # display codes and test method
-    if [ ${code} ]; then printf "\n\033[38;1;34m[%s]\x1b[0m %s " "$m" "$2" ; fi
-    printf "\033[38;1;34m[%s]\x1b[0m [%s] " "$code" "$expected"
+    if [ "${code}" ]; then printf "\n\033[38;1;34m[%s]\x1b[0m %s" "$m" "$2"; fi
     
     # run the test
     cmd="curl -s -X ${m} ${extra} -s ${BASE_URL}/$2"
 	response=$($cmd)
 
+    printf "\n\033[38;1;34m[%s]\x1b[0m [expected: %s] [curl: %s] " "$code" "$expected" "$?"
+
     # Handle exit codes
 	case $? in
 		22 )
-			echo -e "[#$?] ${F}" ; echo ${response} ;;
+			echo -e "${F}" ; echo ${response} ;;
 		6 )
-			echo -e "[#$?] ${F} HOST NOT FOUND" ; echo ${response} ;;
+			echo -e "${F} HOST NOT FOUND" ; echo ${response} ;;
 		* )
 			if [ "${code}" = "${expected}" ] ; then
-                echo -e "[#$?] ${OK}"
+                echo -e "${OK}"
             else
-    			echo -e "[#$?] ${F} HTTP STATUS FAILUIRE"
+    			echo -e "${F}"
             fi ;;
 	esac
 
