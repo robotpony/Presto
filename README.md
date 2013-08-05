@@ -96,23 +96,42 @@ Presto translates the exception into an HTTP `400` status with an appropriately 
 
 The API code that results is much more focused on carefully testing parameters, retrieving appropriate resources, and building rich DOMs, rather than boilerplate code, managing responses, excessive error checking, routing, and other complex output generation.
 
-## <a id="1-2"></a> Version 1.2 and beyond
+## <a id="1-2"></a> Version 1.2 wishlist
 
-*These are some notes for 1.2 toolkit feature candidates and other hidden gems in the tools we've developed.*
+*v1.2 toolkit feature candidates.*
 
-1. Install and command line helpers
-2. Simple DB to object mappings
-3. File listing helpers (from Chronicle.md)
-4. Mockup tools (simple JSON loading)
-5. Introspection
-6. Testing tools
-7. Profiling tools (by @adam-patterson)
-8. Documentation tools
-9. New website (INFO|EXAMPLE … long page)
-10. Other features from Chronicle?
+1. **Install and command line helper.** Things like `presto install`, `presto add new-api-name`, and so on.
+2. **Simple DB to object helper.** Allows simple object creation from `SELECT` syntax.
+3. **File listing helper.** *From Chronicle.md*, returns objects from file and folder listings.
+4. **Introspection.** Provides tools for asking Presto about itself, helpful for ops monitoring, setup, and troubleshooting.
+5. **Testing tools.**
+6. **Profiling tools.** *Added by @adam-patterson*
+7. **Documentation tools**
 
 The focus of 1.2 is in making standard API code simpler for production. This includes all API tasks, not just code. Development, debugging, deployment, testing, profiling, and documentation. The completion of these and solid install / examples is the goal.
 
 ### Database to object mappings
 
-*Part of `lib/helpers/db.php`, a lightweight PDO wrapper that ensures useful exception handling, and adds a few handy helpers.*
+Simple things should be simple. Getting data from a table, for example, can produce simple PHP objects.
+
+	SELECT
+		UserID AS `id:int`,
+		FirstName AS `name.first`,
+		MiddleName AS `name.middle`,
+		LastName AS `name.last`
+	FROM SomeTable;
+
+Using column aliases, Presto creates one set of objects per row, with the types hinted by in the `SELECT` aliases.
+
+    {
+		"people": [
+			{
+				"id": 1234,
+				"name": {
+					"first": "Bob",
+					"middle": "J",
+					"last": "Smith"
+					}
+			}
+		]
+	}
