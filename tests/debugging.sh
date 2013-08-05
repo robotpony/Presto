@@ -2,8 +2,9 @@
 
 DEBUG=$1||0
 TRACE=$2||0
+
 DIR="${BASH_SOURCE%/*}"
-. "${DIR}/utils.sh"
+. "${DIR}/bin/utils.sh"
 
 
 section "Debugging API Tests"
