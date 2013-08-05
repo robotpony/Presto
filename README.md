@@ -50,13 +50,13 @@ The `apples` class is based on the PrestoPHP `API` base.
 			);
 
 			
-			/* The output is converted to the requested content-type automatically */
+			/* The $dom is converted to the content-type automatically */
 		
-			return $dom; // to the client in requested format
+			return $dom;
 		}
 	}
 
-There are a few exciting things to notice in the example:
+There are a few exciting things in the example:
 
 1.  The `$dom` is automatically converted to the requested `Content-Type`, if it's a type that maps easily. This means that `JSON` and `XML` APIs require no view code at all!
 2. Status codes are returned automatically from any exception. This simplifies error handling and keeps it easy to read. PrestoPHP guarantees that all errors result in coherent service API responses.
