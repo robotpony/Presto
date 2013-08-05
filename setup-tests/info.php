@@ -49,7 +49,7 @@ class info extends API {
 	}
 
 	// info/params.json (params tests)
-	public function get_otions($p, $o, $b, $t) {
+	public function get_options($p, $o, $b, $t) {
 	
 		$this->restrictTo(array('json', 'js'));
 		$c = count($o);

@@ -1,6 +1,7 @@
 # PrestoPHP tests
 
-DEBUG=0
+DEBUG=1
+TRACE=0
 
 all: startup dispatch-tests debug-tests done
 
@@ -11,8 +12,8 @@ done:
 	@echo;echo;
 	
 dispatch-tests:
-	@./dispatching.sh
+	@./dispatching.sh ${DEBUG} ${TRACE}
 	
 debug-tests:
-	@./debugging.sh
+	@./debugging.sh ${DEBUG} ${TRACE}
 	
