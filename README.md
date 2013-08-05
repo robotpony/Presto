@@ -4,7 +4,7 @@ What's <a href="#1-2">planned for 1.2?</a> What's <a href="https://github.com/ro
 
 # Presto is different
 
-PrestoPHP makes building RESTful web services APIs trivial. It's a tiny toolkit that cuts down on what you need to learn and how much code it takes to build a solid web service. It relies on the right tool for each part of a request; the web server for routing and PHP for autoloading, annotating request parameters, and for delegating to class member calls.
+PrestoPHP is a simple way to build RESTful web services APIs. It's a small toolkit that reduces how much code it takes to build a web service, letting you focus on what the service needs to do. It relies on the right tool for each part of a request; the web server for routing and PHP for loading, annotating, and for delegating a request to class member calls.
 
 Presto obsesses over APIs as a distinct, straightforward layer, and we think you should too.
 
