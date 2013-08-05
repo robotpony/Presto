@@ -26,7 +26,7 @@ post "setup-tests/info.json" "200 application/json" "--data @data/simple.json"
 tests "Package delegation ..."
 
 get "introspector/system/httpd.json"
-get "introspector/system/httpd/headers.json"
+get "introspector/system/httpd/headers.json" "201 application/json"
 
 tests "Expected failures ..."
 
