@@ -58,8 +58,8 @@ The `apples` class is based on the PrestoPHP `API` base.
 
 There are a few exciting things in the example:
 
-1.  The `$dom` is automatically converted to the requested `Content-Type`, if it's a type that maps easily. This means that `JSON` and `XML` APIs require no view code at all!
-2. Status codes are returned automatically from any exception. This simplifies error handling and keeps it easy to read. PrestoPHP guarantees that all errors result in coherent service API responses.
+1.  The `$dom` is converted to the requested `Content-Type`, if it's a type that maps easily. This means that `JSON` and `XML` APIs require no special view code, as they can automatically be serialized.
+2. HTTP status codes are returned automatically from any exception. This simplifies error handling and keeps it easy to read. PrestoPHP guarantees that all errors result in coherent service API responses.
 3. HTTP request *verbs* are mapped to calls automatically. For example, you could request a `LIST` of `apple` types available, `DELETE` a specific `apple`, or provide a map of `OPTIONS`. This makes crafting expressive APIs possible.
 
 Mapping verbs allows requests like:
