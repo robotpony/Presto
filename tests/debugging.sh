@@ -15,6 +15,8 @@ get "introspector/system/httpd/headers.json"  "201 application/json"
 
 get "introspector/info/delegation.json"
 
-get "introspector/info/delegation.json" "200 application/json" "-H 'x-presto-option: trace'"
+trace "introspector/info/delegation.json" "405 text/html; charset=iso-8859-1"
 
 options "introspector/info/delegation.json"
+
+echo

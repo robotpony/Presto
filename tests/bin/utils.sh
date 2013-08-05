@@ -63,25 +63,14 @@ curlr() {
 }
 
 # A get request
-get() { 
-    curlr 'GET' "$1" "$2" "$3" "$4" "$5"
-}
+get() { curlr 'GET' "$1" "$2" "$3" "$4" "$5"; }
 # An options request
-options() {
-    curlr 'OPTIONS' "$1" "$2" "$3" "$4" "$5"
-}
+options() { curlr 'OPTIONS' "$1" "$2" "$3" "$4" "$5"; }
 # A post
-post() {
-    curlr 'POST' "$1" "$2" "$3" "$4" "$5"
-}
+post() { curlr 'POST' "$1" "$2" "$3" "$4" "$5"; }
 # A put
-put() {
-    curlr 'PUT' "$1" "$2" "$3" "$4" "$5"
-}
+put() { curlr 'PUT' "$1" "$2" "$3" "$4" "$5"; }
 # A delete
-delete() {
-    curlr 'DELETE' "$1" "$2" "$3" "$4" "$5"
-}
-trace() {
-    curlr 'TRACE' "$1" "$2" "$3" "$4" "$5"
-}
+delete() { curlr 'DELETE' "$1" "$2" "$3" "$4" "$5"; }
+# A trace
+trace() { curlr 'TRACE' "$1" "$2" "$3" "$4" "$5"; }
