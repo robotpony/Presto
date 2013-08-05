@@ -80,7 +80,7 @@ Additional segments of a URI automatically map to parameters.
 	/* GET apples/seeds/14421.json */
 	public function get_seeds(array(14421), /*…*/) { return array(); }
 
-Containers are just folders of APIs, which are mapped by specific `HTACCESS` rules. By default, all APIs are assumed to be at the API route or in containers. More specific rules can be added to improve performance, or just to specifically limit the responses your service gives.
+Containers are just folders of APIs, which are mapped by specific `HTACCESS` rules. By default, all APIs are either in the API root folder, or in a container folder. More specific rules can be added to your `HTACCESS	` routes to improve performance, or just to specifically limit the responses your service gives.
 
 
 ## Errors and statuses
