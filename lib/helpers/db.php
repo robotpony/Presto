@@ -2,11 +2,11 @@
 
 /* PDO Database wrapper
 
-	See PDO docs for details: http://www.php.net/manual/en/class.pdo.php
+	
 
 	Adds a few extensions for common batched operations.
 
-	See related `extra/tagged-sql.php` for extra post-processing magic.
+	See `docs/db.php` for usage. Also see  PDO docs base class: http://www.php.net/manual/en/class.pdo.php
 */
 
 class db extends PDO {
@@ -54,39 +54,7 @@ class db extends PDO {
 		return $r[0];
 	}
 	
-	/* Return a simple type and object mapped set of records 
-		
-		Uses column aliases and type designation to generate object hierarchy.
-		
-		Features:
-		
-			* simple key format `any.number.of.subkeys:optional_type`
-			* order of columns is not important
-			* allows values to be type cast
-			
-		Not supported:
-		
-			* combining rows into sub-objects
-			
-		Example:
-		
-			SELECT
-				SomeID AS `id:int`,
-				FirstName AS `name.first`,
-				LastName AS `name.last`,
-				AnotherColumn AS `other`
-			FROM SomeTable
-			
-		
-			[{
-				id: 1234,
-				name: {
-					'first': "Sideshow",
-					'last': "Bob"
-				},
-				other: "some value"
-			}, ...]
-	*/
+	/* Return a simple type and object mapped set of records  */
 	function select_objects($sql, $bound_parameters = array()) {
 	
 		$rows = $this->select($sql, $bound_parameters);
