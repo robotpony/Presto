@@ -93,7 +93,7 @@ class db extends PDO {
 
 		$d = '.'; $t = ':'; // delimiters for depth and type
 		$o = array(); // output
-		
+
 		foreach ($rows as $r) { // each row in result set
 			
 			$row = array();
@@ -116,12 +116,10 @@ class db extends PDO {
 
 				// create objects as needed
 			    foreach ($keys as $k) {
-			    
+
 			        if (!isset($ptr[$k])) $ptr[$k] = array();
 			        $ptr = &$ptr[$k];
 			    }
-
-
 				// adjust type if needed
 				if (!empty($type)) settype($value, $type);
 				
@@ -133,7 +131,7 @@ class db extends PDO {
 			$o[] = $row; // add row to output
 		}
 
-		return $o;
+		return json_decode(json_encode($o));
 	}	
 
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
