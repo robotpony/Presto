@@ -192,10 +192,10 @@ class db extends PDO {
 	public function multi_insert($sql, $dataTypes, $data) {
 	
 		if (empty($data))
-			throw new Exception('Aborting: no data to insert.', 409);
+			throw new Exception('Aborting: no data to insert.', 500);
 			
 		if (empty($dataTypes))
-			throw new Exception('Aborting: no data-types provided for data values (necessary for binding).', 409);
+			throw new Exception('Aborting: no data-types provided for data values (necessary for binding).', 500);
 	
 		try {
 			$this->beginTransaction();
@@ -204,7 +204,7 @@ class db extends PDO {
 			
 			foreach ($data as $i => $row) {
 				if (count($row) !== count($dataTypes))
-					throw new Exception("Transaction rolled back as parameter count does not match data value count for data row $i", 409);
+					throw new Exception("Transaction rolled back as parameter count does not match data value count for data row $i", 500);
 				
 				$index = 0;
 				foreach ($row as $key => $v) {
