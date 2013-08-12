@@ -176,6 +176,53 @@ class db extends PDO {
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Insert failed: no rows were inserted.', 409);
 	}
+	
+	/* 
+		Manage a multiple insertion
+		
+		* `$sql`: an `INSERT` statement of the form `INSERT INTO Foo (C1, ..., Cn) VALUES (v1, ..., vn)`
+		* `$dataTypes`: an array containing the PDO data types of the data values of the form
+			`array(0 => PDO::dataType, ..., n => PDO::dataType)`
+		* `$data`: a 2D array of the form `array(0 => array(v01, ..., v0n), ..., m => array(vm1, ..., vmn))`
+		
+		1. Handled with `m` `INSERT` statements wrapped in a transaction.
+		2. The `INSERT` is prepared first (via PDO).
+		3. `m` `INSERT` statements are then executed, binding parameters at execution time. 
+	*/
+	public function multi_insert($sql, $dataTypes, $data) {
+	
+		if (empty($data))
+			throw new Exception('Aborting: You provided no data to insert.', 409);
+			
+		if (empty($dataTypes))
+			throw new Exception('Aborting: You did not provide types for data values (necessary for binding).', 409);
+	
+		try {
+			$this->beginTransaction();
+			
+			$this->statement = $this->prepare($sql);
+			
+			foreach ($data as $i => $row) {
+				if (count($row) !== count($dataTypes))
+					throw new Exception("Transaction rolled back as parameter count does not match data value count for data row $i", 409);
+					
+				foreach ($row as $key => &$param) {
+					$v = $param['value']; $t = $param['pdoType'];
+					if (!$this->statement->bindValue($key, $v, $t))
+						throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
+				}
+				$this->statement->execute();
+				$this->errors();
+			}
+			
+			$this->commit();
+		}
+		catch (Exception $e) {
+			$this->rollBack();
+			$m = $e->getMessage();
+			throw new Exception("Transaction failed and rolled back: $m", 500);
+		}
+	}
 
 	/* Provide a wrapper for deletes which is really just an alias for the query function. */
 	function delete($sql, $bound_parameters = array()) {
