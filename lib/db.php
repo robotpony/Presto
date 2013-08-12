@@ -101,36 +101,35 @@ class db extends PDO {
 			
 			foreach ($r as $key => $value) { // each column
 
-				// extract type :type if it exists
 				if (strpos($key, $t)) {
+					// extract type
 					$p = explode($t, $key);
 					$type = $p[1];
 					$key = $p[0];
-				} else { // Reset type to null if it isn't set to prevent type cascade
-					$type = null;
+				} else {
+					$type = null; // no type provided
 				}
+				
 				// extract keys
 			    $keys = strpos($key, $d) ? explode($d, $key) : array($key);
 
-			    $ptr = &$row; // reduce re-allocs (using a ref)
+			    $ptr = &$row; // working pointer
 
 				// create objects as needed
 			    foreach ($keys as $k) {
-			    
 			        if (!isset($ptr[$k])) $ptr[$k] = array();
 			        $ptr = &$ptr[$k];
 			    }
 
-
-				// adjust type if needed
+				// adjust type
 				if (!empty($type)) settype($value, $type);
 				
-				// insert column value
+				// add column
 			    if (empty($ptr)) $ptr = $value;
 			    else $ptr[] = $value;
 			}
 			
-			$o[] = $row; // add row to output
+			$o[] = db::array_to_object($row); // add row to output as objects
 		}
 
 		return $o;
@@ -364,4 +363,7 @@ class db extends PDO {
 		// Merge in the expanded values
 		$params = array_merge($params, $expanded);
 	}
+	
+	// convert an array to an object (recursively)
+	public static function array_to_object($o) { return is_array($o) ? (object) array_map(__METHOD__, $o) : $o; }
 }
