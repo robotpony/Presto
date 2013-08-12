@@ -180,10 +180,10 @@ class db extends PDO {
 	/* 
 		Manage a multiple insertion
 		
-		* `$sql`: an `INSERT` statement of the form `INSERT INTO Foo (C1, ..., Cn) VALUES (v1, ..., vn)`
+		* `$sql`: an `INSERT` statement of the form `INSERT INTO Foo (C1, ..., Cn) VALUES (:key1, ..., :keyn)`
 		* `$dataTypes`: an array containing the PDO data types of the data values of the form
 			`array(0 => PDO::dataType, ..., n => PDO::dataType)`
-		* `$data`: a 2D array of the form `array(0 => array(v01, ..., v0n), ..., m => array(vm1, ..., vmn))`
+		* `$data`: a 2D array of the form `array(0 => array(key1 => v01, ..., keyn => v0n), ..., m => array(key1 => vm1, ..., keyn => vmn))`
 		
 		1. Handled with `m` `INSERT` statements wrapped in a transaction.
 		2. The `INSERT` is prepared first (via PDO).
@@ -205,11 +205,13 @@ class db extends PDO {
 			foreach ($data as $i => $row) {
 				if (count($row) !== count($dataTypes))
 					throw new Exception("Transaction rolled back as parameter count does not match data value count for data row $i", 409);
-					
-				foreach ($row as $key => &$param) {
-					$v = $param['value']; $t = $param['pdoType'];
+				
+				$index = 0;
+				foreach ($row as $key => $v) {
+					$t = $dataTypes[$index];
 					if (!$this->statement->bindValue($key, $v, $t))
 						throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
+					$index++;
 				}
 				$this->statement->execute();
 				$this->errors();
