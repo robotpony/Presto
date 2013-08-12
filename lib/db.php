@@ -192,10 +192,10 @@ class db extends PDO {
 	public function multi_insert($sql, $dataTypes, $data) {
 	
 		if (empty($data))
-			throw new Exception('Aborting: You provided no data to insert.', 409);
+			throw new Exception('Aborting: no data to insert.', 409);
 			
 		if (empty($dataTypes))
-			throw new Exception('Aborting: You did not provide types for data values (necessary for binding).', 409);
+			throw new Exception('Aborting: no data-types provided for data values (necessary for binding).', 409);
 	
 		try {
 			$this->beginTransaction();
