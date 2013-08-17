@@ -11,14 +11,14 @@
 function presto_autoloader($class) {
 	// First look in the base directory for the web app
 	$class_file = strtolower($class) . ".php";
-	if (file_exists($class_file)) {
+	if (stream_resolve_include_path($class_file)) {
 		require_once($class_file);
 		return true;
 	}
 	// Next look in the Presto library directory
 	$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 	$lib_file = $path . $class_file;
-	if (file_exists($lib_file)) {
+	if (stream_resolve_include_path($lib_file)) {
 		require_once($lib_file);
 		return true;
 	}
@@ -34,7 +34,7 @@ function autoload_delegate($call) {
 	$in = $call->container;
 	$error = "API `$call->class` not found";
 	
-	if ( !file_exists($call->file) ) {
+	if ( !stream_resolve_include_path($call->file) ) {
 		$extra = " ({$call->file} not found).";
 		
 		if ( !empty($in) && !is_dir($in) )
