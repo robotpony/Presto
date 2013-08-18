@@ -25,11 +25,12 @@ set_include_path(get_include_path()
 	. PATH_SEPARATOR . PRESTO_BASE
 	. PATH_SEPARATOR . API_BASE
 	. PATH_SEPARATOR . API_BASE . '/api/'
+	. PATH_SEPARATOR . API_BASE . '/api/models/'
 	. PATH_SEPARATOR . PRESTO_BASE . '/helpers/'
 	. PATH_SEPARATOR . PRESTO_BASE . '/encoders/');
 	
 if (PRESTO_DEBUG)	set_include_path(get_include_path()
-	. PATH_SEPARATOR . '/lib/transmogrify/');
+	. PATH_SEPARATOR . PRESTO_BASE . '/introspector/');
 
 // Set up a base exception for PHP errors (redirects most PHP errors as Exeptions for more consistent handling from APIs)
 class PrestoException extends Exception {
