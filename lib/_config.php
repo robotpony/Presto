@@ -4,8 +4,8 @@
 
 define('PRESTO', 'presto.php');
 define('PRESTO_VERSION', 'presto-v1.11');
-define('PRESTO_DEBUG', 0);
-define('PRESTO_TRACE', 0);
+define('PRESTO_DEBUG', 1);
+define('PRESTO_TRACE', 1);
 define('PRESTO_TRACE_KEY', '_presto_trace');
 define('VERSION_HEADER', 'X-Api-Version');
 define('DEFAULT_RES_TYPE', '.html');
@@ -25,9 +25,8 @@ set_include_path(get_include_path()
 	. PATH_SEPARATOR . PRESTO_BASE
 	. PATH_SEPARATOR . API_BASE
 	. PATH_SEPARATOR . API_BASE . '/api/'
-	. PATH_SEPARATOR . API_BASE . '/lib/'
-	. PATH_SEPARATOR . API_BASE . '/lib/extras/'
-	. PATH_SEPARATOR . API_BASE . '/lib/encoders/');
+	. PATH_SEPARATOR . PRESTO_BASE . '/helpers/'
+	. PATH_SEPARATOR . PRESTO_BASE . '/encoders/');
 	
 if (PRESTO_DEBUG)	set_include_path(get_include_path()
 	. PATH_SEPARATOR . '/lib/transmogrify/');
