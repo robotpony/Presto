@@ -37,7 +37,7 @@ class html {
 		if (!isset($d)) return '';
 		
 		$o = '';
-		if ($d === array_values($d)) // associative, iterate
+		if ($d !== array_values($d)) // associative, iterate
 			foreach ($d as $k => $v) $o .= html::_attr($k, $v);		
 		else // simple, treat as class
 			$o = html::_attr('class', $d);
