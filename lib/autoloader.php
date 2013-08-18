@@ -6,31 +6,34 @@
  	@param string $class (Required) The classname to load.
  	@return boolean Whether or not the file was successfully loaded.
 
- 	See also: Presto::autoload_explicit
+ 	See also: Presto::autoload_delegate
  */
-function presto_autoloader($class) {
-	// First look in the base directory for the web app
-	$class_file = strtolower($class) . ".php";
-	if (stream_resolve_include_path($class_file)) {
-		require_once($class_file);
-		return true;
+function presto_autoloader($c) {
+
+	// Attempt to autoload based on include path
+	
+	$class = strtolower($c) . ".php";
+	
+	if (!stream_resolve_include_path($class)) {
+		
+		// Not found
+		
+		presto_lib::_trace('Skipping auto-loading of ' . $class . '(not found in ' . get_include_path() . ')');		
+		return false; // let other autoloaders try
 	}
-	// Next look in the Presto library directory
-	$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-	$lib_file = $path . $class_file;
-	if (stream_resolve_include_path($lib_file)) {
-		require_once($lib_file);
-		return true;
-	}
-	// We can't find it so we let other autoloaders try
-	return false;
+
+	require_once($class);
+	return true;
+	
 }
+
 // Register the autoloader.
 spl_autoload_register('presto_autoloader');
 
 
-// Delegation autoloading=
+// Delegation autoloading
 function autoload_delegate($call) {
+
 	$in = $call->container;
 	$error = "API `$call->class` not found";
 	
