@@ -55,3 +55,18 @@ ini_set('html_errors', false);
 error_reporting(E_ALL);
 set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
 
+// Active assert and make it quiet
+
+assert_options(ASSERT_ACTIVE, 1);
+assert_options(ASSERT_WARNING, 0);
+assert_options(ASSERT_QUIET_EVAL, 1);
+
+// Create a handler function
+function presto_assert_handler($file, $line, $code) {
+	PrestoException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line);
+}
+
+// Register Presto assert handling
+assert_options(ASSERT_CALLBACK, 'presto_assert_handler');
+
+
