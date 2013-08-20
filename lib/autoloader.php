@@ -34,13 +34,13 @@ function autoload_delegate($call) {
 	$in = $call->container;
 	$error = "API `$call->class` not found";
 	
-	if ( !file_exists($call->file) ) {
+	if ( !stream_resolve_include_path($call->file) ) {
 		$extra = " ({$call->file} not found).";
-		
+
 		if ( !empty($in) && !is_dir($in) )
 			$extra = " ({$call->file} not found, $in missing)."; // aid debugging of routes-in-folders
 			
-		throw new Exception($error .$extra, 404);
+		throw new Exception($error . $extra, 404);
 	}
 	
 	if ( !(require_once $call->file) )
