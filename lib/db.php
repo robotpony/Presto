@@ -53,31 +53,31 @@ class db extends PDO {
 		elseif ($c !== 1) throw new Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
 		return $r[0];
 	}
-	
-	/* Return a simple type and object mapped set of records 
-		
+
+	/* Return a simple type and object mapped set of records
+
 		Uses column aliases and type designation to generate object hierarchy.
-		
+
 		Features:
-		
+
 			* simple key format `any.number.of.subkeys:optional_type`
 			* order of columns is not important
 			* allows values to be type cast
-			
+
 		Not supported:
-		
+
 			* combining rows into sub-objects
-			
+
 		Example:
-		
+
 			SELECT
 				SomeID AS `id:int`,
 				FirstName AS `name.first`,
 				LastName AS `name.last`,
 				AnotherColumn AS `other`
 			FROM SomeTable
-			
-		
+
+
 			[{
 				id: 1234,
 				name: {
@@ -88,53 +88,52 @@ class db extends PDO {
 			}, ...]
 	*/
 	function select_objects($sql, $bound_parameters = array()) {
-	
+
 		$rows = $this->select($sql, $bound_parameters);
 
 		$d = '.'; $t = ':'; // delimiters for depth and type
 		$o = array(); // output
-		
+
 		foreach ($rows as $r) { // each row in result set
-			
+
 			$row = array();
 			$type = '';
-			
+
 			foreach ($r as $key => $value) { // each column
 
-				// extract type :type if it exists
 				if (strpos($key, $t)) {
+					// extract type
 					$p = explode($t, $key);
 					$type = $p[1];
 					$key = $p[0];
-				} else { // Reset type to null if it isn't set to prevent type cascade
-					$type = null;
+				} else {
+					$type = null; // no type provided
 				}
+
 				// extract keys
 			    $keys = strpos($key, $d) ? explode($d, $key) : array($key);
 
-			    $ptr = &$row; // reduce re-allocs (using a ref)
+			    $ptr = &$row; // working pointer
 
 				// create objects as needed
 			    foreach ($keys as $k) {
-			    
 			        if (!isset($ptr[$k])) $ptr[$k] = array();
 			        $ptr = &$ptr[$k];
 			    }
 
-
-				// adjust type if needed
+				// adjust type
 				if (!empty($type)) settype($value, $type);
-				
-				// insert column value
+
+				// add column
 			    if (empty($ptr)) $ptr = $value;
 			    else $ptr[] = $value;
 			}
-			
-			$o[] = $row; // add row to output
+
+			$o[] = db::array_to_object($row); // add row to output as objects
 		}
 
 		return $o;
-	}	
+	}
 
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, $bound_parameters = array()) {
@@ -176,36 +175,36 @@ class db extends PDO {
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Insert failed: no rows were inserted.', 409);
 	}
-	
-	/* 
+
+	/*
 		Manage a multiple insertion
-		
+
 		* `$sql`: an `INSERT` statement of the form `INSERT INTO Foo (C1, ..., Cn) VALUES (:key1, ..., :keyn)`
 		* `$dataTypes`: an array containing the PDO data types of the data values of the form
 			`array(0 => PDO::dataType, ..., n => PDO::dataType)`
 		* `$data`: a 2D array of the form `array(0 => array(key1 => v01, ..., keyn => v0n), ..., m => array(key1 => vm1, ..., keyn => vmn))`
-		
+
 		1. Handled with `m` `INSERT` statements wrapped in a transaction.
 		2. The `INSERT` is prepared first (via PDO).
-		3. `m` `INSERT` statements are then executed, binding parameters at execution time. 
+		3. `m` `INSERT` statements are then executed, binding parameters at execution time.
 	*/
 	public function multi_insert($sql, $dataTypes, $data) {
-	
+
 		if (empty($data))
 			throw new Exception('Aborting: no data to insert.', 500);
-			
+
 		if (empty($dataTypes))
 			throw new Exception('Aborting: no data-types provided for data values (necessary for binding).', 500);
-	
+
 		try {
 			$this->beginTransaction();
-			
+
 			$this->statement = $this->prepare($sql);
-			
+
 			foreach ($data as $i => $row) {
 				if (count($row) !== count($dataTypes))
 					throw new Exception("Transaction rolled back as parameter count does not match data value count for data row $i", 500);
-				
+
 				$index = 0;
 				foreach ($row as $key => $v) {
 					$t = $dataTypes[$index];
@@ -216,7 +215,7 @@ class db extends PDO {
 				$this->statement->execute();
 				$this->errors();
 			}
-			
+
 			$this->commit();
 		}
 		catch (Exception $e) {
@@ -269,7 +268,7 @@ class db extends PDO {
 
 			// only worry about arrays
 			if (!is_array($arrayParam)) continue;
-			
+
 			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
 			if (empty($arrayParam)) {
 				$params[$p] = '';
@@ -328,7 +327,7 @@ class db extends PDO {
 
 			// only worry about arrays
 			if (!is_array($arrayParam['value'])) continue;
-			
+
 			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
 			if (empty($arrayParam['value'])) {
 				$params[$p] = array('value' => '', 'pdoType' => PDO::PARAM_STR);
@@ -364,4 +363,7 @@ class db extends PDO {
 		// Merge in the expanded values
 		$params = array_merge($params, $expanded);
 	}
+
+	// convert an array to an object (recursively)
+	public static function array_to_object($o) { return is_array($o) ? (object) array_map(__METHOD__, $o) : $o; }
 }
