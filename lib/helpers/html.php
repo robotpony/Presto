@@ -28,8 +28,6 @@ class html {
 	// Return an HTML node
 	private static function _node($n, $v, $a = null) {
 		if (empty($n) || is_numeric($n)) throw new Exception('Invalid node type', 500);
-		elseif (is_array($n)) html::_node($n, $v, $a);
-		
 		$a = self::_attrs($a);
 		return "<$n{$a}>$v</$n>";
 	}
