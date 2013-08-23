@@ -44,6 +44,26 @@ class API extends REST {
 		return $this->supports_contentType($types);
 	}
 
+	/* Set necessary CORS headers for this API route.
+	
+		* Sets `Access-Control-Allow-Origin` appropriately with respect to referer (necessary for `Access-Control-Allow-Credentials`)
+		* Sets `Access-Control-Allow-Credentials: true`: allow `rx-auth` cookie to be included in request (authentication)
+		* Sets `Access-Control-Allow-Methods: GET`: only GETs supported for now
+		* sets some other useful default headers
+
+	*/
+	public function crossOrigin() {
+	
+		if (empty($_SERVER['HTTP_ORIGIN']))
+			throw new Exception("'HTTP_ORIGIN' unknown. Failed to set required 'Access-Control-Allow-Origin' header for CORS handshake.", 500);
+			
+		$this->add_header('Access-Control-Allow-Origin', $_SERVER['HTTP_ORIGIN']);
+		$this->add_header('Access-Control-Allow-Credentials', 'true');
+		$this->add_header('Access-Control-Allow-Methods', 'GET');
+		$this->add_header('Access-Control-Allow-Headers', 'Content-Type,Accept');
+		$this->add_header('Access-Control-Max-Age', '10');
+	}
+
 	/* Get a filtered variable (get filter_var_array + exceptions) */
 	static function filtered($thing, $rules, $defaults = null) {
 		if ($defaults) $thing = array_merge($defaults, (array)$thing);
