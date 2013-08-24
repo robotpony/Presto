@@ -1,5 +1,7 @@
 <?php
 
+namespace napkinware\presto;
+
 // Presto global config and constants
 
 define('PRESTO', 'presto.php');
@@ -33,7 +35,7 @@ if (PRESTO_DEBUG)	set_include_path(get_include_path()
 	. PATH_SEPARATOR . PRESTO_BASE . '/introspector/');
 
 // Set up a base exception for PHP errors (redirects most PHP errors as Exeptions for more consistent handling from APIs)
-class PrestoException extends Exception {
+class InternalErrorException extends \Exception {
 	public static function errorHandlerCallback($code, $string, $file, $line, $context) {
 
 		if (error_reporting() != 0)
@@ -53,7 +55,7 @@ class PrestoException extends Exception {
 assert_options(ASSERT_WARNING, 0);
 ini_set('html_errors', false);
 error_reporting(E_ALL);
-set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
+set_error_handler(array('\\napkinware\\presto\\InternalErrorException', 'errorHandlerCallback'), E_ALL);
 
 // Active assert and make it quiet
 
@@ -63,7 +65,7 @@ assert_options(ASSERT_QUIET_EVAL, 1);
 
 // Create a handler function
 function presto_assert_handler($file, $line, $code) {
-	PrestoException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line);
+	InternalErrorException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line);
 }
 
 // Register Presto assert handling

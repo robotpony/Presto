@@ -1,5 +1,8 @@
-<?php include_once('_config.php');
+<?php 
 
+namespace napkinware\presto;
+
+include_once('_config.php');
 include_once(PRESTO_BASE.'/helpers/misc.php');
 include_once(PRESTO_BASE.'/autoloader.php');
 include_once(PRESTO_BASE.'/api.php');
@@ -20,7 +23,7 @@ class Presto extends REST {
 
 		try {
 			$this->dispatch(); // dispatch to loaded class->member based on $req
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			throw $e; // errors are handled by delegator
 		}
 	}
@@ -41,18 +44,16 @@ class Presto extends REST {
 
 			$res = $this->call->resource; // the root resource
 
-			presto_lib::_trace('REQUEST', "[{$this->call->file}] $obj::$method ({$this->call->type})", 
+			trace('REQUEST', "[{$this->call->file}] $obj::$method ({$this->call->type})", 
 				json_encode($this->call->params), json_encode($this->call->options));
 
 			// Create an an instance of the API subclass (autoloaded)
 			
-			autoload_delegate($this->call);
-			
+			$o = autoload_delegate($this->call);
+			$obj = $this->call->class;
 			if (!class_exists($obj))
-				throw new Exception("API class not found for $obj::$method", 404);
+				throw new \Exception("API class not found for $obj::$method", 404);
 				
-			$o = new $obj();
-
 			// Start the response setup
 			
 			self::$resp = new response($this->call);
@@ -60,7 +61,7 @@ class Presto extends REST {
 			// Verify the request
 
 			if ($obj == 'error') // disallow root component access
-				throw new Exception('Root access not allowed', 403);
+				throw new \Exception('Root access not allowed', 403);
 
 			$o->attach( $this->call, self::$resp, self::$req );
 
@@ -68,7 +69,7 @@ class Presto extends REST {
 				
 				// skip + trace missing preflight functions (data will be passed as standard HTTP params)
 				
-				presto_lib::_trace('PREFLIGHT', 'skipped', 
+				trace('PREFLIGHT', 'skipped', 
 					"[{$this->call->file}] $obj::$preflight ({$this->call->type})", 
 					json_encode($this->call->params), json_encode($this->call->options));
 					
@@ -84,7 +85,7 @@ class Presto extends REST {
 			}
 
 			if (!method_exists($obj, $method)) // valid route?
-				throw new Exception("Resource $obj->$method not found.", 404);
+				throw new \Exception("Resource $obj->$method not found.", 404);
 
 			$this->call->exists = true;
 
@@ -101,12 +102,12 @@ class Presto extends REST {
 
 			// Produce a response for the client
 			
-			presto_lib::_trace( PRESTO_TRACE_KEY, json_encode(Presto::trace_info()) );
+			trace( PRESTO_TRACE_KEY, json_encode(Presto::trace_info()) );
 
 			$encode = (is_object($this->call->data) || is_array($this->call->data));
 			return self::$resp->ok( $this->call, $encode, $o->status(), $o->headers() );
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if (self::$resp === null) self::$resp = new response();
 
 			self::$resp->hdr($e->getCode());

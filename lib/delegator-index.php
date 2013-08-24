@@ -1,4 +1,8 @@
-<?php include_once('inc.php');
+<?php
+
+namespace napkinware\presto;
+
+include_once('inc.php');
 
 /* Presto request delegator
 
@@ -8,7 +12,7 @@ $p = null;
 try {
 
 	$p = new Presto();
-} catch (Exception $e) {
+} catch (\Exception $e) {
 	/* Last chance exception handler
 		Attempts to produce sane RESTful output if other error mechanisms have failed. Limited to JSON responses.
 	*/

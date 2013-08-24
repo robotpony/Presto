@@ -24,7 +24,7 @@ class info extends API {
 		$this->restrictTo(array('json', 'js'));
 		
 		if (count($p) != 0)
-			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
+			throw new \Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
 
 		return array('pass' => 'Simple GET'); // will be returned as json, if json is requested
 	}
@@ -44,7 +44,7 @@ class info extends API {
 				return array('pass' => "Object GET - $c parameters", 'parameters' => $p);
 				
 			default:
-				throw new Exception("Invalid number of parameters ($c)", 400);
+				throw new \Exception("Invalid number of parameters ($c)", 400);
 		}
 	}
 
@@ -63,7 +63,7 @@ class info extends API {
 				return array('pass' => "Object GET - $c options", 'options' => $o);
 				
 			default:
-				throw new Exception("Invalid number of options ($c)", 400);
+				throw new \Exception("Invalid number of options ($c)", 400);
 		}
 	}
 	
@@ -73,7 +73,7 @@ class info extends API {
 		$this->restrictTo(array('json', 'js'));
 		
 		if (empty($b))
-			throw new Exception('Missing POST body', 500);
+			throw new \Exception('Missing POST body', 500);
 					
 		return array('pass' => "Simple POST", 'body' => $b);
 	}	

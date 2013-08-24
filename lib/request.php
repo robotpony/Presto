@@ -1,4 +1,7 @@
 <?php
+
+namespace napkinware\presto;
+
 /* A PrestoPHP HTTP request object (and direct dependencies) */
 
 include_once('_config.php');
@@ -34,20 +37,20 @@ class Request {
 
 		// set up basic delegation concepts (via params or htaccess)
 
-		$this->container = presto_lib::_get('c', $c);
-		$this->route = presto_lib::_get('r', $r);
-		$this->type = presto_lib::_c(presto_lib::_get('t', $t), 'json');
+		$this->container = get('c', $c);
+		$this->route = get('r', $r);
+		$this->type = c(get('t', $t), 'json');
 		$params = $this->params();
 
 		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET) || !array_key_exists('c', $_GET))
-			presto_lib::_trace("Rewrite delegation setup for {$this->uri} is be missing.", json_encode($_GET));
+			trace("Rewrite delegation setup for {$this->uri} is be missing.", json_encode($_GET));
 
 		unset($_GET['t']); unset($_GET['r']); unset($_GET['c']); // pop routing parameters
 
 		// setup request parameters
 
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
-		$this->action = presto_lib::_c($this->method, 'get'); // default to GET
+		$this->action = c($this->method, 'get'); // default to GET
 		$this->host = $_SERVER['HTTP_HOST'];
 
 		$this->service = strstr($this->host, '.', -1);
@@ -62,28 +65,28 @@ class Request {
 
 	/* Get the request mapping scheme */
 	public function scheme() {
-		$p = explode('/', presto_lib::$this->route);
-		$class = presto_lib::_at($p, 0, '');
-		$res = presto_lib::_at($p, 1, '');
+		$p = explode('/', $this->route);
+		$class = at($p, 0, '');
+		$res = at($p, 1, '');
 		$file = empty($this->container) ? "$class.php" : "$this->container/$class.php";
 		$method = empty($res) ? $this->method : $this->method . '_' . $res;
 		$preflight = "{$method}_model";
 
 		return (object) array(
-			'container' => presto_lib::_cleanup($this->container),
-			'class' 	=> presto_lib::_cleanup($class),
+			'container' => cleanup($this->container),
+			'class' 	=> cleanup($class),
 			'file'		=> $file,
 			'resource' 	=> $res,
 			'type'		=> $this->type,
 			'action'	=> $this->method,
-			'method' 	=> presto_lib::_cleanup($method),
-			'preflight'	=> presto_lib::_cleanup($preflight),
+			'method' 	=> cleanup($method),
+			'preflight'	=> cleanup($preflight),
 			'params' 	=> $this->params(),
 			'options' 	=> $this->options
 		);
 	}
 	public function params() {
-		$p = explode('/', presto_lib::$this->route);
+		$p = explode('/', $this->route);
 		$p = array_slice($p, 2, count($p));
 
 		return $p;
@@ -110,7 +113,7 @@ class Request {
 			return (object)	$this->get;
 
 		if ($throw)
-			throw new Exception('Missing or invalid GET parameter', 400);
+			throw new \Exception('Missing or invalid GET parameter', 400);
 	}
 
 	/* Get a post value (or values)
@@ -135,7 +138,7 @@ class Request {
 			return (object)	$this->post;
 
 		if ($throw)
-			throw new Exception('Missing or invalid POST parameter', 400);
+			throw new \Exception('Missing or invalid POST parameter', 400);
 	}
 
 	private function filter($type, $f = null) {
@@ -196,7 +199,7 @@ class Request {
 							JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
 							JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
 						);
-						throw new Exception('Invalid JSON request payload. ' . $errors[json_last_error()], 400);
+						throw new \Exception('Invalid JSON request payload. ' . $errors[json_last_error()], 400);
 					}
 
 				break;
@@ -205,7 +208,7 @@ class Request {
 
 					$decoded_body = simplexml_load_string($body);
 					if ( $decoded_body === false )
-						throw new Exception("Invalid XML request payload.", 400);
+						throw new \Exception("Invalid XML request payload.", 400);
 				break;
 
 
@@ -213,7 +216,7 @@ class Request {
 
 					$decoded_body = $body;
 					if ( $decoded_body === false )
-						throw new Exception("Invalid form request payload.", 400);
+						throw new \Exception("Invalid form request payload.", 400);
 			}
 
 		}

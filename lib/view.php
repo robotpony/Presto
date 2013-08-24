@@ -1,5 +1,7 @@
 <?php
 
+namespace napkinware\presto;
+
 /* A simple PrestoPHP view
 
 	Usage:
@@ -41,14 +43,14 @@ class View {
 			ob_start();
 
 			if (empty($this->f))
-				throw new Exception('You did not specify any view paths.', 501);
+				throw new \Exception('You did not specify any view paths.', 501);
 
 			// verify and load multipart view
 			foreach ($this->f as $f) {
 				$this->v = $f;
 
 				if (!stream_resolve_include_path($this->v))
-					throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 404);
+					throw new \Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 404);
 
 				include($this->v);
 			}
@@ -57,9 +59,9 @@ class View {
 			ob_end_clean();
 			return $output;
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($e->getCode() === 404) throw $e;
-			throw new Exception('Failed to render view.', 500, $e);
+			throw new \Exception('Failed to render view.', 500, $e);
 		}
 	}
 }

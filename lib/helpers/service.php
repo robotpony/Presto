@@ -1,5 +1,7 @@
 <?php
 
+namespace napkinware\presto;
+
 /** Service (API) abstraction
 
 	A helper for calling remote service APIs with a natural calling sequence.
@@ -33,7 +35,7 @@ class Service {
 	public function __construct($options, $urlBuilder = NULL) {
 	
 		if (!function_exists('curl_init'))
-			throw new Exception('cURL required by the Presto::Service lib.');
+			throw new \Exception('cURL required by the Presto::Service lib.');
 		 
 		// set up the service options
 		$this->options = (object)array_merge(
@@ -184,7 +186,7 @@ class Service {
 			break;
 				
 			default:
-				throw new Exception('Unsupported HTTP method ' 
+				throw new \Exception('Unsupported HTTP method ' 
 					+ $this->call->method);
 		}
 
@@ -215,17 +217,17 @@ class Service {
 		$this->parseResults();
 						
 		if ($this->result->error = curl_error($c))
-		    throw new Exception($this->result->error);
+		    throw new \Exception($this->result->error);
 
 		curl_close($c);
 				
 		if ($this->result->data === false)
-			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
+			throw new \Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 
 		if ($this->call->info->http_code != 200) {
 			$dump = ($this->options->debug) ? print_r($this->result, true) 
 				: print_r($this->result->data, true);
-			throw new Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
+			throw new \Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
 		}
 		
 		return $this->data();
@@ -297,7 +299,7 @@ class Service {
 				    	$detail .= $e->message . "\n" 
 				    	. $this->result->body . "\n";
 				    }
-				    throw new Exception("XML parse error:\n" . $detail, '500');
+				    throw new \Exception("XML parse error:\n" . $detail, '500');
 				}
 				
 			break;
@@ -327,7 +329,7 @@ class Service {
 			/* TODO: xml encoding for send payload not handled */
 			case 'xml':
 			default:
-				throw new Exception('Unknown data format for send ' 
+				throw new \Exception('Unknown data format for send ' 
 					. $this->call->type);			
 		}
 		
