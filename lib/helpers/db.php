@@ -1,5 +1,7 @@
 <?php
 
+namespace napkinware\presto;
+
 /* PDO Database wrapper
 
 	
@@ -26,8 +28,8 @@ class db extends PDO {
 
 		try {
 			 $_db = new db($dsn, $user, $password, $config);
-		 } catch (Exception $e) {
-			throw new Exception("Failed to connect to database.", 500, $e);
+		 } catch (\Exception $e) {
+			throw new \Exception("Failed to connect to database.", 500, $e);
 		 }
 
 		return $_db;
@@ -49,8 +51,8 @@ class db extends PDO {
 	function select_row($sql, $bound_parameters = array()) {
 		$r = $this->select($sql, $bound_parameters);
 		$c = count($r);
-		if ($c === 0) throw new Exception("Found 0 rows", 500);
-		elseif ($c !== 1) throw new Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
+		if ($c === 0) throw new \Exception("Found 0 rows", 500);
+		elseif ($c !== 1) throw new \Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
 		return $r[0];
 	}
 	
@@ -125,14 +127,14 @@ class db extends PDO {
 			foreach ($bound_parameters as $key => &$param) {
 				$v = $param['value']; $t = $param['pdoType'];
 				if (!$this->statement->bindValue($key, $v, $t))
-					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
+					throw new \Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
 			}
 		}
 
 		try {
 			$this->statement->execute();
 			$this->errors();
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->errors(); // force errors() to run even after exceptions (for PDO::ERRMODE_EXCEPTION)
 		}
 
@@ -142,14 +144,14 @@ class db extends PDO {
 	function insert($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
-			throw new Exception('Insert failed: no rows were inserted.', 409);
+			throw new \Exception('Insert failed: no rows were inserted.', 409);
 	}
 
 	/* Provide a wrapper for deletes which is really just an alias for the query function. */
 	function delete($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
-			throw new Exception('Delete failed: resource does not exist.', 404);
+			throw new \Exception('Delete failed: resource does not exist.', 404);
 	}
 
 	/* Return the number of rows affected by the last INSERT, DELETE, or UPDATE.  */
@@ -163,12 +165,12 @@ class db extends PDO {
 		if (empty($e[0]) || $e[0] === self::DB_NO_ERR) return;
 		if (!empty($e[0]) && $e[0] === self::USR_DEF_DB_ERR) {
 			$msg = !empty($e[2]) ? $e[2] : 'Application defined SQL error occurred.';
-			throw new Exception($msg, 412);
+			throw new \Exception($msg, 412);
 		}
 		else if (!empty($e[0]) && !empty($e[2])) {
-			throw new Exception($e[2], 500);
+			throw new \Exception($e[2], 500);
 		}
-		else throw new Exception('Update failed for unknown reason.', 500);
+		else throw new \Exception('Update failed for unknown reason.', 500);
 	}
 
 	/*
@@ -202,7 +204,7 @@ class db extends PDO {
 				// Ensure validity of members
 				if ((!empty($v) && !is_scalar($v))) {
 					$t = gettype($v);
-					throw new Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
+					throw new \Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
 				}
 
 				$expanded["{$p}_{$k}"] = $v;
@@ -261,7 +263,7 @@ class db extends PDO {
 				// Ensure validity of members
 				if ((!empty($v) && !is_scalar($v))) {
 					$t = gettype($v);
-					throw new Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
+					throw new \Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
 				}
 
 				$expanded["{$p}_{$k}"] = array('value' => $v, 'pdoType' => $arrayParam['pdoType']);

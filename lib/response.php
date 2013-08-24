@@ -1,4 +1,7 @@
 <?php
+
+namespace napkinware\presto;
+
 include_once('encoders/html.php');
 
 /* A PrestoPHP HTTP response
@@ -52,7 +55,7 @@ class Response {
 		// JSON
 		self::add_type_handler('application/json', function ($dom) {
 			$json = json_encode($dom);
-			if (json_last_error() !== JSON_ERROR_NONE) throw new Exception('JSON encoding error #' . json_last_error(), 400);
+			if (json_last_error() !== JSON_ERROR_NONE) throw new \Exception('JSON encoding error #' . json_last_error(), 400);
 			print $json;
 		} );
 
@@ -60,17 +63,17 @@ class Response {
 		self::add_type_handler('application/js', function ($dom, $ctx, $map) {
 
 			if ($ctx === null || !array_key_exists('callback', $ctx->options))
-				throw new Exception('JSONP missing callback option', 400);
+				throw new \Exception('JSONP missing callback option', 400);
 
 			$callback = $ctx->options['callback'];
 
 			if (strlen($callback) === 0 || !preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
-				throw new Exception("Invalid JSONP callback name: $callback", 400);
+				throw new \Exception("Invalid JSONP callback name: $callback", 400);
 
 			$json = json_encode($dom);
 
 			if (json_last_error() !== JSON_ERROR_NONE)
-				throw new Exception('JSON encoding error in JSONP request - #' . json_last_error(), 400);
+				throw new \Exception('JSON encoding error in JSONP request - #' . json_last_error(), 400);
 
 			print "$callback($json);";
 		} );
@@ -83,8 +86,8 @@ class Response {
 
 	/* Register a type handler */
 	public static function add_type_handler($type, $encoder_fn, $mapper_fn = null) {
-		if (!is_callable($encoder_fn)) throw new Exception('Invalid type handler.', 500);
-		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new Exception('Invalid type mapper.', 500);
+		if (!is_callable($encoder_fn)) throw new \Exception('Invalid type handler.', 500);
+		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new \Exception('Invalid type mapper.', 500);
 
 		self::$type_handlers[$type] = (object) array('enc' => $encoder_fn, 'map' => $mapper_fn);
 	}
@@ -167,7 +170,7 @@ class Response {
 				if (preg_match("#$exp#", $type)) $h = self::$type_handlers[$exp]; // expression mapping
 		}
 
-		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
+		if (!$h) throw new \Exception('Unknown resource type: ' . $type, 500);
 
 		$encoder_fn = $h->enc;
 		$encoder_fn($dom, (object) $ctx, $h->map);
