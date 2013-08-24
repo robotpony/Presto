@@ -2,7 +2,8 @@
 
 namespace napkinware\presto;
 
-/* A simple PrestoPHP view
+	Often used to generate special output, like HTML or other indirect object->output mappings. Don't use
+	this to generate JSON or XML (those are more easily generated with DOM->adapter patterns)
 
 	Usage:
 
@@ -28,7 +29,7 @@ class View {
 
 		// hook view parameters
 
-		$this->d = array('dom' => $data); // namespaced into "dom"
+		$this->d = array('dom' => $data, 'view' => $this); // namespaced into "dom"
 		$this->f = is_array($view) ? $view : array($view);
 
 		return $this;
@@ -58,6 +59,23 @@ class View {
 			$output = ob_get_contents();
 			ob_end_clean();
 			return $output;
+
+		} catch (Exception $e) {
+			if ($e->getCode() === 404) throw $e;
+			throw new Exception('Failed to render view.', 500, $e);
+		}
+	}
+	
+	/* Include a file as a piece of a view. */
+	public function load_part($p) {
+		try {
+		
+			extract($this->d);
+			
+			if (stream_resolve_include_path($p) === false)
+				throw new Exception("Template file $p not found in: ". get_include_path() .".", 404);
+			
+			include($p);
 
 		} catch (\Exception $e) {
 			if ($e->getCode() === 404) throw $e;

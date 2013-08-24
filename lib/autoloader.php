@@ -49,7 +49,7 @@ function autoload_delegate(&$call) {
 	
 	if ( !stream_resolve_include_path($call->file) ) {
 		$extra = " ({$call->file} not found).";
-		
+
 		if ( !empty($in) && !is_dir($in) )
 			$extra = " ({$call->file} not found, $in missing)."; // aid debugging of routes-in-folders
 			
