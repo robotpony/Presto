@@ -2,12 +2,18 @@
 
 namespace napkinware\presto;
 
+/* A simple PrestoPHP view
+
+	Usage:
+
+		print new View('login', array( 'user' => 'test-user' ) );
+
 	Often used to generate special output, like HTML or other indirect object->output mappings. Don't use
 	this to generate JSON or XML (those are more easily generated with DOM->adapter patterns)
 
 	Usage:
 
-		print new View('login', array( 'user' => 'test-user' ) );
+		print napkinware\presto\View::render('login', array( 'user' => 'test-user' ) );
 
 	Returns the rendered text of the view or throws a status code (as a standard PHP exception).
 
