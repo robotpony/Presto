@@ -1,4 +1,7 @@
 <?php
+
+namespace napkinware\presto;
+
 include_once(PRESTO_BASE.'/_helpers.php');
 define('PROFILER_TRACE_KEY', '_profiler_trace');
 
@@ -25,7 +28,7 @@ class Profiler {
 	public static function track($key, $extra = null) {
 	
 		if (isset($extra) && !is_array($extra)) {
-			presto_lib::_trace( __METHOD__, "Failed to track [$key]: optional extra data must be an array.");
+			trace( __METHOD__, "Failed to track [$key]: optional extra data must be an array.");
 			return;
 		}
 			
@@ -40,7 +43,7 @@ class Profiler {
 			);
 		}
 		else
-			presto_lib::_trace( __METHOD__, "[$key]: is already being tracked.");
+			trace( __METHOD__, "[$key]: is already being tracked.");
 	}
 	
 	/*
@@ -49,7 +52,7 @@ class Profiler {
 	public static function stop($key) {
 
 		if (empty(self::$processes[$key])) {
-			presto_lib::_trace( __METHOD__, "Failed to stop [$key]: it isn't being tracked.");
+			trace( __METHOD__, "Failed to stop [$key]: it isn't being tracked.");
 			return;
 		}
 		
@@ -70,12 +73,12 @@ class Profiler {
 	public static function restart($key, $extra = null) {
 		
 		if (empty(self::$processes[$key])) {
-			presto_lib::_trace( __METHOD__, "Failed to restart [$key]: it isn't being tracked.");
+			trace( __METHOD__, "Failed to restart [$key]: it isn't being tracked.");
 			return;
 		}
 	
 		if (isset($extra) && !is_array($extra)) {
-			presto_lib::_trace( __METHOD__, "Failed to restart [$key]: optional extra data must be an array.");
+			trace( __METHOD__, "Failed to restart [$key]: optional extra data must be an array.");
 			return;
 		}
 		

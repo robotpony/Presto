@@ -39,7 +39,7 @@ The `apples` class is based on the PrestoPHP `API` base.
 			/* All error handling uses exceptions */
 
 			if (count($params) === 0)
-				throw new Exception('Missing required parameter', 400);
+				throw new \Exception('Missing required parameter', 400);
 			
 			
 			/* Output is built up as PHP objects (like a DOM) */
@@ -90,7 +90,7 @@ Errors are standard PHP exceptions. Additionally, built-in PHP errors are mapped
 For example, if you encounter a parameter error you can simply throw an exception:
 
 	if (empty($param))
-		throw new Exception('Missing required parameter', 400);
+		throw new \Exception('Missing required parameter', 400);
 		
 Presto translates the exception into an HTTP `400` status with an appropriately encoded body. This is especially interesting for built-in errors, as your code can ignore them entirely and allow PHP and Presto do their magic. Clients of your API will receive well-formed HTTP statuses and encoded bodies for every request.
 

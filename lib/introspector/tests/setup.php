@@ -25,7 +25,7 @@ class info extends API {
 		$this->restrictTo('json');
 
 		if (count($ctx->params) > 1)
-			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
+			throw new \Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
 
 		return array('example' => 'This is some example information'); // will be returned as json, if json is requested
 	}
