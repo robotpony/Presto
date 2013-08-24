@@ -4,9 +4,10 @@ namespace napkinware\presto;
 
 /* Misc. Presto global helper functions */
 
-// return the first valid value
-function coalesce() { return array_shift(@array_filter(func_get_args())); }
-function c() { return array_shift(@array_filter(func_get_args())); }
+// return the first non null value
+function coalesce() { return array_shift(@array_filter(func_get_args(), function($v) { return isset($v); })); }
+function c() { return array_shift(@array_filter(func_get_args(), function($v) { return isset($v); })); }
+
 // get an array value at
 function at($a, $k, $d = '') { return isset($a[$k]) ? $a[$k] : $d; }
 // get wrapper (with default)
