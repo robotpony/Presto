@@ -14,28 +14,46 @@ class SettingsClassTest extends \PHPUnit_Framework_TestCase {
 
 	}
 
-	/**
+	/** Test missing settings
+
 	 * @expectedException Exception
-	 * @expectedExceptionCode 0     
+	 * @expectedExceptionCode 0
 	 */
 	public function testMissingFiles() {
-		$o = new settings(); // missing settings, will fail
+		$o = new settings();
 	}
-	/**
+
+	/** Test non-existent file
+
 	 * @expectedException Exception
-	 * @expectedExceptionCode 0     
+	 * @expectedExceptionCode 0
 	 */
 	public function testInvalidFiles() {
-		// invalid settings should fail
-		$o = new settings(array('file-that-doesnt-exist' => array( 'nothing' => 0 ))); 
+		$o = new settings(array('file-that-doesnt-exist' => array( 'nothing' => 0 )));
 	}
-	
-	
-	/* Basic can-connect and get some data */
-	public function testAuthorized() {
 
+	/** Test general key access
+		
+	*/
+	public function testSettingsKeys() {
+
+		// load some simple json data
+		$o = new settings(array(
+			'simple' => array(
+				/* set up some simple defaults*/
+				'stringThing' => '',
+				'otherKey' => false )
+			),
+			'data/'
+		);
+		
+		$simple = $o->simple;
+
+		$this->assertNotNull($simple); // settings file object ok
+		$this->assertNotEmpty($simple->stringThing); // settings value ok
+		$this->assertNotEmpty($simple->intThing); // numeric settings value ok
+		$this->assertTrue($simple->otherKey === false); // default settings value ok
+
+		$this->assertTrue( $simple->thisKeyDoesNotExist === null ); // non-existant
 	}
-	
-	public function testListings() {}
-
 }

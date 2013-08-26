@@ -2,51 +2,60 @@
 
 namespace napkinware\presto;
 
-/* Settings */
+/* Load/access settings from one or more json files
+
+ */
 class settings {
 	private $files;
-	private $n;
-	
-	/* Construct the settings object */
-	public function __construct($files = null) {		
+	private $base;
+
+	/* Construct a settings object 
+		
+		$files - array of filename (without extension) and key value pair defaults
+		$base 
+	*/
+	public function __construct($files = null, $base = '') {
 
 		try {
 
 			if (!isset($files))
 				throw new \Exception('Missing configuration.');
-				
+
+			$this->base = $base;
 			$this->files = $files;
-			$this->loadSettings();		
-			
+			$this->loadSettings();
+
 		} catch(\Exception $e) {
-		
+
 			trace($e->getMessage());
 			throw $e;
 		}
 	}
-	
+
 	/* Handle missing settings files (last chance) */
 	public function __get($n) {
 		trace("Skipping missing '$n' settings (file not loaded)");
  		return "[missing file $n]";
 	}
-	
+
 	/* ======================== Private helpers ======================== */
 
 	/* Load the settings files */
 	private function loadSettings() {
 
-		foreach ($this->files as $n => $f) {
+		foreach ($this->files as $name => $defaults) {
 
-			if (!file_exists($f->file))
-				throw new \Exception("Missing '$n' settings ({$f->file} not found)");
+			$filename = "{$this->base}{$name}.json";
 
-			$config = file_get_contents($f->file);
-			
+			if (!file_exists($filename))
+				throw new \Exception("Missing settings ({$filename} not found)");
+
+			$config = file_get_contents($filename);
+
 			if (!$config || empty($config))
 				throw new \Exception("Empty configuration file {$f->file}");
 
-			$this->$n = new settingsFile($config, $n, $f->file, $f->defaults);
+			$this->$name = new settingsFile($config, $filename, $defaults);
 		}
 		trace("Loaded $n settings.");
 	}
@@ -54,13 +63,13 @@ class settings {
 
 /* One settings file */
 class settingsFile {
-	public $d;
-	
-	/* Set up the setting object */
-	public function __construct($s, $n, $f, $defaults = null) {
+	private $d;
 
-		// populate settings 
-		
+	/* Set up the setting object */
+	public function __construct($s, $f, $defaults = null) {
+
+		// populate settings
+
 		if (is_string($s))
 			$this->d = json_decode($s); // decode from string
 		elseif (is_array($s))
@@ -69,22 +78,23 @@ class settingsFile {
 			$this->d = $s; // from object
 		else
 			throw new \Exception("Unknown configuration format found for $n: [$f] - $s");
-			
+
 		// merge in defaults, if any
-		
-		if ( $defaults && (is_object($defaults) || is_array($defaults)) )			
+
+		if ( $defaults && (is_object($defaults) || is_array($defaults)) )
 			$this->d = (object) array_merge( (array) $defaults, (array) $this->d );
 	}
-	
+
 	public function hasData() { return !empty($this->d); }
-	
+
 	// Get a setting
 	public function __get($n) {
-		
+
 		if (property_exists($this->d, $n))
 			return $this->d->$n;
-		
+
 		trace("Skipping missing '$n' setting (property does not exist)");
- 		return "[missing $n]";
-	}	
+		
+		return null;
+	}
 }
