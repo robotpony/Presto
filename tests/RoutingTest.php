@@ -15,7 +15,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase {
 
 	public function testAuthorized() {
 		$o = new Service( array( 
-			'service' => 'http://presto.test'
+			'service' => 'http://presto.napkinware.test'
 		) );
 		
 		$info = $o->get('setup-tests/info.json');
