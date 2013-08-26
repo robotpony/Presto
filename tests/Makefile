@@ -10,10 +10,14 @@ startup:
 	
 done:
 	@echo;echo;
-	
+
+unit:
+	../vendor/bin/phpunit -v
+
 dispatch-tests:
 	@./dispatching.sh ${DEBUG} ${TRACE}
 	
 debug-tests:
 	@./debugging.sh ${DEBUG} ${TRACE}
 	
+.PHONY: unit
