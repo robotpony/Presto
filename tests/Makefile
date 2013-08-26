@@ -3,7 +3,7 @@
 DEBUG=
 TRACE=
 
-all: startup dispatch-tests debug-tests done
+all: startup unit dispatch-tests debug-tests done
 
 startup:
 	@clear; reset;
