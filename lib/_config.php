@@ -51,6 +51,10 @@ class PrestoException extends Exception {
 // Set up PHP error handling (note these settings are overriden by explicit PHP ini settigns, we should address this)
 
 assert_options(ASSERT_WARNING, 0);
+if (PRESTO_DEBUG) {
+	assert_options(ASSERT_ACTIVE, 1);
+	assert_options(ASSERT_WARNING, 1);
+}
 ini_set('html_errors', false);
 error_reporting(E_ALL);
 set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
