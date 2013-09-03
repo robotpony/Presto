@@ -36,11 +36,6 @@ class Service {
 
 		if (!function_exists('curl_init'))
 			throw new \Exception('cURL required by the Presto::Service lib.');
-
-		 if (!isset($options))
-		 	throw new \Exception('Missing options');
-
-		 if (!array_key_exists('service', $options))
 		 	throw new \Exception('Missing \'service\' setting.');
 
 		// set up the service options
@@ -208,7 +203,7 @@ class Service {
 		}
 
 		// set other HTTP otions
-		curl_setopt_array($c, array(
+		$options = array(
 			CURLOPT_URL 			=> $this->call->uri,
 			CURLOPT_RETURNTRANSFER	=> 1,
 			CURLOPT_TIMEOUT 		=> 100,
@@ -221,7 +216,8 @@ class Service {
 			CURLOPT_USERAGENT 		=> $this->options->agent,
 
 			CURLOPT_HEADERFUNCTION 	=> array($this, 'header')
-		));
+		);
+		curl_setopt_array($c, $options);
 
 		$this->log('req', "{$this->call->method}: {$this->call->uri}");
 
@@ -234,17 +230,17 @@ class Service {
 		$this->parseResults();
 
 		if ($this->result->error = curl_error($c))
-		    throw new \Exception($this->result->error);
+		    throw new Exception($this->result->error . "\n" . json_encode($options) );
 
 		curl_close($c);
 
 		if ($this->result->data === false)
-			throw new \Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
+			throw new Exception("HTTP service error, no data: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 
 		if ($this->call->info->http_code != 200) {
 			$dump = ($this->options->debug) ? print_r($this->result, true)
 				: print_r($this->result->data, true);
-			throw new \Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
+			throw new Exception("HTTP service error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
 		}
 
 		return $this->data();
