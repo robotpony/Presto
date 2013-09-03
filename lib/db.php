@@ -45,6 +45,7 @@ class db extends PDO {
 		$this->errors();
 		return $resultset;
 	}
+	/* Return a single row (throws on > 1 row) */
 	function select_row($sql, $bound_parameters = array()) {
 		$r = $this->select($sql, $bound_parameters);
 		$c = count($r);
@@ -53,8 +54,89 @@ class db extends PDO {
 		return $r[0];
 	}
 
+	/* Return a simple type and object mapped set of records
+
+		Uses column aliases and type designation to generate object hierarchy.
+
+		Features:
+
+			* simple key format `any.number.of.subkeys:optional_type`
+			* order of columns is not important
+			* allows values to be type cast
+
+		Not supported:
+
+			* combining rows into sub-objects
+
+		Example:
+
+			SELECT
+				SomeID AS `id:int`,
+				FirstName AS `name.first`,
+				LastName AS `name.last`,
+				AnotherColumn AS `other`
+			FROM SomeTable
+
+
+			[{
+				id: 1234,
+				name: {
+					'first': "Sideshow",
+					'last': "Bob"
+				},
+				other: "some value"
+			}, ...]
+	*/
+	function select_objects($sql, $bound_parameters = array()) {
+
+		$rows = $this->select($sql, $bound_parameters);
+
+		$d = '.'; $t = ':'; // delimiters for depth and type
+		$o = array(); // output
+
+		foreach ($rows as $r) { // each row in result set
+
+			$row = array();
+			$type = '';
+
+			foreach ($r as $key => $value) { // each column
+
+				if (strpos($key, $t)) {
+					// extract type
+					$p = explode($t, $key);
+					$type = $p[1];
+					$key = $p[0];
+				} else {
+					$type = null; // no type provided
+				}
+
+				// extract keys
+			    $keys = strpos($key, $d) ? explode($d, $key) : array($key);
+
+			    $ptr = &$row; // working pointer
+
+				// create objects as needed
+			    foreach ($keys as $k) {
+			        if (!isset($ptr[$k])) $ptr[$k] = array();
+			        $ptr = &$ptr[$k];
+			    }
+
+				// adjust type
+				if (!empty($type)) settype($value, $type);
+
+				// add column
+			    if (empty($ptr)) $ptr = $value;
+			    else $ptr[] = $value;
+			}
+
+			$o[] = db::array_to_object($row); // add row to output as objects
+		}
+
+		return $o;
+	}
+
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
-	function update($sql, &$bound_parameters = array()) {
+	function update($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 	}
 	/*
@@ -64,7 +146,7 @@ class db extends PDO {
 		$bound_parameters is an array of arrays with the 'value' member as the value to bind and the 'pdoType' as
 		that parameter's PDO datatype.
 	 */
-	function query($sql, &$bound_parameters = array()) {
+	function query($sql, $bound_parameters = array()) {
 
 		// Expand any array parameters
 		$this->expand_query_params($sql, $bound_parameters);
@@ -88,14 +170,63 @@ class db extends PDO {
 	}
 
 	/* Provide a wrapper for inserts which is really just an alias for the query function. */
-	function insert($sql, &$bound_parameters = array()) {
+	function insert($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Insert failed: no rows were inserted.', 409);
 	}
 
+	/*
+		Manage a multiple insertion
+
+		* `$sql`: an `INSERT` statement of the form `INSERT INTO Foo (C1, ..., Cn) VALUES (:key1, ..., :keyn)`
+		* `$dataTypes`: an array containing the PDO data types of the data values of the form
+			`array(0 => PDO::dataType, ..., n => PDO::dataType)`
+		* `$data`: a 2D array of the form `array(0 => array(key1 => v01, ..., keyn => v0n), ..., m => array(key1 => vm1, ..., keyn => vmn))`
+
+		1. Handled with `m` `INSERT` statements wrapped in a transaction.
+		2. The `INSERT` is prepared first (via PDO).
+		3. `m` `INSERT` statements are then executed, binding parameters at execution time.
+	*/
+	public function multi_insert($sql, $dataTypes, $data) {
+
+		if (empty($data))
+			throw new Exception('Aborting: no data to insert.', 500);
+
+		if (empty($dataTypes))
+			throw new Exception('Aborting: no data-types provided for data values (necessary for binding).', 500);
+
+		try {
+			$this->beginTransaction();
+
+			$this->statement = $this->prepare($sql);
+
+			foreach ($data as $i => $row) {
+				if (count($row) !== count($dataTypes))
+					throw new Exception("Transaction rolled back as parameter count does not match data value count for data row $i", 500);
+
+				$index = 0;
+				foreach ($row as $key => $v) {
+					$t = $dataTypes[$index];
+					if (!$this->statement->bindValue($key, $v, $t))
+						throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
+					$index++;
+				}
+				$this->statement->execute();
+				$this->errors();
+			}
+
+			$this->commit();
+		}
+		catch (Exception $e) {
+			$this->rollBack();
+			$m = $e->getMessage();
+			throw new Exception("Transaction failed and rolled back: $m", 500);
+		}
+	}
+
 	/* Provide a wrapper for deletes which is really just an alias for the query function. */
-	function delete($sql, &$bound_parameters = array()) {
+	function delete($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Delete failed: resource does not exist.', 404);
@@ -135,8 +266,14 @@ class db extends PDO {
 
 		foreach ($params as $p => $arrayParam) {
 
-			// only worry about non-empty arrays
-			if (!is_array($arrayParam) || empty($arrayParam)) continue;
+			// only worry about arrays
+			if (!is_array($arrayParam)) continue;
+
+			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
+			if (empty($arrayParam)) {
+				$params[$p] = '';
+				continue;
+			}
 
 			$expandedKeys[] = $p;
 			$names = ''; // list of labels `:p_k1, :p_k2, ..., :p_kn` with which to replace `:p` in $sql
@@ -188,8 +325,14 @@ class db extends PDO {
 
 		foreach ($params as $p => $arrayParam) {
 
-			// only worry about non-empty arrays
-			if (!is_array($arrayParam['value']) || empty($arrayParam['value'])) continue;
+			// only worry about arrays
+			if (!is_array($arrayParam['value'])) continue;
+
+			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
+			if (empty($arrayParam['value'])) {
+				$params[$p] = array('value' => '', 'pdoType' => PDO::PARAM_STR);
+				continue;
+			}
 
 			$expandedKeys[] = $p;
 			$names = ''; // list of labels `:p_k1, :p_k2, ..., :p_kn` with which to replace `:p` in $sql
@@ -220,4 +363,7 @@ class db extends PDO {
 		// Merge in the expanded values
 		$params = array_merge($params, $expanded);
 	}
+
+	// convert an array to an object (recursively)
+	public static function array_to_object($o) { return is_array($o) ? (object) array_map(__METHOD__, $o) : $o; }
 }
