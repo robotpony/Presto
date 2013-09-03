@@ -129,9 +129,18 @@ class Response {
 		return true;
 	}
 
-	/* Redirect client */
-	public function redirect($t = '500.html', $o = null) {
+	/* Redirect client - target, status code, and options */
+	public function redirect($t = '500.html', $c = '302', $o = null) {
+		$message = array_key_exists($c, $this->codes) ? $this->codes[$c] 
+			: 'Internal error';
+		$v = defined('SERVICE_VERSION') ? SERVICE_VERSION : PRESTO_VERSION;
+
+		header("HTTP/1.0 {$c} {$message}", true, $c);
+		header(VERSION_HEADER . ': ' . $v);		
+		header('Cache-Control: no-cache');
+
 		$opt = isset($o) ? '?' . http_build_query($o) : '';
+		
 		return header("Location: /$t$opt");
 		exit;
 	}
