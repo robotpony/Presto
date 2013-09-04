@@ -1,1 +1,0 @@
-../lib/delegator-index.php

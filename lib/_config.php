@@ -65,7 +65,7 @@ set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
 
 // Create a handler function
 function presto_assert_handler($file, $line, $code) {
-	PrestoException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line);
+	PrestoException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line, null);
 }
 
 // Register Presto assert handling
