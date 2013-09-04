@@ -28,7 +28,7 @@ set_include_path(get_include_path()
 	. PATH_SEPARATOR . API_BASE . '/lib/'
 	. PATH_SEPARATOR . API_BASE . '/lib/extras/'
 	. PATH_SEPARATOR . API_BASE . '/lib/encoders/');
-	
+
 if (PRESTO_DEBUG)	set_include_path(get_include_path()
 	. PATH_SEPARATOR . '/lib/transmogrify/');
 
@@ -50,8 +50,19 @@ class PrestoException extends Exception {
 
 // Set up PHP error handling (note these settings are overriden by explicit PHP ini settigns, we should address this)
 
-assert_options(ASSERT_WARNING, 0);
 ini_set('html_errors', false);
 error_reporting(E_ALL);
 set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
 
+assert_options(ASSERT_ACTIVE, 1);
+assert_options(ASSERT_WARNING, 1);
+assert_options(ASSERT_BAIL, 1);
+assert_options(ASSERT_QUIET_EVAL, 1);
+
+// Create a handler function
+function presto_assert_handler($file, $line, $code) {
+	PrestoException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line);
+}
+
+// Register Presto assert handling
+assert_options(ASSERT_CALLBACK, 'presto_assert_handler');
