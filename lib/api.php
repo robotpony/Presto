@@ -52,7 +52,7 @@ class API extends REST {
 		* sets some other useful default headers
 
 	*/
-	public function crossOrigin() {
+	public function openTheDoorsForCORS() {
 
 		if (empty($_SERVER['HTTP_ORIGIN']))
 			return; // This is not a CORS request
