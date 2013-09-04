@@ -31,16 +31,17 @@ class Service {
 	
 	/* Initialize a specific service */
 	public function __construct($options, $urlBuilder = NULL) {
-	
+
 		if (!function_exists('curl_init'))
 			throw new Exception('cURL required by the Presto::Service lib.');
 		 
 		// set up the service options
 		$this->options = (object)array_merge(
 			array(
+				'service'	=> '',
 				'server' 	=> '',
 				'username' 	=> '',
-				'referer' 	=> '',
+				'referrer' 	=> '',
 				'agent' 	=> 'PHP/Presto - Using cURL',
 				'type' 		=> 'x-www-form-urlencoded',
 				'debug' 	=> NULL,
@@ -189,7 +190,7 @@ class Service {
 		}
 
 		// set other HTTP otions
-		curl_setopt_array($c, array(
+		$options = array(
 			CURLOPT_URL 			=> $this->call->uri,
 			CURLOPT_RETURNTRANSFER	=> 1,
 			CURLOPT_TIMEOUT 		=> 100,
@@ -198,11 +199,12 @@ class Service {
 			CURLOPT_COOKIE			=> $this->call->cookie,
 			CURLOPT_COOKIESESSION	=> 1,
 			CURLOPT_HTTPHEADER 		=> $this->call->headers,
-			CURLOPT_REFERER 		=> $this->options->referer,
+			CURLOPT_REFERER 		=> $this->options->referrer,
 			CURLOPT_USERAGENT 		=> $this->options->agent,
 			
 			CURLOPT_HEADERFUNCTION 	=> array($this, 'header')
-		));
+		);
+		curl_setopt_array($c, $options);
 
 		$this->log('req', "{$this->call->method}: {$this->call->uri}");
 
@@ -215,17 +217,17 @@ class Service {
 		$this->parseResults();
 						
 		if ($this->result->error = curl_error($c))
-		    throw new Exception($this->result->error);
+		    throw new Exception($this->result->error . "\n" . json_encode($options) );
 
 		curl_close($c);
 				
 		if ($this->result->data === false)
-			throw new Exception("Data error: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
+			throw new Exception("HTTP service error, no data: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
 
 		if ($this->call->info->http_code != 200) {
 			$dump = ($this->options->debug) ? print_r($this->result, true) 
 				: print_r($this->result->data, true);
-			throw new Exception("HTTP error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
+			throw new Exception("HTTP service error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
 		}
 		
 		return $this->data();
