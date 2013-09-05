@@ -223,7 +223,9 @@ class Service {
 				
 		if ($this->result->data === false)
 			throw new Exception("HTTP service error, no data: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
-
+		
+		// TODO - handle 300-class returns? 
+		
 		if ($this->call->info->http_code >= 400) {
 			$dump = ($this->options->debug) ? json_encode($this->result)  : json_encode($this->result->data);
 			throw new Exception("HTTP service error in {$this->call->method} for {$this->call->uri} - $dump", $this->call->info->http_code);
