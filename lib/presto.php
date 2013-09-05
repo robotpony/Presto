@@ -154,6 +154,7 @@ class Presto extends REST {
 	static public function trace_info() {
 		return array(
 			'routing_scheme' => self::$req->scheme(),
+			'body' => self::$req->body(),
 			'request' => self::$req->uri,
 			'version' => PRESTO_VERSION
 		);
