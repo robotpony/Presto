@@ -36,8 +36,8 @@ if (PRESTO_DEBUG)	set_include_path(get_include_path()
 class PrestoException extends Exception {
 	public static function errorHandlerCallback($code, $string, $file, $line, $context) {
 
-		if (error_reporting() != 0)
-			return;
+		if (error_reporting() === 0)
+			return true;
 
 		$e = new self($string, $code);
 
