@@ -39,7 +39,6 @@ class Service {
 		$this->options = (object)array_merge(
 			array(
 				'service'	=> '',
-				'server' 	=> '',
 				'username' 	=> '',
 				'referrer' 	=> '',
 				'agent' 	=> 'PHP/Presto - Using cURL',
