@@ -248,6 +248,9 @@ class db extends PDO {
 		else if (!empty($e[0]) && !empty($e[2])) {
 			throw new Exception($e[2], 500);
 		}
+		else if (!empty($e[0]) && strcmp($e[0], 'HY093') === 0) {
+			throw new Exception('Error HY093: Check your PDO field bindings', 500);
+		}
 		else throw new Exception('Update failed for unknown reason.', 500);
 	}
 
