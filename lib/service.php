@@ -94,7 +94,7 @@ class Service {
 			'data'	=> array()
 		);
 
-		presto_lib::_trace(__FUNCTION__, func_get_args());
+		presto_lib::_trace(__FUNCTION__, $this->call->uri);
 
 		// make the actual request
 	    return $this->request();
