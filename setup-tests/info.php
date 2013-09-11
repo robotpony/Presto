@@ -57,9 +57,14 @@ class info extends API {
 		
 		return (string) file_get_contents('test-image.png');
 	}
+	
 	// Tests a s2s call
 	public function get_service_test($p, $o, $b, $t) {
-		$s = new service(array());
+		$s = new service(array(
+			'service' => 'http://presto.test/setup-tests/'
+		));
+		
+		$d = $s->get_info('header_test.json');
 		
 		return array('status' => 'ok', 's2s' => $s);		
 	}
