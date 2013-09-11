@@ -49,4 +49,11 @@ class info extends API {
 	public function get_php_version() {
 		return array(phpinfo());
 	}
+	
+	// Get a test image
+	public function get_image($p, $o, $b, $t) {
+		$this->restrictTo(array('png'));
+		$this->add_header('Content-Type', 'image/png');		
+		return (string) file_get_contents('test-image.png');
+	}
 }
