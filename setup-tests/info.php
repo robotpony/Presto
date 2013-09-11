@@ -57,7 +57,7 @@ class info extends API {
 		
 		return (string) file_get_contents('test-image.png');
 	}
-	
+	// Tests a s2s call
 	public function get_service_test($p, $o, $b, $t) {
 		$s = new service(array());
 		
