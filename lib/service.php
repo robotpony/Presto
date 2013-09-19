@@ -211,7 +211,7 @@ class Service {
 		$this->result->uri = $this->call->uri;
 		$this->call->info = (object)curl_getinfo($c);
 
-		presto_lib::_trace('data', $this->result->body);
+		presto_lib::_trace('Service request body', $this->result->body);
 
 		$this->parseResults();
 
