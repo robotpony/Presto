@@ -105,7 +105,7 @@ class Response {
 		$opt = isset($o) ? '?' . http_build_query($o) : '';
 		$t = preg_match('#^http(?:s|)://#', $t) ? $t : "/$t";
 
-		$this->hdr($c, array('Location', $t));
+		$this->hdr($c, array('Location' => $t));
 	}
 
 	/** Determine the content-type */
