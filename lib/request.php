@@ -51,7 +51,7 @@ class Request {
 		$this->action = presto_lib::_c($this->method, 'get'); // default to GET
 		$this->host = $_SERVER['HTTP_HOST'];
 
-		$this->referer = presto_lib::_c($_SERVER['HTTP_REFERER'], '');
+		$this->referer = _server('HTTP_REFERER', '');
 
 		$this->service = strstr($this->host, '.', -1);
 		$this->tld = pathinfo($this->host, PATHINFO_EXTENSION);
