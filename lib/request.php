@@ -97,7 +97,8 @@ class Request {
 		Not intended for secure uses (informational only), as the referer field can be spoofed.
 	*/
 	public function isInternalRequest() {
-		if ($this->host == parse_url($this->referer, PHP_URL_HOST));
+		$via = parse_url($this->referer, PHP_URL_HOST);
+		return ($this->host === $via);
 	}
 	/* Get a GET value (or values)
 
