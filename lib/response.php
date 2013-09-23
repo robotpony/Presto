@@ -103,7 +103,7 @@ class Response {
 	/* Redirect client */
 	public function redirect($t = '500.html', $o = null) {
 		$opt = isset($o) ? '?' . http_build_query($o) : '';
-		return header("Location: /$t$opt");
+		return header("Location: $t$opt");
 		exit;
 	}
 
