@@ -104,7 +104,7 @@ class Response {
 	public function redirect($t = '500.html', $o = null, $c = '301') {
 		$opt = isset($o) ? '?' . http_build_query($o) : '';
 		$t = preg_match('#^http(?:s|)://#', $t) ? $t : "/$t";
-		
+
 		$this->hdr($c, array('Location', $t));
 	}
 
@@ -147,7 +147,7 @@ class Response {
 
 	/* Register default type handlers */
 	private function register_default_type_handlers() {
-			
+
 		// JSON
 		self::add_type_handler('application/json', function ($dom) {
 			$json = json_encode($dom);
@@ -181,6 +181,6 @@ class Response {
 		if (PRESTO_DEBUG)
 			self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
-	
+
 	public function __toString() { return print_r($this, true); }
 }
