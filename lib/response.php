@@ -101,11 +101,10 @@ class Response {
 	}
 
 	/* Redirect client */
-	public function redirect($t = '500.html', $o = null, $c = '301') {
-		$opt = isset($o) ? '?' . http_build_query($o) : '';
+	public function redirect($t = '500.html', $o = array(), $c = '301') {
 		$t = preg_match('#^http(?:s|)://#', $t) ? $t : "/$t";
 
-		$this->hdr($c, array('Location' => $t));
+		return $this->hdr($c, array_merge($o, array('Location' => $t)));
 	}
 
 	/** Determine the content-type */
