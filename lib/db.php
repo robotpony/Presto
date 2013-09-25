@@ -236,6 +236,61 @@ class db extends PDO {
 	function affected_rows() {
 		return $this->statement->rowCount();
 	}
+	
+	/*
+		Generates a PDO bound parameterized array.
+		
+		Pass this an array of keys and values that you want to use in your DB query.
+		generate_params() will return you a valid PDO array to use with 
+		your INSERT and UPDATE statements.
+		
+		Supported types:
+		=================
+			PARAM_BOOL
+			PARAM_NULL
+			PARAM_INT
+			PARAM_STR
+		
+		Unsupported types:
+		=================
+			PARAM_LOB
+			PARAM_INPUT_OUTPUT
+			PARAM_STMT (No drivers support this anyways)
+		
+		Note:
+		
+			If you need to use one of these unsupported types, you'll have to
+			generate the params by hand.
+		
+		Example:
+		========
+		
+			$sql = <<<SQL
+				INSERT INTO Days (Day, DayNumber, isHoliday)
+				VALUES (:day, :dayNumber, :isHoliday);
+			SQL;
+			
+			$values = array(
+				'day' => 'tuesday', 
+				'dayNumber' => 2, 
+				'isHoliday' => true
+			);
+			$params = $this->db->generate_params($values);
+			$this->db->insert($sql, $params);
+	*/
+	public function generate_params($array) {
+		$params = array();
+		foreach ($array as $key => $val) {
+			$pdoType = PDO::PARAM_NULL;
+			if (is_numeric($val)) $pdoType = PDO::PARAM_INT;
+			else if (is_bool($val)) $pdoType = PDO::PARAM_BOOL;
+			else if (is_string($val)) $pdoType = PDO::PARAM_STR;
+			
+			$params[$key] = array('value' => $val, 'pdoType' => $pdoType);
+		}
+		return $params;
+	}
+	
 
 	/* Throw error info pertaining to the last operation. */
 	private function errors() {
