@@ -137,7 +137,7 @@ class db extends PDO {
 
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, $bound_parameters = array()) {
-		if (!is_bound($bound_parameters) 
+		if (!is_bound($bound_parameters))
 			$bound_parameters = generate_params($bound_parameters);
 		$this->query($sql, $bound_parameters);
 	}
@@ -173,7 +173,7 @@ class db extends PDO {
 
 	/* Provide a wrapper for inserts which is really just an alias for the query function. */
 	function insert($sql, $bound_parameters = array()) {
-		if (!is_bound($bound_parameters) 
+		if (!is_bound($bound_parameters))
 			$bound_parameters = generate_params($bound_parameters);
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
