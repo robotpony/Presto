@@ -137,6 +137,8 @@ class db extends PDO {
 
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, $bound_parameters = array()) {
+		if (!is_bound($bound_parameters) 
+			$bound_parameters = generate_params($bound_parameters);
 		$this->query($sql, $bound_parameters);
 	}
 	/*
@@ -171,6 +173,8 @@ class db extends PDO {
 
 	/* Provide a wrapper for inserts which is really just an alias for the query function. */
 	function insert($sql, $bound_parameters = array()) {
+		if (!is_bound($bound_parameters) 
+			$bound_parameters = generate_params($bound_parameters);
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Insert failed: no rows were inserted.', 409);
@@ -291,6 +295,17 @@ class db extends PDO {
 		return $params;
 	}
 	
+	/*
+		Tests to see if parameters have been bound or not.
+		Returns true if they are bound, and false if they are not.
+	*/
+	private function is_bound($array) {
+		foreach ($array as $key => $val) {
+			if (is_array($val)) 
+				return true;
+	 	}
+		return false;
+	}
 
 	/* Throw error info pertaining to the last operation. */
 	private function errors() {
