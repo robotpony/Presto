@@ -316,21 +316,17 @@ class db extends PDO {
 		Returns true if they are bound, and false if they are not.
 	*/
 	private function is_bound($array) {
-		$validate = function($key) {
-			return $key === 'pdoType';
-	 	};
+		$pdoTypes = array(PDO::PARAM_INT, PDO::PARAM_NULL, 
+							PDO::PARAM_BOOL, PDO::PARAM_STR);
 		foreach ($array as $key => $val) {
-			if (is_array($val)) {         
-				foreach ($val as $k => $v) {
-					if ($validate($k))
-						return true;
-	 			}
-			} else {
-				if ($validate($key))
-					return true;
-	 		}
+			if (is_array($val)) {     
+				if (!isset($val['pdoType']) ||
+					!in_array($val['pdoType'], $pdoTypes))
+					return false;
+			}
+			else return false;
 		}
-		return false;
+		return true;
 	}
 
 	/* Throw error info pertaining to the last operation. */
