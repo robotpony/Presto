@@ -12,8 +12,11 @@
 class db extends PDO {
 
 	private $statement;
+	private static $valid_pdo_types = array(PDO::PARAM_INT, PDO::PARAM_NULL, 
+									PDO::PARAM_BOOL, PDO::PARAM_STR);
 	const USR_DEF_DB_ERR 	= '45000';
 	const DB_NO_ERR 		= '00000';
+	
 
 
 	/* Create (or reuse) an instance of a PDO database */
@@ -313,14 +316,14 @@ class db extends PDO {
 	/*
 		Tests to see if parameters have been bound or not.
 		Returns true if they are bound, and false if they are not.
+		
+		An array is either bound or not - there are no partial cases.
 	*/
 	private function is_bound($array) {
-		$pdoTypes = array(PDO::PARAM_INT, PDO::PARAM_NULL, 
-							PDO::PARAM_BOOL, PDO::PARAM_STR);
 		foreach ($array as $key => $val) {
 			if (is_array($val)) {     
 				if (!isset($val['pdoType']) ||
-					!in_array($val['pdoType'], $pdoTypes))
+					!in_array($val['pdoType'], self::$valid_pdo_types))
 					return false;
 			}
 			else return false;
