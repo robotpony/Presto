@@ -138,7 +138,7 @@ class db extends PDO {
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, $bound_parameters = array()) {
 		if (!is_bound($bound_parameters))
-			$bound_parameters = generate_params($bound_parameters);
+			$bound_parameters = bind_parameters($bound_parameters);
 		$this->query($sql, $bound_parameters);
 	}
 	/*
@@ -174,7 +174,7 @@ class db extends PDO {
 	/* Provide a wrapper for inserts which is really just an alias for the query function. */
 	function insert($sql, $bound_parameters = array()) {
 		if (!is_bound($bound_parameters))
-			$bound_parameters = generate_params($bound_parameters);
+			$bound_parameters = bind_parameters($bound_parameters);
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
 			throw new Exception('Insert failed: no rows were inserted.', 409);
@@ -248,6 +248,8 @@ class db extends PDO {
 		generate_params() will return you a valid PDO array to use with 
 		your INSERT and UPDATE statements.
 		
+		View the test harness for this here: https://gist.github.com/ngallagher87/6717925
+		
 		Supported types:
 		=================
 			PARAM_BOOL
@@ -279,17 +281,31 @@ class db extends PDO {
 				'dayNumber' => 2, 
 				'isHoliday' => true
 			);
-			$params = $this->db->generate_params($values);
 			$this->db->insert($sql, $params);
 	*/
-	public function generate_params($array) {
-		$params = array();
-		foreach ($array as $key => $val) {
+	public function bind_parameters($array) {
+		$find_type = function($val) {
 			$pdoType = PDO::PARAM_NULL;
 			if (is_numeric($val)) $pdoType = PDO::PARAM_INT;
 			else if (is_bool($val)) $pdoType = PDO::PARAM_BOOL;
 			else if (is_string($val)) $pdoType = PDO::PARAM_STR;
-			
+			return $pdoType;
+	 	};
+	
+		$params = array();
+		foreach ($array as $key => $val) {
+			$pdoType = PDO::PARAM_NULL;
+			if (is_array($val)) {
+				$type = $find_type(current($val));
+				foreach ($val as $k => $v) {
+					if ($find_type($v) !== $type)
+						throw new Exception('Array contents must have the same type. '.
+											'Cannot bind parameters', 400);
+	 			}
+				$pdoType = $type;
+			} else {
+				$pdoType = $find_type($val);
+	 		}
 			$params[$key] = array('value' => $val, 'pdoType' => $pdoType);
 		}
 		return $params;
@@ -300,10 +316,20 @@ class db extends PDO {
 		Returns true if they are bound, and false if they are not.
 	*/
 	private function is_bound($array) {
+		$validate = function($key) {
+			return $key === 'pdoType';
+	 	};
 		foreach ($array as $key => $val) {
-			if (is_array($val)) 
-				return true;
-	 	}
+			if (is_array($val)) {         
+				foreach ($val as $k => $v) {
+					if ($validate($k))
+						return true;
+	 			}
+			} else {
+				if ($validate($key))
+					return true;
+	 		}
+		}
 		return false;
 	}
 
