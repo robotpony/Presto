@@ -11,7 +11,7 @@ For example:
 The request implies a simple `get` member, which receives parameters as `$ctx`, loading its data by a private member (not shown here). Data is returned in APIs by simply returning the DOM object:
 
 	// get a document
-	function get($params, $options, $body, $type) { $DOM = self::load($ctx->params); return $DOM; }
+	function get($params, $options, $body, $type) { $DOM = self::load($params); return $DOM; }
 	
 By the time the member function is called, Presto has marked the expected content-type as `application/json`, and will automatically attempt to convert the data returned by any API to JSON. By default, Presto supports `JSON` and simple `HTML`, but other types can be implemented and registered.
 
