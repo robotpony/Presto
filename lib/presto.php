@@ -120,7 +120,7 @@ class Presto extends REST {
 
 		// set up pseudo call and response
 		if (self::$resp === null)
-			self::$resp = new response($params, $options, $body, $type);
+			self::$resp = new response($ctx);
 
 		// generate useful HTTP status
 		switch ($n) {
