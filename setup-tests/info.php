@@ -79,7 +79,7 @@ class info extends API {
 	}	
 	
 	// Test custom header values
-	public function get_header_test($ctx) {
+	public function get_header_test($params, $options, $body, $type) {
 		$this->restrictTo(array('json', 'js'));
 
 		$this->status(201);
@@ -88,7 +88,7 @@ class info extends API {
 	}
 
 	// Test binary json values (this should fail)
-	public function get_utf8($ctx) {
+	public function get_utf8($params, $options, $body, $type) {
 
 		$this->restrictTo(array('json', 'js'));
 		return array('status' => 'fail', 'expected' => 'fail', 'invalidUTF8' => pack("H*" ,'c32e') );

@@ -43,7 +43,7 @@ class API extends REST {
 
 	/* Restrict the valid contentTypes for this API or API route */
 	public function restrictTo($types) {
-		if (!isset($ctx)) throw new \Exception(__FUNCTION__.' only available to API route members.', 500);
+		if (!isset($params, $options, $body, $type)) throw new \Exception(__FUNCTION__.' only available to API route members.', 500);
 		return $this->supports_contentType($types);
 	}
 
