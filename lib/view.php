@@ -26,17 +26,18 @@ class View {
 
 	// Render a view
 	public static function render($v, $d, $p = '') {
-		$v = new View("$p$v", $d);
+		$v = new View($v, $d, $p);
 		return $v->renderer();
 	}
 
 	// Class setup
-	public function __construct($view = 'index', $data = null) {
+	public function __construct($view = 'index', $data = null, $base = null) {
 
 		// hook view parameters
 
 		$this->d = array('dom' => $data, 'view' => $this); // namespaced into "dom"
 		$this->f = is_array($view) ? $view : array($view);
+		$this->base = $base ? $base : '';
 
 		return $this;
 	}
@@ -54,10 +55,10 @@ class View {
 
 			// verify and load multipart view
 			foreach ($this->f as $f) {
-				$this->v = $f;
+				$this->v = "{$this->base}$f";
 
 				if (!stream_resolve_include_path($this->v))
-					throw new \Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 404);
+					throw new \Exception("View {$this->v} (Not found in: ".get_include_path().".", 404);
 
 				include($this->v);
 			}
