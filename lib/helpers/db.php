@@ -11,7 +11,7 @@ namespace napkinware\presto;
 	See `docs/db.php` for usage. Also see  PDO docs base class: http://www.php.net/manual/en/class.pdo.php
 */
 
-class db extends PDO {
+class db extends \PDO {
 
 	private $statement;
 	const USR_DEF_DB_ERR 	= '45000';
@@ -24,7 +24,7 @@ class db extends PDO {
 		if ($_db !== null) return $_db; // return cached
 
 		if ($config === null)
-			 $config = array( PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' );
+			 $config = array( \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' );
 
 		try {
 			 $_db = new db($dsn, $user, $password, $config);
@@ -41,9 +41,9 @@ class db extends PDO {
 		// Expand any array parameters
 		$this->expand_select_params($sql, $bound_parameters);
 
-		$this->statement = $this->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+		$this->statement = $this->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
 		$this->statement->execute($bound_parameters);
-		$resultset = $this->statement->fetchAll(PDO::FETCH_CLASS);
+		$resultset = $this->statement->fetchAll(\PDO::FETCH_CLASS);
 		$this->errors();
 		return $resultset;
 	}
@@ -134,7 +134,7 @@ class db extends PDO {
 			$this->statement->execute();
 			$this->errors();
 		} catch (\Exception $e) {
-			$this->errors(); // force errors() to run even after exceptions (for PDO::ERRMODE_EXCEPTION)
+			$this->errors(); // force errors() to run even after exceptions (for \PDO::ERRMODE_EXCEPTION)
 		}
 
 	}
@@ -151,7 +151,7 @@ class db extends PDO {
 
 		* `$sql`: an `INSERT` statement of the form `INSERT INTO Foo (C1, ..., Cn) VALUES (:key1, ..., :keyn)`
 		* `$dataTypes`: an array containing the PDO data types of the data values of the form
-			`array(0 => PDO::dataType, ..., n => PDO::dataType)`
+			`array(0 => \PDO::dataType, ..., n => \PDO::dataType)`
 		* `$data`: a 2D array of the form `array(0 => array(key1 => v01, ..., keyn => v0n), ..., m => array(key1 => vm1, ..., keyn => vmn))`
 
 		1. Handled with `m` `INSERT` statements wrapped in a transaction.
@@ -278,12 +278,12 @@ class db extends PDO {
 	/*
 		Utility: expand any parameters passed in as an array (as PDO does not yet support this).
 
-		For any parameter `p => array('value' => array( k1 => v1, k2 => v2, ..., kn => vn), 'pdoType' => PDO::SOME_PDO_TYPE)` in `$params`,
+		For any parameter `p => array('value' => array( k1 => v1, k2 => v2, ..., kn => vn), 'pdoType' => \PDO::SOME_PDO_TYPE)` in `$params`,
 		`p` is expanded to
-			`p_k1 => array('value' => v1, 'pdoType' => PDO::SOME_PDO_TYPE),
-			p_k2 => array('value' => v2, 'pdoType' => PDO::SOME_PDO_TYPE),
+			`p_k1 => array('value' => v1, 'pdoType' => \PDO::SOME_PDO_TYPE),
+			p_k2 => array('value' => v2, 'pdoType' => \PDO::SOME_PDO_TYPE),
 			...,
-			p_kn => array('value' => vn, 'pdoType' => PDO::SOME_PDO_TYPE)`
+			p_kn => array('value' => vn, 'pdoType' => \PDO::SOME_PDO_TYPE)`
 		all members of `$params`.
 
 		For any label `:p` in `$sql`, `p` is replaced with `:p_k1, :p_k2, ..., :p_kn` in `$sql`.
@@ -300,7 +300,7 @@ class db extends PDO {
 
 			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
 			if (empty($arrayParam['value'])) {
-				$params[$p] = array('value' => '', 'pdoType' => PDO::PARAM_STR);
+				$params[$p] = array('value' => '', 'pdoType' => \PDO::PARAM_STR);
 				continue;
 			}
 
