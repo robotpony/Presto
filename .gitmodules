@@ -1,3 +1,0 @@
-[submodule "docs/lib/markdown"]
-	path = docs/lib/markdown
-	url = https://github.com/gavroche/php-markdown-extra.git
