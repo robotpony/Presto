@@ -34,5 +34,6 @@ try {
 
 	header("HTTP/1.0 $n API error");
 	header("Content-Type: application/json");
+
 	print json_encode( $payload );
 }

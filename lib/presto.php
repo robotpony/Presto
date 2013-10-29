@@ -128,7 +128,7 @@ class Presto extends REST {
 			default: $status = 500;
 		}
 
-		$details = array(
+		$details = (object) array(
 			'status' => $status,
 			'code' => $n,
 			'error' => $text,
@@ -140,12 +140,25 @@ class Presto extends REST {
 		if (PRESTO_TRACE) $details[PRESTO_TRACE_KEY] = Presto::trace_info();
 
 		// build the resulting error object
-		$details = json_encode( (object) $details);
-		
+		$dump = json_encode( (object) $details, JSON_PRETTY_PRINT);
+
 		error_log('FATAL', $status, $details);
 		self::$resp->hdr($status);
-		print $details;
-		die;
+
+		if (self::$req->type !== 'html') {
+			print $dump;
+			die;
+		} else { ?>
+<div class="alert alert-warning">
+<h2>Application error <code><?= $details->status ?></code> - <code>#<?= $details->code ?></code></h2>
+<p><?= $details->error ?> in <?= $details->file ?>:<?= $details->line ?></p>
+<br/>
+<pre><?= $dump ?></pre>
+</div>
+<?php
+			// let Presto continue in HTML case (to finish rendering views)
+		}
+
 	}
 
 	// Get trace info for a call

@@ -1,6 +1,7 @@
 <?php
 
 namespace napkinware\presto;
+use \Exception;
 
 /* A simple PrestoPHP view
 
@@ -67,9 +68,9 @@ class View {
 			ob_end_clean();
 			return $output;
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($e->getCode() === 404) throw $e;
-			throw new Exception('Failed to render view.', 500, $e);
+			throw new \Exception('Failed to render view.', 500, $e);
 		}
 	}
 	
