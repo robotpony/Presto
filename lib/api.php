@@ -22,7 +22,7 @@ class API extends REST {
 	}
 	
 	/* Attach to Presto framework */
-	public function attach($ctx, $resp, $req) {
+	public static function attach($ctx, $resp, $req) {
 		self::$ctx = $ctx;
 		self::$resp = $resp;
 		self::$req = $req;
