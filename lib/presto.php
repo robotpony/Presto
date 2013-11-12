@@ -51,7 +51,7 @@ class Presto extends REST {
 			if (!class_exists($obj))
 				throw new Exception("API class not found for $obj::$method", 404);
 				
-			$o = new $obj();
+			$o = new $obj(self::$req->options);
 
 			// Start the response setup
 			
