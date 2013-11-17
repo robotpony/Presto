@@ -19,10 +19,12 @@ try {
 	$n = $e->getCode();
 	$message = $e->getMessage();
 	$via = $e->getPrevious();
+	$options = 0;
 
 	if (PRESTO_DEBUG) {
 		$detail = (is_object($p)) ? $p::call : $e->getTrace();
 		$payload = array('message' => $message , 'code' => $n, 'detail' => $detail);
+		$options = JSON_PRETTY_PRINT;
 	} else {
 		$payload = array('message' => $message , 'code' => $n);
 	}
@@ -35,5 +37,5 @@ try {
 	header("HTTP/1.0 $n API error");
 	header("Content-Type: application/json");
 
-	print json_encode( $payload );
+	print json_encode( $payload, $options );
 }
