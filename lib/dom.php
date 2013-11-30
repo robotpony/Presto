@@ -3,50 +3,62 @@
 namespace napkinware\presto;
 
 /* A simple DOM base class
-	
+
 	Provides:
-	
+
 	* a safe get mechanism
-	* 
-	
+	*
+
 	TODO
-	
+
 	* Consider two classes (DOM, DOM + HTML)
 */
 class dom {
 
-	public $title;
+	public $title; // better way?
 
 	protected $d;
 
-	/* create a DOM instance 
-		
+	/* create a DOM instance
+
 		$p - optional parameters (associative)
-	*/	
+	*/
 	public function __construct($p = null) {
 		if (!$p) return;
 
-		assert($p !== array_values($p) && !is_object($p), 
+		assert($p !== array_values($p) && !is_object($p),
 			'Properties should be associative.');
 
 		$this->d = $p;
-	}	
-		
-	/* Dynamic get/set/isset/unset 
-		
+	}
+	public function with($p) {
+		assert($p !== array_values($p) && !is_object($p),
+			'Properties should be associative.');
+
+		$this->d = array_merge($p, $this->d);
+		return $this;
+	}
+	public function JSON() { return json_encode($this->d); }
+
+	public function __call($name, $arguments) {
+		return "<span class='error'>$dom->name($arguments) not found</span>";
+	}
+
+	/* Dynamic get/set/isset/unset
+
 		Allows DOM elements to be referenced safely
 	*/
 	public function __get($k) {
         if (!array_key_exists($k, $this->d)) {
 	        return '';
         }
-                
+
 		return $this->d[$k];
     }
 	public function __set($k, $v) {
 		$this->d[$k] = $v;
     }
-        
+
     public function __isset($k) {
         return array_key_exists($k, $this->d);
     }
@@ -54,7 +66,7 @@ class dom {
     public function __unset($k) {
     	if (array_key_exists($k, $this->d))
     		unset($this->d[$k]);
-    }    
+    }
 
 	/* Dump the class usefully as HTML */
 	public function __toString() {
@@ -66,6 +78,6 @@ class dom {
 
 <?= print_r($this->d); ?>
 </pre>
-<?php		
+<?php
 	}
 }
