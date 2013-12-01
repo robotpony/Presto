@@ -15,8 +15,6 @@ namespace napkinware\presto;
 */
 class dom {
 
-	public $title; // better way?
-
 	protected $d;
 
 	/* create a DOM instance
@@ -29,19 +27,22 @@ class dom {
 		assert($p !== array_values($p) && !is_object($p),
 			'Properties should be associative.');
 
-		$this->d = $p;
+		$this->d = array_merge(array(
+			'title' => ''
+		), $p);
 	}
+	/* Combine this DOM with an associative array */
 	public function with($p) {
 		assert($p !== array_values($p) && !is_object($p),
 			'Properties should be associative.');
 
-		$this->d = array_merge($p, $this->d);
+		$this->d = array_merge($this->d, $p);
 		return $this;
 	}
 	public function JSON() { return json_encode($this->d); }
 
 	public function __call($name, $arguments) {
-		return "<span class='error'>$dom->name($arguments) not found</span>";
+		return "<span class='error'>dom::{$name}() not found</span>";
 	}
 
 	/* Dynamic get/set/isset/unset
