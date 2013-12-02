@@ -84,8 +84,14 @@ class Presto extends REST {
 					$this->call->type );
 			}
 
-			if (!method_exists($obj, $method)) // valid route?
-				throw new \Exception("Resource $obj->$method not found.", 404);
+			if (!method_exists($obj, $method)) { // invalid route
+				if (method_exists($o, 'presto_error'))
+					return self::$resp->fail(
+						$o->presto_error($method, $this->call), 
+					404); // attempt to call custom error handler
+				else
+					throw new \Exception("Resource $obj->$method not found.", 404); // last chance throw
+			}
 
 			$this->call->exists = true;
 

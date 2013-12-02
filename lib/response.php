@@ -100,6 +100,7 @@ class Response {
 		if ($enc) return self::encode($this->content_type(), $ctx->data, $ctx);
 		else return print $ctx->data;
 	}
+
 	/* Respond with a failure */
 	public function fail($d, $c = 500) {
 		if (!$this->hdr($c)) return false; // no data sent to client
