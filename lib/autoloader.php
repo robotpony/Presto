@@ -16,7 +16,7 @@ function presto_autoloader($c) {
 	// Attempt to autoload based on include path
 
 	$namespace = '';
-	$parts = explode('\\', $c);	
+	$parts = explode('\\', $c);
 	if (count($parts) > 0) {
 		$c = array_pop($parts);
 		$namespace = '\\' . implode('\\', $parts);
@@ -24,9 +24,9 @@ function presto_autoloader($c) {
 	$class = $c;
 	$file = strtolower($c) . ".php";
 
-	if (!stream_resolve_include_path($file)) {		
+	if (!stream_resolve_include_path($file)) {
 		// Not found
-		trace('Skipping auto-loading of ' . $file . ' (not found in ' . get_include_path() . ')');		
+		trace('Skipping auto-loading of ' . $file . ' (not found in ' . get_include_path() . ')');
 		return false; // let other autoloaders try
 	}
 
@@ -46,13 +46,13 @@ function autoload_delegate(&$call) {
 
 	$in = $call->container;
 	$error = "API `$call->class` not found";
-	
+
 	if ( !stream_resolve_include_path($call->file) ) {
 		$extra = " ({$call->file} not found).";
 
 		if ( !empty($in) && !is_dir($in) )
 			$extra = " ({$call->file} not found, $in missing)."; // aid debugging of routes-in-folders
-			
+
 		throw new \Exception($error .$extra, 404);
 	}
 
@@ -64,9 +64,13 @@ function autoload_delegate(&$call) {
 	$classes = preg_grep("/(?:^{$call->class}|\\\\{$call->class})$/", $classes);
 	if (count($classes) !== 1)
 		trace('Found an unexpected number of matches for', $call->class, json_encode($classes));
+	$from = $call->class;
 	$call->class = array_pop($classes);
 
 	trace('Auto loaded API', $call->class, json_encode($call));
+
+	if (empty($call->class))
+		throw new \Exception("No class found for $from in {$call->file}", 500);
 
 	return new $call->class;
 }
