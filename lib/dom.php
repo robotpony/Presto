@@ -24,8 +24,7 @@ class dom {
 	public function __construct($p = null) {
 		if (!$p) return;
 
-		assert($p !== array_values($p) && !is_object($p),
-			'Properties should be associative.');
+		assert($p !== array_values($p) && !is_object($p));
 
 		$this->d = array_merge(array(
 			'title' => ''
@@ -33,8 +32,7 @@ class dom {
 	}
 	/* Combine this DOM with an associative array */
 	public function with($p) {
-		assert($p !== array_values($p) && !is_object($p),
-			'Properties should be associative.');
+		assert($p !== array_values($p) && !is_object($p));
 
 		$this->d = array_merge($this->d, $p);
 		return $this;
