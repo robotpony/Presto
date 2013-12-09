@@ -86,7 +86,7 @@ class auth_token {
 		$this->set($p['w'], 60, $strict);
 
 		// check for required elements
-		foreach (array('name', 'id', 'acct', 'a', 'c', 's') as $k)
+		foreach (array('name', 'id', 'acct', 'a', 's') as $k)
 			if (empty($p[$k])) // missing a required token element
 				throw new Exception('Invalid credentials, missing: '.$k, 401);
 
