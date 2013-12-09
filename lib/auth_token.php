@@ -98,7 +98,7 @@ class auth_token {
 		$this->p = (object) $p; // objectize for convinience
 
 		// extract capabilities+roles
-		if (strlen($this->p->c)) {
+		if (!empty($this->p->c) && strlen($this->p->c)) {
 			$roles = explode(',', $this->p->c);
 			foreach ($roles as $tuple) {
 				$cap = explode('/', $tuple);
