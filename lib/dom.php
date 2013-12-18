@@ -37,7 +37,7 @@ class dom {
 		$this->d = array_merge($this->d, $p);
 		return $this;
 	}
-	public function JSON() { return json_encode($this->d); }
+	public function JSON() { return empty($this->d) ? '{}' : json_encode($this->d); }
 
 	public function __call($name, $arguments) {
 		return "<span class='error'>dom::{$name}() not found</span>";
