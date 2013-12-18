@@ -81,6 +81,18 @@ class Response {
 		// Built in HTML
 		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
 
+		// very basic CSV
+		self::add_type_handler('text/csv', function ($dom) {
+			$csv = '';
+			foreach ($dom as $row)
+				$csv .= implode( ', ', array_map( function($i) {
+					if (is_array($i)) return implode(', ', $i);
+					else return $i;
+				}, $row )) . "\n";
+
+			print $csv;
+		} );
+
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 
@@ -152,7 +164,8 @@ class Response {
 			case 'html':
 			case 'htm':
 				return 'text/html';
-
+			case 'csv':
+				return 'text/csv';
 			default:
 				return 'application/' . $this->call->type;
 		}
