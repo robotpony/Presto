@@ -119,7 +119,9 @@ class Response {
 			case 'html':
 			case 'htm':
 				return 'text/html';
-
+				break;
+			case 'csv':
+				return 'text/csv';
 			default:
 				return 'application/' . $this->call->type;
 		}
@@ -130,7 +132,7 @@ class Response {
 		$h = false;
 
 		// find encoder
-
+		
 		if (array_key_exists($type, self::$type_handlers))
 			$h = self::$type_handlers[$type]; // direct mapping
 		else {
@@ -175,6 +177,9 @@ class Response {
 
 		// Built in HTML
 		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
+		
+		// Built in CSV
+		self::add_type_handler('text/csv', function($dom) { print_r($dom); } );
 
 		// Build in text (debug only)
 		if (PRESTO_DEBUG)
