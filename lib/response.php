@@ -136,10 +136,8 @@ class Response {
 		if (array_key_exists($type, self::$type_handlers))
 			$h = self::$type_handlers[$type]; // direct mapping
 		else {
-			foreach (self::$type_handlers as $exp => $handler) {
-				if (preg_match("#$exp#", $type)) $h = self::$type_handlers[$exp]; // expression mapping	
-				error_log(print_r($exp,1),3,"/tmp/debug.log");
-				}
+			foreach (self::$type_handlers as $exp => $handler)
+				if (preg_match("#$exp#", $type)) $h = self::$type_handlers[$exp]; // expression mapping
 		}
 
 		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
