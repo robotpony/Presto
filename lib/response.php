@@ -49,9 +49,6 @@ class Response {
 
 		// register default type handlers
 
-<<<<<<< HEAD
-		$this->register_default_type_handlers();
-=======
 		// JSON
 		self::add_type_handler('application/json', function ($dom) {
 			$json = json_encode($dom);
@@ -94,7 +91,6 @@ class Response {
 		} );
 
 		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
->>>>>>> 8fde9bf... Adds basic CSV.
 	}
 
 	/* Register a type handler */
