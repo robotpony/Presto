@@ -129,7 +129,8 @@ class Presto extends REST {
 			case 2: $status = 400; break;
 			default: $status = 500;
 		}
-
+		// Ling our ctx to ensure it's valid
+		self::lint_ctx($ctx);
 		$details = array(
 			'status' => $status,
 			'code' => $n,
@@ -143,11 +144,24 @@ class Presto extends REST {
 
 		// build the resulting error object
 		$details = json_encode( (object) $details);
-		
+
 		error_log('FATAL', $status, $details);
 		self::$resp->hdr($status);
 		print $details;
 		die;
+	}
+
+	// Lint our ctx object to avoid any errors in json_encoding it
+	static private function lint_ctx(&$ctx) {
+		foreach($ctx as &$val) {
+			if (is_array($val) || is_object($val)) {
+				self::lint_ctx($val);
+			}
+			else {
+				if (is_resource($val)) unset($val); // we cant encode resources
+				else $val = htmlentities($val, ENT_NOQUOTES | ENT_IGNORE, "UTF-8");
+			}
+		}
 	}
 
 	// Get trace info for a call
