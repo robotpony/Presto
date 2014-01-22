@@ -144,7 +144,7 @@ class Presto extends REST {
 		// build the resulting error object
 		$details = json_encode( (object) $details);
 		
-		error_log('FATAL', $status, $details);
+		error_log('FATAL: ' . json_encode(array($status, $details)));
 		self::$resp->hdr($status);
 		print $details;
 		die;
