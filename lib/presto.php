@@ -50,19 +50,19 @@ class Presto extends REST {
 			
 			if (!class_exists($obj))
 				throw new Exception("API class not found for $obj::$method", 404);
-				
-			$o = new $obj();
 
 			// Start the response setup
 			
 			self::$resp = new response($this->call);
 
+			API::attach( $this->call, self::$resp, self::$req );
+				
+			$o = new $obj();
+
 			// Verify the request
 
 			if ($obj == 'error') // disallow root component access
 				throw new Exception('Root access not allowed', 403);
-
-			$o->attach( $this->call, self::$resp, self::$req );
 
 			if (!method_exists($obj, $preflight)) {
 				

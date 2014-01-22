@@ -75,7 +75,7 @@ class Request {
 		return (object) array(
 			'container' => presto_lib::_cleanup($this->container),
 			'class' 	=> presto_lib::_cleanup($class),
-			'file'		=> $file,
+			'file'		=> str_replace('/.', '.', $file),
 			'resource' 	=> $res,
 			'type'		=> $this->type,
 			'action'	=> $this->method,

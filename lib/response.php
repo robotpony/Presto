@@ -49,7 +49,48 @@ class Response {
 
 		// register default type handlers
 
-		$this->register_default_type_handlers();
+		// JSON
+		self::add_type_handler('application/json', function ($dom) {
+			$json = json_encode($dom);
+			if (json_last_error() !== JSON_ERROR_NONE) throw new \Exception('JSON encoding error #' . json_last_error(), 400);
+			print $json;
+		} );
+
+		// JSONP
+		self::add_type_handler('application/js', function ($dom, $ctx, $map) {
+
+			if ($ctx === null || !array_key_exists('callback', $ctx->options))
+				throw new \Exception('JSONP missing callback option', 400);
+
+			$callback = $ctx->options['callback'];
+
+			if (strlen($callback) === 0 || !preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+				throw new \Exception("Invalid JSONP callback name: $callback", 400);
+
+			$json = json_encode($dom);
+
+			if (json_last_error() !== JSON_ERROR_NONE)
+				throw new \Exception('JSON encoding error in JSONP request - #' . json_last_error(), 400);
+
+			print "$callback($json);";
+		} );
+
+		// Built in HTML
+		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
+
+		// very basic CSV
+		self::add_type_handler('text/csv', function ($dom) {
+			$csv = '';
+			foreach ($dom as $row)
+				$csv .= implode( ', ', array_map( function($i) {
+					if (is_array($i)) return implode(', ', $i);
+					else return $i;
+				}, $row )) . "\n";
+
+			print $csv;
+		} );
+
+		if (PRESTO_DEBUG) self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 
 	/* Register a type handler */
@@ -119,7 +160,8 @@ class Response {
 			case 'html':
 			case 'htm':
 				return 'text/html';
-
+			case 'csv':
+				return 'text/csv';
 			default:
 				return 'application/' . $this->call->type;
 		}
