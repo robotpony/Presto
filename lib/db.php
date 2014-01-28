@@ -29,6 +29,7 @@ class db extends PDO {
 
 		try {
 			 $_db = new db($dsn, $user, $password, $config);
+			 $_db->setAttribute(constant("PDO::ATTR_ERRMODE"), constant("PDO::ERRMODE_EXCEPTION"));
 		 } catch (Exception $e) {
 			throw new Exception("Failed to connect to database.", 500, $e);
 		 }
