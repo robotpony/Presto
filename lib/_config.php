@@ -53,19 +53,22 @@ class InternalErrorException extends \Exception {
 // Set up PHP error handling (note these settings are overriden by explicit PHP ini settigns, we should address this)
 
 assert_options(ASSERT_WARNING, 0);
+assert_options(ASSERT_QUIET_EVAL, 1);
+if (PRESTO_DEBUG) {
+	assert_options(ASSERT_ACTIVE, 1);
+	assert_options(ASSERT_WARNING, 1);
+	assert_options(ASSERT_BAIL, 0);
+}
 ini_set('html_errors', false);
 error_reporting(E_ALL);
 set_error_handler(array('\\napkinware\\presto\\InternalErrorException', 'errorHandlerCallback'), E_ALL);
 
-// Active assert and make it quiet
-
-assert_options(ASSERT_ACTIVE, 1);
-assert_options(ASSERT_WARNING, 0);
-assert_options(ASSERT_QUIET_EVAL, 1);
-
 // Create a handler function
-function presto_assert_handler($file, $line, $code) {
-	InternalErrorException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line);
+function presto_assert_handler($file, $line, $code, $description = 'no description available') {
+	if (empty($code)) $code = 0;
+	$message = "Assert failed in $file:$line with #$code - $description.";
+	error_log($message);
+	InternalErrorException::errorHandlerCallback(500, $message, $file, $line, NULL);
 }
 
 // Register Presto assert handling

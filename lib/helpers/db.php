@@ -19,7 +19,7 @@ class db extends \PDO {
 
 
 	/* Create (or reuse) an instance of a PDO database */
-	static function _instance($dsn, $user, $password, $config = null) {
+	static function _instance($dsn = null, $user = null, $password = null, $config = null) {
 		global $_db;
 		if ($_db !== null) return $_db; // return cached
 
