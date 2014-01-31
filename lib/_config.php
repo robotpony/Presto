@@ -61,12 +61,12 @@ ini_set('html_errors', false);
 error_reporting(E_ALL);
 set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
 
-
-
 // Create a handler function
-function presto_assert_handler($file, $line, $code) {
+function presto_assert_handler($file, $line, $code, $description = 'no description available') {
+	error_log("Assert failed in $file:$line with '$code' - $description.");
 	PrestoException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line, null);
 }
 
 // Register Presto assert handling
 assert_options(ASSERT_CALLBACK, 'presto_assert_handler');
+
