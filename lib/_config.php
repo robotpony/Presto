@@ -55,7 +55,7 @@ assert_options(ASSERT_QUIET_EVAL, 1);
 if (PRESTO_DEBUG) {
 	assert_options(ASSERT_ACTIVE, 1);
 	assert_options(ASSERT_WARNING, 1);
-	assert_options(ASSERT_BAIL, 1);
+	assert_options(ASSERT_BAIL, 0);
 }
 ini_set('html_errors', false);
 error_reporting(E_ALL);
@@ -63,8 +63,10 @@ set_error_handler(array("PrestoException", "errorHandlerCallback"), E_ALL);
 
 // Create a handler function
 function presto_assert_handler($file, $line, $code, $description = 'no description available') {
-	error_log("Assert failed in $file:$line with '$code' - $description.");
-	PrestoException::errorHandlerCallback(500, 'Internal assertion failed - ' . $code, $file, $line, null);
+	if (empty($code)) $code = 0;
+	$message = "Assert failed in $file:$line with #$code - $description.";
+	error_log($message);
+	PrestoException::errorHandlerCallback(500, $message, $file, $line, NULL);
 }
 
 // Register Presto assert handling
