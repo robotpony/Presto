@@ -146,10 +146,10 @@ class Response {
 	}
 
 	/* Redirect client */
-	public function redirect($t = '500.html', $o = null) {
-		$opt = isset($o) ? '?' . http_build_query($o) : '';
-		return header("Location: /$t$opt");
-		exit;
+	public function redirect($t = '500.html', $o = array(), $c = '301') {
+		$t = preg_match('#^http(?:s|)://#', $t) ? $t : "/$t";
+
+		return $this->hdr($c, array_merge($o, array('Location' => $t)));
 	}
 
 	/** Determine the content-type */
@@ -188,6 +188,43 @@ class Response {
 
 		$encoder_fn = $h->enc;
 		$encoder_fn($dom, (object) $ctx, $h->map);
+	}
+
+	/* Register default type handlers */
+	private function register_default_type_handlers() {
+
+		// JSON
+		self::add_type_handler('application/json', function ($dom) {
+			$json = json_encode($dom);
+			if (json_last_error() !== JSON_ERROR_NONE) throw new Exception('JSON encoding error #' . json_last_error(), 400);
+			print $json;
+		} );
+
+		// JSONP
+		self::add_type_handler('application/js', function ($dom, $ctx, $map) {
+
+			if ($ctx === null || !array_key_exists('callback', $ctx->options))
+				throw new Exception('JSONP missing callback option', 400);
+
+			$callback = $ctx->options['callback'];
+
+			if (strlen($callback) === 0 || !preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+				throw new Exception("Invalid JSONP callback name: $callback", 400);
+
+			$json = json_encode($dom);
+
+			if (json_last_error() !== JSON_ERROR_NONE)
+				throw new Exception('JSON encoding error in JSONP request - #' . json_last_error(), 400);
+
+			print "$callback($json);";
+		} );
+
+		// Built in HTML
+		self::add_type_handler('.*\/htm.*', function($dom) { _encode_html($dom); } );
+
+		// Build in text (debug only)
+		if (PRESTO_DEBUG)
+			self::add_type_handler('text/plain', function ($dom) { print_r($dom); } );
 	}
 
 	public function __toString() { return print_r($this, true); }

@@ -14,8 +14,11 @@ namespace napkinware\presto;
 class db extends \PDO {
 
 	private $statement;
+	private static $valid_pdo_types = array(PDO::PARAM_INT, PDO::PARAM_NULL, 
+									PDO::PARAM_BOOL, PDO::PARAM_STR);
 	const USR_DEF_DB_ERR 	= '45000';
 	const DB_NO_ERR 		= '00000';
+	
 
 
 	/* Create (or reuse) an instance of a PDO database */
@@ -118,7 +121,10 @@ class db extends \PDO {
 		that parameter's PDO datatype.
 	 */
 	function query($sql, $bound_parameters = array()) {
-
+		// Check if the params have been bound or not already
+		if (!$this->is_bound($bound_parameters))
+			$bound_parameters = $this->bind_parameters($bound_parameters);
+			
 		// Expand any array parameters
 		$this->expand_query_params($sql, $bound_parameters);
 
@@ -207,6 +213,54 @@ class db extends \PDO {
 	function affected_rows() {
 		return $this->statement->rowCount();
 	}
+	
+	/*	Generates a PDO bound parameterized array.
+	*/
+	public function bind_parameters($array) {
+		$find_type = function($val) {
+			$pdoType = PDO::PARAM_NULL;
+			if (is_numeric($val)) $pdoType = PDO::PARAM_INT;
+			else if (is_bool($val)) $pdoType = PDO::PARAM_BOOL;
+			else if (is_string($val)) $pdoType = PDO::PARAM_STR;
+			return $pdoType;
+	 	};
+	
+		$params = array();
+		foreach ($array as $key => $val) {
+			$pdoType = PDO::PARAM_NULL;
+			if (is_array($val)) {
+				$type = $find_type(current($val));
+				foreach ($val as $k => $v) {
+					if ($find_type($v) !== $type)
+						throw new Exception('Array contents must have the same type. '.
+											'Cannot bind parameters', 400);
+	 			}
+				$pdoType = $type;
+			} else {
+				$pdoType = $find_type($val);
+	 		}
+			$params[$key] = array('value' => $val, 'pdoType' => $pdoType);
+		}
+		return $params;
+	}
+	
+	/*
+		Tests to see if parameters have been bound or not.
+		Returns true if they are bound, and false if they are not.
+		
+		An array is either bound or not - there are no partial cases.
+	*/
+	private function is_bound($array) {
+		foreach ($array as $key => $val) {
+			if (is_array($val)) {     
+				if (!isset($val['pdoType']) ||
+					!in_array($val['pdoType'], self::$valid_pdo_types))
+					return false;
+			}
+			else return false;
+		}
+		return true;
+	}
 
 	/* Throw error info pertaining to the last operation. */
 	private function errors() {
@@ -218,6 +272,9 @@ class db extends \PDO {
 		}
 		else if (!empty($e[0]) && !empty($e[2])) {
 			throw new \Exception($e[2], 500);
+		}
+		else if (!empty($e[0]) && strcmp($e[0], 'HY093') === 0) {
+			throw new Exception('Error HY093: Check your PDO field bindings', 500);
 		}
 		else throw new \Exception('Update failed for unknown reason.', 500);
 	}

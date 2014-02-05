@@ -27,6 +27,7 @@ set_include_path(get_include_path()
 	. PATH_SEPARATOR . PRESTO_BASE
 	. PATH_SEPARATOR . API_BASE
 	. PATH_SEPARATOR . API_BASE . '/api/'
+	. PATH_SEPARATOR . API_BASE . '/lib/'
 	. PATH_SEPARATOR . API_BASE . '/api/models/'
 	. PATH_SEPARATOR . PRESTO_BASE . '/helpers/'
 	. PATH_SEPARATOR . PRESTO_BASE . '/encoders/');
@@ -38,8 +39,8 @@ if (PRESTO_DEBUG)	set_include_path(get_include_path()
 class InternalErrorException extends \Exception {
 	public static function errorHandlerCallback($code, $string, $file, $line, $context) {
 
-		if (error_reporting() != 0)
-			return;
+		if (error_reporting() === 0)
+			return true;
 
 		$e = new self($string, $code);
 

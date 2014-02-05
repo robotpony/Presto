@@ -1,3 +1,4 @@
+
 <IfModule mod_rewrite.c>
 
 RewriteEngine On
@@ -10,10 +11,8 @@ RewriteRule ^(introspector/(?:info|system|tests))/$ /lib/delegator-index.php?r=$
 RewriteRule ^(introspector/.*)\.(.*)$ /lib/delegator-index.php?r=$1&t=$2 [L]
 RewriteRule ^(introspector/.*)$ /lib/delegator-index.php?r=$1&t=LIST [L]
 
-
-
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ /docs/index.php?presto&page=$1 [NC,L]
+RewriteRule ^(.*)$ /docs/index.php?presto&page=$1 [NC,QSA,L]
 </IfModule>
 
 

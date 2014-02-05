@@ -104,7 +104,7 @@ class Service {
 			'data'	=> array()
 		);
 
-		$this->debug(__FUNCTION__, func_get_args()); // trace
+		presto_lib::_trace(__FUNCTION__, $this->call->uri);
 
 		try {
 			// make the actual request
@@ -219,13 +219,13 @@ class Service {
 		);
 		curl_setopt_array($c, $options);
 
-		$this->log('req', "{$this->call->method}: {$this->call->uri}");
+		presto_lib::_trace('req', "{$this->call->method}: {$this->call->uri}");
 
 		$this->result->body = curl_exec($c);
 		$this->result->uri = $this->call->uri;
 		$this->call->info = (object)curl_getinfo($c);
 
-		$this->log('data', $this->result->body);
+		presto_lib::_trace('Service request body', $this->result->body);
 
 		$this->parseResults();
 
@@ -235,12 +235,14 @@ class Service {
 		curl_close($c);
 
 		if ($this->result->data === false)
-			throw new Exception("HTTP service error, no data: {$this->call->method} {$this->call->uri}", $this->call->info->http_code);
+			throw new Exception("HTTP service error, no data: {$this->call->method} {$this->call->uri}",
+				$this->call->info->http_code);
 
-		if ($this->call->info->http_code != 200) {
-			$dump = ($this->options->debug) ? print_r($this->result, true)
-				: print_r($this->result->data, true);
-			throw new Exception("HTTP service error\n{$this->call->method} {$this->call->uri}\n\n$dump\n" , $this->call->info->http_code);
+		// TODO - handle 300-class returns?
+
+		if ($this->call->info->http_code >= 400) {
+			$dump = ($this->options->debug) ? json_encode($this->result)  : json_encode($this->result->data);
+			throw new Exception("HTTP service error in {$this->call->method} for {$this->call->uri} - $dump", $this->call->info->http_code);
 		}
 
 		return $this->data();

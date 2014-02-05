@@ -9,11 +9,14 @@ class session {
 
 	private $t;
 	private $cfg;
+	private $overrideCookie;
 
 	/* Create a new session
 
 	*/
-	public function __construct($serviceID, $settings = null) {
+	public function __construct($serviceID, $settings = null, $cookie = null) {
+	
+		$this->overrideCookie = $cookie;
 
 		$this->cfg = array(
 			'cookie_name' 		=> SERVICE_COOKIE,
@@ -44,7 +47,9 @@ class session {
 			if ($this->supports_api_keying())
 				if ($this->valid_key()) return true;
 
-			if (isset($_COOKIE[$this->cfg->cookie_name])) {
+			if (isset($this->overrideCookie))
+				$t = urldecode($this->overrideCookie);
+			else if (isset($_COOKIE[$this->cfg->cookie_name])) {
 				$t = $_COOKIE[$this->cfg->cookie_name];
 			} else {
 				if (!empty($this->cfg->token_header) && !isset($_SERVER[$this->cfg->token_header]))					

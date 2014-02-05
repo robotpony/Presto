@@ -29,6 +29,7 @@ class Request {
 	public $get;		// get parameters
 	public $post;		// post parameters
 	public $options;	// query options
+	public $referer;	// the likely referring URI
 
 	/* Set up	a request object (from PHP builtins) */
 	public function __construct($r = null, $t = null, $c = null) {
@@ -52,6 +53,8 @@ class Request {
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
 		$this->action = c($this->method, 'get'); // default to GET
 		$this->host = $_SERVER['HTTP_HOST'];
+
+		$this->referer = _server('HTTP_REFERER', '');
 
 		$this->service = strstr($this->host, '.', -1);
 		$this->tld = pathinfo($this->host, PATHINFO_EXTENSION);
@@ -82,7 +85,8 @@ class Request {
 			'method' 	=> cleanup($method),
 			'preflight'	=> cleanup($preflight),
 			'params' 	=> $this->params(),
-			'options' 	=> $this->options
+			'options' 	=> $this->options,
+			'referer'	=> $this->referer
 		);
 	}
 	public function params() {
@@ -90,6 +94,14 @@ class Request {
 		$p = array_slice($p, 2, count($p));
 
 		return $p;
+	}
+
+	/* Determine if this is an internal request
+		Not intended for secure uses (informational only), as the referer field can be spoofed.
+	*/
+	public function isInternalRequest() {
+		$via = parse_url($this->referer, PHP_URL_HOST);
+		return ($this->host === $via);
 	}
 	/* Get a GET value (or values)
 
@@ -199,7 +211,7 @@ class Request {
 							JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
 							JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
 						);
-						throw new \Exception('Invalid JSON request payload. ' . $errors[json_last_error()], 400);
+						throw new Exception('Invalid JSON request payload - ' . $errors[json_last_error()] . ' - ' . $body, 400);
 					}
 
 				break;
@@ -256,7 +268,7 @@ class Request {
 	public function __toString() { return print_r($this, true); }
 }
 
-/* Request helpers */
+/* Request helpers - TODO - move these */
 
 // safely get a server variable with a default
 function _server($k, $d = false) { return array_key_exists($k, $_SERVER) ? $_SERVER[$k] : $d; }

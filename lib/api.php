@@ -24,7 +24,7 @@ class API extends REST {
 	}
 	
 	/* Attach to Presto framework */
-	public function attach($ctx, $resp, $req) {
+	public static function attach($ctx, $resp, $req) {
 		self::$ctx = $ctx;
 		self::$resp = $resp;
 		self::$req = $req;
@@ -55,10 +55,10 @@ class API extends REST {
 		* sets some other useful default headers
 
 	*/
-	public function crossOrigin() {
-	
+	public function allowCrossOrigin() {
+
 		if (empty($_SERVER['HTTP_ORIGIN']))
-			throw new Exception("'HTTP_ORIGIN' unknown. Failed to set required 'Access-Control-Allow-Origin' header for CORS handshake.", 500);
+			return; // This is not a CORS request
 			
 		$this->add_header('Access-Control-Allow-Origin', $_SERVER['HTTP_ORIGIN']);
 		$this->add_header('Access-Control-Allow-Credentials', 'true');
