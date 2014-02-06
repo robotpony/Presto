@@ -1,4 +1,7 @@
 <?php
+
+namespace napkinware\presto;
+
 /* Authentication tokens
 
 Useful as a GET parameter, header value, or cookie value. Tokens are both encryped and
@@ -29,7 +32,7 @@ class auth_token {
 
 		if (!defined('TOKEN_HASH_SECRET') || !defined('TOKEN_ENCRYPTION')
 				|| !defined('TOKEN_SIGNING_KEY') || !defined('SIGNING_INIT'))
-			throw new Exception('Missing token configuration', 500);
+			throw new \Exception('Missing token configuration', 500);
 
 		if (is_array($v)) {
 			// build from parameters
@@ -40,7 +43,7 @@ class auth_token {
 			$this->t = $v;
 			$this->decrypt();
 		} else
-			throw new Exception('Missing auth_token or token parts.', 500);
+			throw new \Exception('Missing auth_token or token parts.', 500);
 	}
 
 	/* Get the encoded token */
@@ -57,7 +60,7 @@ class auth_token {
 
 	/* Get the checked parts as a string (for calculating checksums) */
 	private function checked_parts() {
-		if (empty($this->p)) throw new Exception('Token is not initialized.', 500);
+		if (empty($this->p)) throw new \Exception('Token is not initialized.', 500);
 		$elements = array($this->p->name, $this->p->email, $this->p->id, $this->p->acct,
 						TOKEN_HASH_SECRET, $this->p->t);
 
@@ -67,7 +70,7 @@ class auth_token {
 
 	/* Get a token as an encoded URI string */
 	private function uri() {
-		if (empty($this->p)) throw new Exception('Token is not initialized.', 500);
+		if (empty($this->p)) throw new \Exception('Token is not initialized.', 500);
 		$uri = '';
 		foreach ($this->p as $k => $v) $uri .= $k.'='.urlencode($v).'&';
 		return $uri;
@@ -88,10 +91,10 @@ class auth_token {
 		// check for required elements
 		foreach (array('name', 'id', 'acct', 'a', 's') as $k)
 			if (empty($p[$k])) // missing a required token element
-				throw new Exception('Invalid credentials, missing: '.$k, 401);
+				throw new \Exception('Invalid credentials, missing: '.$k, 401);
 
 		if (empty($p['email']) && empty($p['key']))
-			throw new Exception('Invalid credentials, missing email and key, at least one is required', 401);
+			throw new \Exception('Invalid credentials, missing email and key, at least one is required', 401);
 
 		foreach ($p as $k => &$v) $v = urldecode($v); // remove URI encoding
 
@@ -102,7 +105,7 @@ class auth_token {
 			$roles = explode(',', $this->p->c);
 			foreach ($roles as $tuple) {
 				$cap = explode('/', $tuple);
-				if (count($cap) !== 2) throw new Exception('Invalid token capabilities.', 401);
+				if (count($cap) !== 2) throw new \Exception('Invalid token capabilities.', 401);
 				$role = $cap[0];
 				parse_str($cap[1], $list);
 				$this->roles[$role] = array_keys($list);
@@ -122,7 +125,7 @@ class auth_token {
 			return;
 
 		if (!$strict) $v = $d;
-		else throw new Exception('Missing required check field.', 401);
+		else throw new \Exception('Missing required check field.', 401);
 	}
 
 	/* Encrypt a token from parts */
@@ -136,21 +139,21 @@ class auth_token {
 	/* Decrypt a token into parts (thows on errors) */
 	private function decrypt() {
 		if (empty($this->t))
-			throw new Exception('Token is empty.', 401);
+			throw new \Exception('Token is empty.', 401);
 
 		$t = openssl_decrypt($this->t,
 			TOKEN_ENCRYPTION, TOKEN_SIGNING_KEY, false, SIGNING_INIT);
 
 		if (empty($t))
-			throw new Exception('Token seems invalid.', 401);
+			throw new \Exception('Token seems invalid.', 401);
 
 		parse_str( $t, $p );
 
 		if (empty($p))
-			throw new Exception('Token format invalid.', 401);
+			throw new \Exception('Token format invalid.', 401);
 
 		if (!$this->build( $p ))
-			throw new Exception('Token integrity check failed.', 401);
+			throw new \Exception('Token integrity check failed.', 401);
 
 		return $this->p;
 	}

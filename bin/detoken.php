@@ -5,7 +5,7 @@ set_error_handler('handleError');
 
 try {
 
-    if (count($argv) < 2) throw new Exception('Missing expected parameters.', 500);
+    if (count($argv) < 2) throw new \Exception('Missing expected parameters.', 500);
   	
 	if (count($argv) == 3 && $argv[2] == '-urldecode')
 		$token = urldecode( trim(file_get_contents("php://stdin")) );
@@ -21,7 +21,7 @@ try {
     
     print_r($t);
     
-} catch (Exception $e) { 
+} catch (\Exception $e) { 
     $c = $e->getCode();
     
     print $c . ': ' . $e->getMessage() . "\n\n";
@@ -40,6 +40,6 @@ function handleError($errno, $errstr, $errfile, $errline, array $errcontext)
     if (0 === error_reporting())
         return false;
 
-    throw new ErrorException($errstr, 500 + 0, $errno, $errfile, $errline);
+    throw new Error\Exception($errstr, 500 + 0, $errno, $errfile, $errline);
 
 }

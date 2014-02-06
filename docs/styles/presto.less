@@ -8,7 +8,7 @@
 @shadow: rgba(0,0,0,.75);
 
 body {
-	font: 115%/150% "freight-sans-pro", "Helvetica Neau", Helvetica;
+	font: 140%/150% "freight-sans-pro", "Helvetica Neau", Helvetica;
 		
 	/* Page layout, grid, and colours */
 	header,	section, footer {
@@ -21,7 +21,7 @@ body {
 		margin: 0 auto;
 	}
 
-	/* Overrides */	
+	/* Common overrides */	
 
 	> a {
 		position: fixed; right: 0; top: 0; z-index: 999;
@@ -42,29 +42,35 @@ body {
 		text-transform: uppercase;
 	}
 	
+	ul, ol {
+		li {
+			margin: 0; padding: 0;
+			font-weight: 100;
+		}
+	}
+	
 	code, pre {
-		font: 10pt/100% Menlo, Monaco, "Andale Mono", monospace;
+		font: 12pt/120% Menlo, Monaco, "Andale Mono", monospace;
 	}
 	pre {
 		background-color: rgba(0,0,0,.1);
-		padding: .75em 1em;
-		.rounded(.5em);
+		padding: 1.25em 1em; margin: 2em 0;
+		.rounded(.1em);
 		overflow: hidden;
 	}
 	pre.highlight {
 		border: 0 !important;
-		padding: .75em !important;
+		padding: 1.5em !important;
 		width: 97% !important;
-		font: 10pt/100% Menlo, Monaco, "Andale Mono", monospace !important;
 	}
 
 	p {
 		margin: .25em 0 1em;
 	}
-	p>code {
-		background-color: rgba(0,0,0,.1);
+	p > code, li > code {
+		background-color: rgba(0,0,0,.05);
 		padding: .35em .25em; margin: 0 .25em 0 0;
-		.rounded(.25em);
+		.rounded(.1em);
 	}
 	
 
@@ -109,7 +115,7 @@ body {
 			margin-top: 3em;
 		
 			h5 {
-				font-weight: 200;
+				font-weight: 200; line-height: 125%;
 			}
 		}
 	}

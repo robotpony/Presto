@@ -1,13 +1,20 @@
 <?php
 
-/* A simple output view
+namespace napkinware\presto;
+use \Exception;
+
+/* A simple PrestoPHP view
+
+	Usage:
+
+		print new View('login', array( 'user' => 'test-user' ) );
 
 	Often used to generate special output, like HTML or other indirect object->output mappings. Don't use
 	this to generate JSON or XML (those are more easily generated with DOM->adapter patterns)
 
 	Usage:
 
-		print new View('login', array( 'user' => 'test-user' ) );
+		print napkinware\presto\View::render('login', array( 'user' => 'test-user' ) );
 
 	Returns the rendered text of the view or throws a status code (as a standard PHP exception).
 
@@ -18,22 +25,26 @@ class View {
 	private $r;
 	private $f;
 
-	public static function htmlize($v, $d) {
-		$v = new View($v, $d);
-		return $v->render();
+	// Render a view
+	public static function render($v, $d, $p = '') {
+		$v = new View($v, $d, $p);
+		return $v->renderer();
 	}
 
-	public function __construct($view = 'index', $data = null) {
+	// Class setup
+	public function __construct($view = 'index', $data = null, $base = null) {
 
 		// hook view parameters
 
 		$this->d = array('dom' => $data, 'view' => $this); // namespaced into "dom"
 		$this->f = is_array($view) ? $view : array($view);
+		$this->base = $base ? $base : '';
 
 		return $this;
 	}
 
-	public function render() {
+	// Do the rendering
+	private function renderer() {
 		try {
 
 			// render view and return
@@ -41,14 +52,14 @@ class View {
 			ob_start();
 
 			if (empty($this->f))
-				throw new Exception('You did not specify any view paths.', 501);
+				throw new \Exception('You did not specify any view paths.', 501);
 
 			// verify and load multipart view
 			foreach ($this->f as $f) {
-				$this->v = $f;
+				$this->v = "{$this->base}$f";
 
 				if (!stream_resolve_include_path($this->v))
-					throw new Exception("View {$this->v} ({$this->v}) not found in: ".get_include_path().".", 404);
+					throw new \Exception("View {$this->v} (Not found in: ".get_include_path().".", 404);
 
 				include($this->v);
 			}
@@ -57,9 +68,9 @@ class View {
 			ob_end_clean();
 			return $output;
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($e->getCode() === 404) throw $e;
-			throw new Exception('Failed to render view.', 500, $e);
+			throw new \Exception('Failed to render view.', 500, $e);
 		}
 	}
 	
@@ -74,9 +85,9 @@ class View {
 			
 			include($p);
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($e->getCode() === 404) throw $e;
-			throw new Exception('Failed to load view part $p', 500, $e);
+			throw new \Exception('Failed to render view.', 500, $e);
 		}
 	}
 }

@@ -1,15 +1,17 @@
 <?php
 
+namespace napkinware\presto;
+
 /* PDO Database wrapper
 
-	See PDO docs for details: http://www.php.net/manual/en/class.pdo.php
+	
 
 	Adds a few extensions for common batched operations.
 
-	See related `extra/tagged-sql.php` for extra post-processing magic.
+	See `docs/db.php` for usage. Also see  PDO docs base class: http://www.php.net/manual/en/class.pdo.php
 */
 
-class db extends PDO {
+class db extends \PDO {
 
 	private $statement;
 	private static $valid_pdo_types = array(PDO::PARAM_INT, PDO::PARAM_NULL, 
@@ -25,13 +27,13 @@ class db extends PDO {
 		if ($_db !== null) return $_db; // return cached
 
 		if ($config === null)
-			 $config = array( PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' );
+			 $config = array( \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' );
 
 		try {
 			 $_db = new db($dsn, $user, $password, $config);
 			 $_db->setAttribute(constant("PDO::ATTR_ERRMODE"), constant("PDO::ERRMODE_EXCEPTION"));
-		 } catch (Exception $e) {
-			throw new Exception("Failed to connect to database.", 500, $e);
+		 } catch (\Exception $e) {
+			throw new \Exception("Failed to connect to database.", 500, $e);
 		 }
 
 		return $_db;
@@ -43,9 +45,9 @@ class db extends PDO {
 		// Expand any array parameters
 		$this->expand_select_params($sql, $bound_parameters);
 
-		$this->statement = $this->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+		$this->statement = $this->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
 		$this->statement->execute($bound_parameters);
-		$resultset = $this->statement->fetchAll(PDO::FETCH_CLASS);
+		$resultset = $this->statement->fetchAll(\PDO::FETCH_CLASS);
 		$this->errors();
 		return $resultset;
 	}
@@ -53,44 +55,12 @@ class db extends PDO {
 	function select_row($sql, $bound_parameters = array()) {
 		$r = $this->select($sql, $bound_parameters);
 		$c = count($r);
-		if ($c === 0) throw new Exception("Found 0 rows", 500);
-		elseif ($c !== 1) throw new Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
+		if ($c === 0) throw new \Exception("Found 0 rows", 500);
+		elseif ($c !== 1) throw new \Exception("Too many rows (".(count($r)).") returned from '$sql'", 500);
 		return $r[0];
 	}
-
-	/* Return a simple type and object mapped set of records
-
-		Uses column aliases and type designation to generate object hierarchy.
-
-		Features:
-
-			* simple key format `any.number.of.subkeys:optional_type`
-			* order of columns is not important
-			* allows values to be type cast
-
-		Not supported:
-
-			* combining rows into sub-objects
-
-		Example:
-
-			SELECT
-				SomeID AS `id:int`,
-				FirstName AS `name.first`,
-				LastName AS `name.last`,
-				AnotherColumn AS `other`
-			FROM SomeTable
-
-
-			[{
-				id: 1234,
-				name: {
-					'first': "Sideshow",
-					'last': "Bob"
-				},
-				other: "some value"
-			}, ...]
-	*/
+	
+	/* Return a simple type and object mapped set of records  */
 	function select_objects($sql, $bound_parameters = array()) {
 
 		$rows = $this->select($sql, $bound_parameters);
@@ -163,15 +133,15 @@ class db extends PDO {
 			foreach ($bound_parameters as $key => &$param) {
 				$v = $param['value']; $t = $param['pdoType'];
 				if (!$this->statement->bindValue($key, $v, $t))
-					throw new Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
+					throw new \Exception("Unable to bind '$v' to named parameter ':$key'.", 500);
 			}
 		}
 
 		try {
 			$this->statement->execute();
 			$this->errors();
-		} catch (Exception $e) {
-			$this->errors(); // force errors() to run even after exceptions (for PDO::ERRMODE_EXCEPTION)
+		} catch (\Exception $e) {
+			$this->errors(); // force errors() to run even after exceptions (for \PDO::ERRMODE_EXCEPTION)
 		}
 
 	}
@@ -180,7 +150,7 @@ class db extends PDO {
 	function insert($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
-			throw new Exception('Insert failed: no rows were inserted.', 409);
+			throw new \Exception('Insert failed: no rows were inserted.', 409);
 	}
 
 	/*
@@ -188,7 +158,7 @@ class db extends PDO {
 
 		* `$sql`: an `INSERT` statement of the form `INSERT INTO Foo (C1, ..., Cn) VALUES (:key1, ..., :keyn)`
 		* `$dataTypes`: an array containing the PDO data types of the data values of the form
-			`array(0 => PDO::dataType, ..., n => PDO::dataType)`
+			`array(0 => \PDO::dataType, ..., n => \PDO::dataType)`
 		* `$data`: a 2D array of the form `array(0 => array(key1 => v01, ..., keyn => v0n), ..., m => array(key1 => vm1, ..., keyn => vmn))`
 
 		1. Handled with `m` `INSERT` statements wrapped in a transaction.
@@ -236,7 +206,7 @@ class db extends PDO {
 	function delete($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
 		if ($this->statement->rowCount() === 0)
-			throw new Exception('Delete failed: resource does not exist.', 404);
+			throw new \Exception('Delete failed: resource does not exist.', 404);
 	}
 
 	/* Return the number of rows affected by the last INSERT, DELETE, or UPDATE.  */
@@ -244,47 +214,7 @@ class db extends PDO {
 		return $this->statement->rowCount();
 	}
 	
-	/*
-		Generates a PDO bound parameterized array.
-		
-		Pass this an array of keys and values that you want to use in your DB query.
-		generate_params() will return you a valid PDO array to use with 
-		your INSERT and UPDATE statements.
-		
-		View the test harness for this here: https://gist.github.com/ngallagher87/6717925
-		
-		Supported types:
-		=================
-			PARAM_BOOL
-			PARAM_NULL
-			PARAM_INT
-			PARAM_STR
-		
-		Unsupported types:
-		=================
-			PARAM_LOB
-			PARAM_INPUT_OUTPUT
-			PARAM_STMT (No drivers support this anyways)
-		
-		Note:
-		
-			If you need to use one of these unsupported types, you'll have to
-			generate the params by hand.
-		
-		Example:
-		========
-		
-			$sql = <<<SQL
-				INSERT INTO Days (Day, DayNumber, isHoliday)
-				VALUES (:day, :dayNumber, :isHoliday);
-			SQL;
-			
-			$values = array(
-				'day' => 'tuesday', 
-				'dayNumber' => 2, 
-				'isHoliday' => true
-			);
-			$this->db->insert($sql, $params);
+	/*	Generates a PDO bound parameterized array.
 	*/
 	public function bind_parameters($array) {
 		$find_type = function($val) {
@@ -338,15 +268,15 @@ class db extends PDO {
 		if (empty($e[0]) || $e[0] === self::DB_NO_ERR) return;
 		if (!empty($e[0]) && $e[0] === self::USR_DEF_DB_ERR) {
 			$msg = !empty($e[2]) ? $e[2] : 'Application defined SQL error occurred.';
-			throw new Exception($msg, 412);
+			throw new \Exception($msg, 412);
 		}
 		else if (!empty($e[0]) && !empty($e[2])) {
-			throw new Exception($e[2], 500);
+			throw new \Exception($e[2], 500);
 		}
 		else if (!empty($e[0]) && strcmp($e[0], 'HY093') === 0) {
 			throw new Exception('Error HY093: Check your PDO field bindings', 500);
 		}
-		else throw new Exception('Update failed for unknown reason.', 500);
+		else throw new \Exception('Update failed for unknown reason.', 500);
 	}
 
 	/*
@@ -380,7 +310,7 @@ class db extends PDO {
 				// Ensure validity of members
 				if ((!empty($v) && !is_scalar($v))) {
 					$t = gettype($v);
-					throw new Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
+					throw new \Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
 				}
 
 				$expanded["{$p}_{$k}"] = $v;
@@ -406,12 +336,12 @@ class db extends PDO {
 	/*
 		Utility: expand any parameters passed in as an array (as PDO does not yet support this).
 
-		For any parameter `p => array('value' => array( k1 => v1, k2 => v2, ..., kn => vn), 'pdoType' => PDO::SOME_PDO_TYPE)` in `$params`,
+		For any parameter `p => array('value' => array( k1 => v1, k2 => v2, ..., kn => vn), 'pdoType' => \PDO::SOME_PDO_TYPE)` in `$params`,
 		`p` is expanded to
-			`p_k1 => array('value' => v1, 'pdoType' => PDO::SOME_PDO_TYPE),
-			p_k2 => array('value' => v2, 'pdoType' => PDO::SOME_PDO_TYPE),
+			`p_k1 => array('value' => v1, 'pdoType' => \PDO::SOME_PDO_TYPE),
+			p_k2 => array('value' => v2, 'pdoType' => \PDO::SOME_PDO_TYPE),
 			...,
-			p_kn => array('value' => vn, 'pdoType' => PDO::SOME_PDO_TYPE)`
+			p_kn => array('value' => vn, 'pdoType' => \PDO::SOME_PDO_TYPE)`
 		all members of `$params`.
 
 		For any label `:p` in `$sql`, `p` is replaced with `:p_k1, :p_k2, ..., :p_kn` in `$sql`.
@@ -428,7 +358,7 @@ class db extends PDO {
 
 			// Empty arrays need to be handled explicitly so they don't cause array to string conversion exceptions at bind time.
 			if (empty($arrayParam['value'])) {
-				$params[$p] = array('value' => '', 'pdoType' => PDO::PARAM_STR);
+				$params[$p] = array('value' => '', 'pdoType' => \PDO::PARAM_STR);
 				continue;
 			}
 
@@ -439,7 +369,7 @@ class db extends PDO {
 				// Ensure validity of members
 				if ((!empty($v) && !is_scalar($v))) {
 					$t = gettype($v);
-					throw new Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
+					throw new \Exception("Array parameter expansion error: members of array '$p' must be scalars, but '$k' is a '$t'.", 500);
 				}
 
 				$expanded["{$p}_{$k}"] = array('value' => $v, 'pdoType' => $arrayParam['pdoType']);

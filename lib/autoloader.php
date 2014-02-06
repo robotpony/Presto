@@ -1,4 +1,7 @@
 <?php
+
+namespace napkinware\presto;
+
 /* Automatically load classes that aren't included .
 
 	Allows Presto to load most of its parts automatically.
@@ -6,45 +9,68 @@
  	@param string $class (Required) The classname to load.
  	@return boolean Whether or not the file was successfully loaded.
 
- 	See also: Presto::autoload_explicit
+ 	See also: Presto::autoload_delegate
  */
-function presto_autoloader($class) {
-	// First look in the base directory for the web app
-	$class_file = strtolower($class) . ".php";
-	if (file_exists($class_file)) {
-		require_once($class_file);
-		return true;
+function presto_autoloader($c) {
+
+	// Attempt to autoload based on include path
+
+	$namespace = '';
+	$parts = explode('\\', $c);
+	if (count($parts) > 0) {
+		$c = array_pop($parts);
+		$namespace = '\\' . implode('\\', $parts);
 	}
-	// Next look in the Presto library directory
-	$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-	$lib_file = $path . $class_file;
-	if (file_exists($lib_file)) {
-		require_once($lib_file);
-		return true;
+	$class = $c;
+	$file = strtolower($c) . ".php";
+
+	if (!stream_resolve_include_path($file)) {
+		// Not found
+		trace('Skipping auto-loading of ' . $file . ' (not found in ' . get_include_path() . ')');
+		return false; // let other autoloaders try
 	}
-	// We can't find it so we let other autoloaders try
-	return false;
+
+	include_once($file);
+
+	trace('Auto loaded class:', $namespace, $c);
+
+	return true;
 }
+
 // Register the autoloader.
-spl_autoload_register('presto_autoloader');
+\spl_autoload_register('napkinware\\presto\\presto_autoloader');
 
 
-// Delegation autoloading=
-function autoload_delegate($call) {
+// Delegation autoloading
+function autoload_delegate(&$call) {
+
 	$in = $call->container;
 	$error = "API `$call->class` not found";
-	
+
 	if ( !stream_resolve_include_path($call->file) ) {
 		$extra = " ({$call->file} not found).";
 
 		if ( !empty($in) && !is_dir($in) )
 			$extra = " ({$call->file} not found, $in missing)."; // aid debugging of routes-in-folders
-			
-		throw new Exception($error . $extra, 404);
-	}
-	
-	if ( !(require_once $call->file) )
-		throw new Exception($error . " ({$call->file} not loadable).", 500);
 
-	
+		throw new \Exception($error .$extra, 404);
+	}
+
+	if ( !(include_once $call->file) )
+		throw new \Exception($error . " ({$call->file} not loadable).", 500);
+
+	// determine the namespace by looking up the loaded class
+	$classes = get_declared_classes();
+	$classes = preg_grep("/(?:^{$call->class}|\\\\{$call->class})$/", $classes);
+	if (count($classes) !== 1)
+		trace('Found an unexpected number of matches for', $call->class, json_encode($classes));
+	$from = $call->class;
+	$call->class = array_pop($classes);
+
+	trace('Auto loaded API', $call->class, json_encode($call));
+
+	if (empty($call->class))
+		throw new \Exception("No class found for $from in {$call->file}", 500);
+
+	return new $call->class;
 }

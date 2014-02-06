@@ -1,5 +1,7 @@
 <?php
 
+namespace napkinware\presto;
+
 /** Simple tokenized sessions
 
 */
@@ -33,7 +35,7 @@ class session {
 		else $this->cfg = (object) $this->cfg;
 
 		if (empty($this->cfg->cookie_name) || !isset($this->cfg->domain) || !isset($this->cfg->secure))
-			throw new Exception('Missing Session class configuration.', 500);
+			throw new \Exception('Missing Session class configuration.', 500);
 	}
 
 	/* Is the request authorized? */
@@ -51,7 +53,7 @@ class session {
 				$t = $_COOKIE[$this->cfg->cookie_name];
 			} else {
 				if (!empty($this->cfg->token_header) && !isset($_SERVER[$this->cfg->token_header]))					
-					throw new Exception('Not authorized (no session cookie).', 401); // not signed in
+					throw new \Exception('Not authorized (no session cookie).', 401); // not signed in
 				elseif (!empty($this->cfg->token_header))
 					$t = urldecode($_SERVER[$this->cfg->token_header]);
 			}
@@ -59,11 +61,11 @@ class session {
 			$this->t = new auth_token($t);
 
 			if (!$this->t->ok())
-				throw new Exception('Invalid authorization token.', 401); // invalid token
+				throw new \Exception('Invalid authorization token.', 401); // invalid token
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($e->getCode() != 401)
-				throw new Exception('Authorization error.', 500, $e);
+				throw new \Exception('Authorization error.', 500, $e);
 			else
 				throw $e;
 		}
@@ -101,12 +103,12 @@ class session {
 		if (empty($this->cfg->cookie_name)
 			|| !setcookie($this->cfg->cookie_name, $t, time() + $expiry, '/',
 				$this->cfg->domain, $this->cfg->secure))
-			throw new Exception('Cookie monster sad :-(', 500);
+			throw new \Exception('Cookie monster sad :-(', 500);
 	}
 	/* Clear the session */
 	public function clear() {
 		if (!setcookie($this->cfg->cookie_name, '', time() - 1, '/', $this->cfg->domain, $this->cfg->secure))
-			throw new Exception('Failed to remove cookie', 500);
+			throw new \Exception('Failed to remove cookie', 500);
 	}
 
 	// get the current token

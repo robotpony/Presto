@@ -1,6 +1,9 @@
-<?php include_once('_config.php');
+<?php
 
-include_once(PRESTO_BASE.'/_helpers.php');
+namespace napkinware\presto;
+
+include_once('_config.php');
+include_once(PRESTO_BASE.'/helpers/misc.php');
 include_once(PRESTO_BASE.'/autoloader.php');
 include_once(PRESTO_BASE.'/api.php');
 
@@ -20,7 +23,7 @@ class Presto extends REST {
 
 		try {
 			$this->dispatch(); // dispatch to loaded class->member based on $req
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			throw $e; // errors are handled by delegator
 		}
 	}
@@ -41,75 +44,76 @@ class Presto extends REST {
 
 			$res = $this->call->resource; // the root resource
 
-			presto_lib::_trace('REQUEST', "[{$this->call->file}] $obj::$method ({$this->call->type})", 
+			trace('REQUEST', "[{$this->call->file}] $obj::$method ({$this->call->type})",
 				json_encode($this->call->params), json_encode($this->call->options));
 
 			// Create an an instance of the API subclass (autoloaded)
-			
-			autoload_delegate($this->call);
-			
+
+			$o = autoload_delegate($this->call);
+			$obj = $this->call->class;
 			if (!class_exists($obj))
-				throw new Exception("API class not found for $obj::$method", 404);
+				throw new \Exception("API class not found for $obj::$method", 404);
 
 			// Start the response setup
-			
-			self::$resp = new response($this->call);
 
-			API::attach( $this->call, self::$resp, self::$req );
-				
-			$o = new $obj();
+			self::$resp = new response($this->call);
 
 			// Verify the request
 
 			if ($obj == 'error') // disallow root component access
-				throw new Exception('Root access not allowed', 403);
+				throw new \Exception('Root access not allowed', 403);
+
+			$o->attach( $this->call, self::$resp, self::$req );
 
 			if (!method_exists($obj, $preflight)) {
-				
+
 				// skip + trace missing preflight functions (data will be passed as standard HTTP params)
-				
-				presto_lib::_trace('PREFLIGHT', 'skipped', 
-					"[{$this->call->file}] $obj::$preflight ({$this->call->type})", 
+
+				trace('PREFLIGHT', 'skipped',
+					"[{$this->call->file}] $obj::$preflight ({$this->call->type})",
 					json_encode($this->call->params), json_encode($this->call->options));
-					
+
 			} else {
-			
+
 				// attempt a "preflight" call (into the user class to generate a model)
-			
+
 				$model = $o->$preflight(
-					$this->call->params, 
-					$this->call->options, 
-					self::$req->body(), 
+					$this->call->params,
+					$this->call->options,
+					self::$req->body(),
 					$this->call->type );
 			}
 
-			if (!method_exists($obj, $method)) // valid route?
-				throw new Exception("Resource $obj->$method not found.", 404);
+			if (!method_exists($obj, $method)) { // invalid route
+				if (method_exists($o, 'presto_error'))
+					return self::$resp->fail(
+						$o->presto_error($method, $this->call), 
+					404); // attempt to call custom error handler
+				else
+					throw new \Exception("Resource $obj->$method not found.", 404); // last chance throw
+			}
 
 			$this->call->exists = true;
 
 			// Perform the actual sub delegation
-			
+
 			if (isset($model))
 				$this->call->data = $o->$method( $model, $this->call->type );
 			else
-				$this->call->data = $o->$method( 
-					$this->call->params, 
-					$this->call->options, 
-					self::$req->body(), 
+				$this->call->data = $o->$method(
+					$this->call->params,
+					$this->call->options,
+					self::$req->body(),
 					$this->call->type );
 
 			// Produce a response for the client
-			
-			presto_lib::_trace( PRESTO_TRACE_KEY, json_encode(Presto::trace_info()) );
-			$profiles = Profiler::profiles(); // add any process profiling to trace
-			if (!empty($profiles))
-				presto_lib::_trace( PROFILER_TRACE_KEY, json_encode($profiles) );
+
+			trace( PRESTO_TRACE_KEY, json_encode(Presto::trace_info()) );
 
 			$encode = (is_object($this->call->data) || is_array($this->call->data));
 			return self::$resp->ok( $this->call, $encode, $o->status(), $o->headers() );
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if (self::$resp === null) self::$resp = new response();
 
 			self::$resp->hdr($e->getCode());
@@ -130,7 +134,7 @@ class Presto extends REST {
 			default: $status = 500;
 		}
 
-		$details = array(
+		$details = (object) array(
 			'status' => $status,
 			'code' => $n,
 			'error' => $text,
@@ -138,16 +142,30 @@ class Presto extends REST {
 			'line' => $line,
 			'ctx' => $ctx
 		);
-		
+
 		if (PRESTO_TRACE) $details[PRESTO_TRACE_KEY] = Presto::trace_info();
 
 		// build the resulting error object
-		$details = json_encode( (object) $details);
-		
-		error_log('FATAL: ' . json_encode(array($status, $details)));
+		$dump = json_encode( (object) $details, JSON_PRETTY_PRINT);
+
+		error_log("FATAL: $status " . $dump);
+
 		self::$resp->hdr($status);
-		print $details;
-		die;
+
+		if (self::$req->type !== 'html') {
+			print $dump;
+			die;
+		} else { ?>
+<div class="alert alert-warning">
+<h2>Application error <code><?= $details->status ?></code> - <code>#<?= $details->code ?></code></h2>
+<p><?= $details->error ?> in <?= $details->file ?>:<?= $details->line ?></p>
+<br/>
+<pre><?= $dump ?></pre>
+</div>
+<?php
+			// let Presto continue in HTML case (to finish rendering views)
+		}
+
 	}
 
 	// Get trace info for a call
@@ -158,7 +176,7 @@ class Presto extends REST {
 			'request' => self::$req->uri,
 			'version' => PRESTO_VERSION
 		);
-				
+
 	}
 	/** Debugging dump of Presto delegator */
 	public function __toString() { return print_r($this, true); }

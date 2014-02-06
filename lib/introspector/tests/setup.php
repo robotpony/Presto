@@ -20,18 +20,18 @@ class info extends API {
 	}
 
 	// info.json (root get request)
-	public function get($ctx) {
+	public function get($params, $options, $body, $type) {
 
 		$this->restrictTo('json');
 
-		if (count($ctx->params) > 1)
-			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
+		if (count($params) > 1)
+			throw new \Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
 
 		return array('example' => 'This is some example information'); // will be returned as json, if json is requested
 	}
 
 	// Test custom header values
-	public function get_header_test($ctx) {
+	public function get_header_test($params, $options, $body, $type) {
 		$this->restrictTo('json');
 
 		$this->status(201);
@@ -40,7 +40,7 @@ class info extends API {
 	}
 
 	// Test binary json values
-	public function get_utf8($ctx) {
+	public function get_utf8($params, $options, $body, $type) {
 
 		$this->restrictTo('json');
 		return array('status' => 'fail', 'expected' => 'fail', 'invalidUTF8' => pack("H*" ,'c32e') );

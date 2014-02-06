@@ -19,18 +19,67 @@ class info extends API {
 	}
 
 	// info.json (root get request)
-	public function get($p) {
-
+	public function get($p, $o, $b, $t) {
+	
 		$this->restrictTo(array('json', 'js'));
+		
+		if (count($p) != 0)
+			throw new \Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
 
-		if (count($p) > 1)
-			throw new Exception('Too many parameters', 400); // will result in a proper 400 HTTP status
-
-		return array('example' => 'This is some example information'); // will be returned as json, if json is requested
+		return array('pass' => 'Simple GET'); // will be returned as json, if json is requested
 	}
 
+	// info/params.json (params tests)
+	public function get_params($p, $o, $b, $t) {
+	
+		$this->restrictTo(array('json', 'js'));
+		$c = count($p);
+		
+		switch ($c) {
+			case 0:
+				return array('pass' => 'Object GET');
+				
+			case 1: 
+			case 6:
+				return array('pass' => "Object GET - $c parameters", 'parameters' => $p);
+				
+			default:
+				throw new \Exception("Invalid number of parameters ($c)", 400);
+		}
+	}
+
+	// info/params.json (params tests)
+	public function get_options($p, $o, $b, $t) {
+	
+		$this->restrictTo(array('json', 'js'));
+		$c = count($o);
+		
+		switch ($c) {
+			case 0:
+				return array('pass' => 'Object GET');
+				
+			case 1: 
+			case 6:
+				return array('pass' => "Object GET - $c options", 'options' => $o);
+				
+			default:
+				throw new \Exception("Invalid number of options ($c)", 400);
+		}
+	}
+	
+	// info/params.json (params tests)
+	public function post($p, $o, $b, $t) {
+	
+		$this->restrictTo(array('json', 'js'));
+		
+		if (empty($b))
+			throw new \Exception('Missing POST body', 500);
+					
+		return array('pass' => "Simple POST", 'body' => $b);
+	}	
+	
 	// Test custom header values
-	public function get_header_test($ctx) {
+	public function get_header_test($params, $options, $body, $type) {
 		$this->restrictTo(array('json', 'js'));
 
 		$this->status(201);
@@ -39,7 +88,7 @@ class info extends API {
 	}
 
 	// Test binary json values (this should fail)
-	public function get_utf8($ctx) {
+	public function get_utf8($params, $options, $body, $type) {
 
 		$this->restrictTo(array('json', 'js'));
 		return array('status' => 'fail', 'expected' => 'fail', 'invalidUTF8' => pack("H*" ,'c32e') );

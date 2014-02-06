@@ -1,5 +1,7 @@
 <?php
 
+namespace napkinware\presto;
+
 /** Service (API) abstraction
 
 	A helper for calling remote service APIs with a natural calling sequence.
@@ -27,18 +29,19 @@ class Service {
 	public static $METHODS = array(
 		'get', 'put', 'post', 'delete', 'options', 'head');
 	public static $TYPES = array(
-		'json', 'xml');
+		'json', 'xml', 'html', 'js');
 
 	/* Initialize a specific service */
 	public function __construct($options, $urlBuilder = NULL) {
 
 		if (!function_exists('curl_init'))
-			throw new Exception('cURL required by the Presto::Service lib.');
+			throw new \Exception('cURL required by the Presto::Service lib.');
+		 	throw new \Exception('Missing \'service\' setting.');
 
 		// set up the service options
 		$this->options = (object)array_merge(
 			array(
-				'service'	=> '',
+				'service' 	=> '',
 				'username' 	=> '',
 				'referrer' 	=> '',
 				'agent' 	=> 'PHP/Presto - Using cURL',
@@ -65,8 +68,15 @@ class Service {
 		// set up the default URL builder
 		$this->urlBuilderFn = isset($urlBuilder) ? $urlBuilder
 			: function(&$fn, &$o, &$call) {
-				if (empty($fn)) return false;
-				return "{$o->service}{$o->extra}/{$fn}{$call->id}{$call->ext}";
+				$url = '';
+				$base = "{$o->service}{$o->extra}";
+
+		 		if (empty($fn))
+			 		$url = "{$base}/" . implode('/', $call->args); // via parameters only - get('url/a.json');
+		 		else
+		 		 	$url = "{$base}/{$fn}{$call->id}{$call->ext}"; // via fancy call - get_thing_json('x');
+
+				return $url;
 		 	};
 
 	}
@@ -82,7 +92,7 @@ class Service {
 		// build arguments
 		$this->popArgs($args);
 		// determine function call name
-		$fn = $this->parseCall($fn);
+		$fn = $this->parseCall($fn, $args);
 
 		// build a url from the call parameters
 		$urlFn = $this->urlBuilderFn;
@@ -96,8 +106,12 @@ class Service {
 
 		presto_lib::_trace(__FUNCTION__, $this->call->uri);
 
-		// make the actual request
-	    return $this->request();
+		try {
+			// make the actual request
+		    return $this->request();
+		} catch (\Exception $e) {
+			throw new \Exception("Failed to '{$this->call->method}' '{$this->call->uri}'", 500, $e);
+		}
 	}
 	// process the call arguments
 	private function popArgs($args) {
@@ -131,7 +145,7 @@ class Service {
 
 	}
 	// parse the call into a useful request
-	private function parseCall($fn) {
+	private function parseCall($fn, $args) {
 
 		// parse the fn call
 		$parts = explode('_', $fn);
@@ -184,7 +198,7 @@ class Service {
 			break;
 
 			default:
-				throw new Exception('Unsupported HTTP method '
+				throw new \Exception('Unsupported HTTP method '
 					+ $this->call->method);
 		}
 
@@ -300,7 +314,7 @@ class Service {
 				    	$detail .= $e->message . "\n"
 				    	. $this->result->body . "\n";
 				    }
-				    throw new Exception("XML parse error:\n" . $detail, '500');
+				    throw new \Exception("XML parse error:\n" . $detail, '500');
 				}
 
 			break;
@@ -330,7 +344,7 @@ class Service {
 			/* TODO: xml encoding for send payload not handled */
 			case 'xml':
 			default:
-				throw new Exception('Unknown data format for send '
+				throw new \Exception('Unknown data format for send '
 					. $this->call->type);
 		}
 
@@ -340,6 +354,20 @@ class Service {
 	// Generate the content-type header
 	private function contentType() {
 		return "Content-type: application/{$this->call->type}";
+	}
+
+	private function debug($fn, $args) {
+		if ($this->options->debug < 1) return;
+
+		print "$fn "
+			. print_r($args, true) . "\n"
+			. print_r(array($this->call, $this->options), true)."\n";
+	}
+
+	private function log($thing, $text) {
+		if ($thing != $this->options->log) return;
+
+		print "\n$text\n\n";
 	}
 }
 

@@ -1,4 +1,7 @@
 <?php
+
+namespace napkinware\presto;
+
 include_once('encoders/html.php');
 
 /* A PrestoPHP HTTP response
@@ -95,8 +98,8 @@ class Response {
 
 	/* Register a type handler */
 	public static function add_type_handler($type, $encoder_fn, $mapper_fn = null) {
-		if (!is_callable($encoder_fn)) throw new Exception('Invalid type handler.', 500);
-		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new Exception('Invalid type mapper.', 500);
+		if (!is_callable($encoder_fn)) throw new \Exception('Invalid type handler.', 500);
+		if ($mapper_fn !== null && !is_callable($mapper_fn)) throw new \Exception('Invalid type mapper.', 500);
 
 		self::$type_handlers[$type] = (object) array('enc' => $encoder_fn, 'map' => $mapper_fn);
 	}
@@ -109,6 +112,7 @@ class Response {
 		if ($enc) return self::encode($this->content_type(), $ctx->data, $ctx);
 		else return print $ctx->data;
 	}
+
 	/* Respond with a failure */
 	public function fail($d, $c = 500) {
 		if (!$this->hdr($c)) return false; // no data sent to client
@@ -180,7 +184,7 @@ class Response {
 				if (preg_match("#$exp#", $type)) $h = self::$type_handlers[$exp]; // expression mapping
 		}
 
-		if (!$h) throw new Exception('Unknown resource type: ' . $type, 500);
+		if (!$h) throw new \Exception('Unknown resource type: ' . $type, 500);
 
 		$encoder_fn = $h->enc;
 		$encoder_fn($dom, (object) $ctx, $h->map);
