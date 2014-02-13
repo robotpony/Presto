@@ -88,6 +88,13 @@ class Service {
 		$urlFn = $this->urlBuilderFn;
 		$this->call->uri = $urlFn($fn, $this->options, $this->call);
 
+		if (!($this->call->uri))
+			throw new Exception('Failed to build URL from '
+				. json_encode(array(
+					'service' => $this->options->service,
+					'method' => $fn,
+					'args' => $args)));
+
 		// set up the result object
 		$this->result = (object) array(
 			'body'		=> '',
