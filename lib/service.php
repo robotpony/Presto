@@ -216,7 +216,8 @@ class Service {
 		$this->parseResults();
 
 		if ($this->result->error = curl_error($c))
-		    throw new Exception($this->result->error . "\n" . json_encode($options) );
+		    throw new Exception($this->result->error . "\n"
+				. json_encode(array('options' => $options, 'call' => $this->call)));
 
 		curl_close($c);
 
