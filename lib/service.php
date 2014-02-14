@@ -106,6 +106,7 @@ class Service {
 		// make the actual request
 	    return $this->request();
 	}
+
 	// process the call arguments
 	private function popArgs($args) {
 
@@ -158,6 +159,7 @@ class Service {
 
 		return $path;
 	}
+
 	// perform the http request
 	private function request() {
 
@@ -169,9 +171,16 @@ class Service {
 		switch ($this->call->method) {
 
 			case 'get':
+				// add URI parameters if any were passed to the call
+				$params = $this->call->params;
+				if (!empty($params)) {
+					$params = http_build_query($params);
+					$this->call->uri .= '&' . $params;
+				}
 			break;
 
 			case 'post':
+				// TODO - need a mechanism for POST URI parameters
 				curl_setopt($c, CURLOPT_POST, 1);
 				curl_setopt($c, CURLOPT_POSTFIELDS, $this->params());
 				$this->call->headers[] = $this->contentType();
