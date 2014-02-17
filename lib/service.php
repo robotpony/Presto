@@ -165,6 +165,9 @@ class Service {
 	// perform the http request
 	private function request() {
 
+
+// NOTE - this function needs to be refactored - DRY
+
 		$c = curl_init();
 		$this->call->headers = $this->options->headers;
 		$this->call->info = null;
@@ -182,9 +185,17 @@ class Service {
 			break;
 
 			case 'post':
-				// TODO - need a mechanism for POST URI parameters
 				curl_setopt($c, CURLOPT_POST, 1);
-				curl_setopt($c, CURLOPT_POSTFIELDS, $this->params());
+				if ($this->call->body) {
+					$body = json_encode($this->call->body);
+					curl_setopt($c, CURLOPT_POSTFIELDS, $body);
+					$params = $this->call->params;
+					if (!empty($params)) {
+						$params = http_build_query($params);
+						$this->call->uri .= '?' . $params;
+					}
+				} else
+					curl_setopt($c, CURLOPT_POSTFIELDS, $this->params());
 				$this->call->headers[] = $this->contentType();
 				break;
 
@@ -193,10 +204,17 @@ class Service {
 				curl_setopt($c, CURLOPT_POST, 1);
 				curl_setopt($c, CURLOPT_POSTFIELDS, $this->params());
 				$this->call->headers[] = $this->contentType();
+				curl_setopt($c, CURLOPT_CUSTOMREQUEST,
+					strtoupper($this->call->method));
 			break;
 
 			case 'head':
 			case 'delete':
+				$params = $this->call->params;
+				if (!empty($params)) {
+					$params = http_build_query($params);
+					$this->call->uri .= '?' . $params;
+				}
 				curl_setopt($c, CURLOPT_CUSTOMREQUEST,
 					strtoupper($this->call->method));
 			break;
@@ -256,7 +274,10 @@ class Service {
 	// Get the call data (raw or processed)
 	private function data() { return !empty($this->result->data) ? $this->result->data : $this->result->body; }
 	public function code() { return $this->call->info->http_code; }
-	public function payload() { return $this->result->body; }
+	public function payload($body = null) {
+		if ($body) $this->call->body = $body;
+		else return $this->result->body;
+	}
 	public function info() { return $this->call; }
 	public function responseHeaders() { return $this->result->header; }
 	public function responseHeader($k) { return !empty($this->result->header[$k]) ? $this->result->header[$k] : null; }
