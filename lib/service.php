@@ -241,13 +241,14 @@ class Service {
 		);
 		curl_setopt_array($c, $options);
 
-		presto_lib::_trace('req', "{$this->call->method}: {$this->call->uri}");
+		presto_lib::_trace('Service request', "{$this->call->method}: {$this->call->uri}");
+		presto_lib::_trace('Service request body', json_encode($this->call->body));
 
 		$this->result->body = curl_exec($c);
 		$this->result->uri = $this->call->uri;
 		$this->call->info = (object)curl_getinfo($c);
 
-		presto_lib::_trace('Service request body', $this->result->body);
+		presto_lib::_trace('Service response body', $this->result->body);
 
 		$this->parseResults();
 
