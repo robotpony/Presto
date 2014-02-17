@@ -175,7 +175,7 @@ class Service {
 				$params = $this->call->params;
 				if (!empty($params)) {
 					$params = http_build_query($params);
-					$this->call->uri .= '&' . $params;
+					$this->call->uri .= '?' . $params;
 				}
 			break;
 
