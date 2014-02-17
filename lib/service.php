@@ -54,12 +54,13 @@ class Service {
 
 		$this->call = (object) array(
 			'uri'		=> '',
-			'params'	=> array(),
+			'params' 	=> array(),
 			'args'		=> array(),
 			'method' 	=> 'get',
-			'cookie'	=> '',
+			'cookie'	 	=> '',
 			'type'		=> $this->options->type,
-			'ext'		=> ''
+			'ext'		=> '',
+			'body'		=> array()
 		);
 
 		// set up the default URL builder
@@ -119,7 +120,10 @@ class Service {
 			switch (gettype($arg)) {
 				case 'object':
 				case 'array':
-					$this->call->params = $arg; break;
+					if (empty($this->call->params)) $this->call->params = $arg;
+					elseif (empty($this->call->body)) $this->call->body = $arg;
+					else throw \Exception('Extra service call parameter - ' . json_encode($arg));
+				break;
 
 				case 'NULL':
 				case 'unknown type':
