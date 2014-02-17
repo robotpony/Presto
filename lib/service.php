@@ -111,7 +111,7 @@ class Service {
 	// process the call arguments
 	private function popArgs($args) {
 
-		$this->call->params = array();
+		$this->call->params = null;
 		$this->call->id = '';
 
 		if (empty($args)) return;
@@ -120,9 +120,7 @@ class Service {
 			switch (gettype($arg)) {
 				case 'object':
 				case 'array':
-					if (empty($this->call->params)) $this->call->params = $arg;
-					elseif (empty($this->call->body)) $this->call->body = $arg;
-					else throw \Exception('Extra service call parameter - ' . json_encode($arg));
+					$this->call->params = $arg;
 				break;
 
 				case 'NULL':
