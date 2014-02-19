@@ -183,7 +183,8 @@ class Service {
 					$this->call->uri .= '?' . $params;
 				}
 			break;
-
+			
+			case 'put':
 			case 'post':
 				curl_setopt($c, CURLOPT_POST, 1);
 				if ($this->call->body) {
@@ -199,7 +200,6 @@ class Service {
 				$this->call->headers[] = $this->contentType();
 				break;
 
-			case 'put':
 			case 'options':
 				curl_setopt($c, CURLOPT_POST, 1);
 				curl_setopt($c, CURLOPT_POSTFIELDS, $this->params());
