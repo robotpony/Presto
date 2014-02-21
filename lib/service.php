@@ -186,7 +186,8 @@ class Service {
 			
 			case 'put':
 			case 'post':
-				curl_setopt($c, CURLOPT_POST, 1);
+				$opt = $this->call->method === 'put' ? CURLOPT_PUT : CURLOPT_POST;
+				curl_setopt($c, $opt, 1);
 				if ($this->call->body) {
 					$body = json_encode($this->call->body);
 					curl_setopt($c, CURLOPT_POSTFIELDS, $body);
