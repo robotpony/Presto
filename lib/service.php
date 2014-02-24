@@ -186,7 +186,14 @@ class Service {
 			
 			case 'put':
 			case 'post':
-				curl_setopt($c, CURLOPT_POST, 1);
+				$opt = CURLOPT_POST;
+				$val = 1;
+				// custom request for PUT ensures POSTFIELDS as we are not PUTting a file
+				if ($this->call->method === 'put') {
+					$opt = CURLOPT_CUSTOMREQUEST;
+					$val = 'PUT';
+				}
+				curl_setopt($c, $opt, $val);
 				if ($this->call->body) {
 					$body = json_encode($this->call->body);
 					curl_setopt($c, CURLOPT_POSTFIELDS, $body);
