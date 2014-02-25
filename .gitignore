@@ -1,3 +1,4 @@
 # Ignore generated log files.
 /bin/*.log
 /bin/token.test
+_config.php
