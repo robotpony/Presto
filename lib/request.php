@@ -65,7 +65,7 @@ class Request {
 
 	/* Get the request mapping scheme */
 	public function scheme() {
-		$p = explode('/', presto_lib::$this->route);
+		$p = explode('/', presto_lib::_cleanup($this->route));
 		$class = presto_lib::_at($p, 0, '');
 		$res = presto_lib::_at($p, 1, '');
 		$file = empty($this->container) ? "$class.php" : "$this->container/$class.php";
@@ -87,7 +87,7 @@ class Request {
 		);
 	}
 	public function params() {
-		$p = explode('/', presto_lib::$this->route);
+		$p = explode('/', presto_lib::_cleanup($this->route));
 		$p = array_slice($p, 2, count($p));
 
 		return $p;
