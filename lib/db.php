@@ -12,11 +12,11 @@
 class db extends PDO {
 
 	private $statement;
-	private static $valid_pdo_types = array(PDO::PARAM_INT, PDO::PARAM_NULL, 
+	private static $valid_pdo_types = array(PDO::PARAM_INT, PDO::PARAM_NULL,
 									PDO::PARAM_BOOL, PDO::PARAM_STR);
 	const USR_DEF_DB_ERR 	= '45000';
 	const DB_NO_ERR 		= '00000';
-	
+
 
 
 	/* Create (or reuse) an instance of a PDO database */
@@ -142,6 +142,7 @@ class db extends PDO {
 	/* Provide a wrapper for updates which is really just an alias for the query function. */
 	function update($sql, $bound_parameters = array()) {
 		$this->query($sql, $bound_parameters);
+		return $this->statement->rowCount() > 0; // optional success condition, leave to caller to decide
 	}
 	/*
 		General query. Use this when no specific results are expected. Example: attempting to delete a resource
@@ -154,7 +155,7 @@ class db extends PDO {
 		// Check if the params have been bound or not already
 		if (!$this->is_bound($bound_parameters))
 			$bound_parameters = $this->bind_parameters($bound_parameters);
-			
+
 		// Expand any array parameters
 		$this->expand_query_params($sql, $bound_parameters);
 
@@ -243,45 +244,45 @@ class db extends PDO {
 	function affected_rows() {
 		return $this->statement->rowCount();
 	}
-	
+
 	/*
 		Generates a PDO bound parameterized array.
-		
+
 		Pass this an array of keys and values that you want to use in your DB query.
-		generate_params() will return you a valid PDO array to use with 
+		generate_params() will return you a valid PDO array to use with
 		your INSERT and UPDATE statements.
-		
+
 		View the test harness for this here: https://gist.github.com/ngallagher87/6717925
-		
+
 		Supported types:
 		=================
 			PARAM_BOOL
 			PARAM_NULL
 			PARAM_INT
 			PARAM_STR
-		
+
 		Unsupported types:
 		=================
 			PARAM_LOB
 			PARAM_INPUT_OUTPUT
 			PARAM_STMT (No drivers support this anyways)
-		
+
 		Note:
-		
+
 			If you need to use one of these unsupported types, you'll have to
 			generate the params by hand.
-		
+
 		Example:
 		========
-		
+
 			$sql = <<<SQL
 				INSERT INTO Days (Day, DayNumber, isHoliday)
 				VALUES (:day, :dayNumber, :isHoliday);
 			SQL;
-			
+
 			$values = array(
-				'day' => 'tuesday', 
-				'dayNumber' => 2, 
+				'day' => 'tuesday',
+				'dayNumber' => 2,
 				'isHoliday' => true
 			);
 			$this->db->insert($sql, $params);
@@ -294,7 +295,7 @@ class db extends PDO {
 			else if (is_string($val)) $pdoType = PDO::PARAM_STR;
 			return $pdoType;
 	 	};
-	
+
 		$params = array();
 		foreach ($array as $key => $val) {
 			$pdoType = PDO::PARAM_NULL;
@@ -313,16 +314,16 @@ class db extends PDO {
 		}
 		return $params;
 	}
-	
+
 	/*
 		Tests to see if parameters have been bound or not.
 		Returns true if they are bound, and false if they are not.
-		
+
 		An array is either bound or not - there are no partial cases.
 	*/
 	private function is_bound($array) {
 		foreach ($array as $key => $val) {
-			if (is_array($val)) {     
+			if (is_array($val)) {
 				if (!isset($val['pdoType']) ||
 					!in_array($val['pdoType'], self::$valid_pdo_types))
 					return false;
