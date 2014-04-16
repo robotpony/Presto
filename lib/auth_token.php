@@ -82,8 +82,8 @@ class auth_token {
 	private function build($p, $strict = true) {
 
 		// apply defaults
-		$this->set($p['t'], time(), $strict);
-		$this->set($p['w'], 60, $strict);
+		if (!array_key_exists('t', $p)) $this->set($p['t'], time(), $strict);
+		if (!array_key_exists('w', $p)) $this->set($p['w'], 60, $strict);
 
 		// check for required elements
 		foreach (array('name', 'id', 'acct', 'a', 's') as $k)

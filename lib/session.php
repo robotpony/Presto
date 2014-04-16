@@ -13,7 +13,7 @@ class session {
 
 	*/
 	public function __construct($serviceID, $settings = null, $cookie = null) {
-	
+
 		$this->overrideCookie = $cookie;
 
 		$this->cfg = array(
@@ -50,7 +50,7 @@ class session {
 			else if (isset($_COOKIE[$this->cfg->cookie_name])) {
 				$t = $_COOKIE[$this->cfg->cookie_name];
 			} else {
-				if (!empty($this->cfg->token_header) && !isset($_SERVER[$this->cfg->token_header]))					
+				if (!empty($this->cfg->token_header) && !isset($_SERVER[$this->cfg->token_header]))
 					throw new Exception('Not authorized (no session cookie).', 401); // not signed in
 				elseif (!empty($this->cfg->token_header))
 					$t = urldecode($_SERVER[$this->cfg->token_header]);
@@ -95,7 +95,7 @@ class session {
 	}
 
 	/* Save the session */
-	public function save($t, $r = false) { // TODO domain, secure, http-only
+	public function save($t, $r = false) {
 		$expiry = $r ? 36000 : 600;
 
 		if (empty($this->cfg->cookie_name)
@@ -111,19 +111,34 @@ class session {
 
 	// get the current token
 	public function token() { return isset($this->t) && $this->t->ok() ? $this->t->encoded() : false; }
+
 	// get info about the current user
 	public function user() { return is_object($this->t) && $this->t->ok() ?
 		$this->t->parts() : false; }
+
+	// update a token based on a user record (note: hash + token will change)
+	public function update($u) {
+		unset($u->h);
+		$t = new auth_token((array)$u);
+
+		if (!$t->ok())
+			throw new \Exception('Session update failed (bad token)');
+
+		$this->t = $t;
+		$this->save($this->t->encoded());
+		return $this->user();
+	}
+
 	// can an API key work?
 	private function supports_api_keying() { return $this->cfg->api_keyed && $this->cfg->api_key_header && array_key_exists($this->cfg->api_key_header, $_SERVER); }
 	// is this a session for an API?
 	private function is_api() { return class_exists('API') && class_exists('Presto'); }
 	// is the API key valid?
-	private function valid_key() { 
+	private function valid_key() {
 
 		if (!array_key_exists($this->cfg->api_key_header, $_SERVER))
 			return false; // no API key
-		
+
 		$key = $_SERVER[$this->cfg->api_key_header];
 
 		// check as external key
