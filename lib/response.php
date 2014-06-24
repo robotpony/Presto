@@ -153,7 +153,8 @@ class Response {
 		if (!isset($this->call) || empty($this->call->type))
 			return 'text/plain';
 
-		if (strpos($this->call->type, '/')) return $this->call->res; // already a content-type
+		if (isset($this->call->res) && strpos($this->call->res, '/'))
+			return $this->call->res; // already a content-type
 
 		// map obvious content types
 		switch ($this->call->type) {
