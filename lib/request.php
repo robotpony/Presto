@@ -41,7 +41,7 @@ class Request {
 		$params = $this->params();
 
 		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET) || !array_key_exists('c', $_GET))
-			presto_lib::_trace("Rewrite delegation setup for {$this->uri} is be missing.", json_encode($_GET));
+			presto_lib::_trace("Rewrite delegation setup for {$this->uri} is missing.", json_encode($_GET));
 
 		unset($_GET['t']); unset($_GET['r']); unset($_GET['c']); // pop routing parameters
 
@@ -61,6 +61,9 @@ class Request {
 
 		$this->options = $_GET;
 		$_GET = array(); // discourage use of $_GET
+		
+		$this->uri = new URI("{$this->scheme}://{$this->host}{$this->uri}");
+		$this->referer = new URI("{$this->scheme}://{$this->host}{$this->referer}");
 	}
 
 	/* Get the request mapping scheme */
@@ -83,7 +86,7 @@ class Request {
 			'preflight'	=> presto_lib::_cleanup($preflight),
 			'params' 	=> $this->params(),
 			'options' 	=> $this->options,
-			'referer'	=> $this->referer
+			'referer'	=> $this->referer->raw
 		);
 	}
 	public function params() {
@@ -97,8 +100,7 @@ class Request {
 		Not intended for secure uses (informational only), as the referer field can be spoofed.
 	*/
 	public function isInternalRequest() {
-		$via = parse_url($this->referer, PHP_URL_HOST);
-		return ($this->host === $via);
+		return ($this->host === $this->referer->parsed->host);
 	}
 	/* Get a GET value (or values)
 
