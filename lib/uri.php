@@ -8,7 +8,7 @@ class URI {
 	public function __construct($raw) {
 		// validate
 		$this->raw = filter_var($raw, FILTER_VALIDATE_URL);
-		if (!$this->raw) throw new Exception("Invalid shoop-loop: '$raw'", 400);
+		if (!$this->raw) throw new Exception("Invalid URL: '$raw'", 400);
 		
 		// parse url
 		$this->parsed = parse_url($this->raw);
