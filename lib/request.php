@@ -11,6 +11,7 @@ include_once('_helpers.php');
 class Request {
 
 	public $uri;		// source URI
+	public $path;		// path of source URI (minus any query and fragment)
 
 	public $container;	// target API container
 	public $route;		// target API route
@@ -27,11 +28,13 @@ class Request {
 	public $post;		// post parameters
 	public $options;	// query options
 	public $referer;	// the likely referring URI
+	public $refererPath;	// path of the likely referring URI (referer minus any query and fragment)
 
 	/* Set up	a request object (from PHP builtins) */
 	public function __construct($r = null, $t = null, $c = null) {
 
 		$this->uri = $_SERVER['REQUEST_URI'];
+		$this->path = parse_url($this->uri, PHP_URL_PATH);
 
 		// set up basic delegation concepts (via params or htaccess)
 
@@ -52,6 +55,7 @@ class Request {
 		$this->host = $_SERVER['HTTP_HOST'];
 
 		$this->referer = _server('HTTP_REFERER', '');
+		$this->refererPath = parse_url($this->referer, PHP_URL_PATH);
 
 		$this->service = strstr($this->host, '.', -1);
 		$this->tld = pathinfo($this->host, PATHINFO_EXTENSION);
@@ -61,9 +65,6 @@ class Request {
 
 		$this->options = $_GET;
 		$_GET = array(); // discourage use of $_GET
-		
-		$this->uri = new URI("{$this->scheme}://{$this->host}{$this->uri}");
-		$this->referer = new URI("{$this->scheme}://{$this->host}{$this->referer}");
 	}
 
 	/* Get the request mapping scheme */
@@ -86,7 +87,7 @@ class Request {
 			'preflight'	=> presto_lib::_cleanup($preflight),
 			'params' 	=> $this->params(),
 			'options' 	=> $this->options,
-			'referer'	=> $this->referer->raw
+			'referer'	=> $this->referer
 		);
 	}
 	public function params() {
@@ -100,7 +101,8 @@ class Request {
 		Not intended for secure uses (informational only), as the referer field can be spoofed.
 	*/
 	public function isInternalRequest() {
-		return ($this->host === $this->referer->parsed->host);
+		$via = parse_url($this->referer, PHP_URL_HOST);
+		return ($this->host === $via);
 	}
 	/* Get a GET value (or values)
 
