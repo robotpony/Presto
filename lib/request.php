@@ -11,6 +11,7 @@ include_once('_helpers.php');
 class Request {
 
 	public $uri;		// source URI
+	public $path;		// path of source URI (minus any query and fragment)
 
 	public $container;	// target API container
 	public $route;		// target API route
@@ -27,11 +28,13 @@ class Request {
 	public $post;		// post parameters
 	public $options;	// query options
 	public $referer;	// the likely referring URI
+	public $refererPath;	// path of the likely referring URI (referer minus any query and fragment)
 
 	/* Set up	a request object (from PHP builtins) */
 	public function __construct($r = null, $t = null, $c = null) {
 
 		$this->uri = $_SERVER['REQUEST_URI'];
+		$this->path = parse_url($this->uri, PHP_URL_PATH);
 
 		// set up basic delegation concepts (via params or htaccess)
 
@@ -41,7 +44,7 @@ class Request {
 		$params = $this->params();
 
 		if (!array_key_exists('r', $_GET) || !array_key_exists('t', $_GET) || !array_key_exists('c', $_GET))
-			presto_lib::_trace("Rewrite delegation setup for {$this->uri} is be missing.", json_encode($_GET));
+			presto_lib::_trace("Rewrite delegation setup for {$this->uri} is missing.", json_encode($_GET));
 
 		unset($_GET['t']); unset($_GET['r']); unset($_GET['c']); // pop routing parameters
 
@@ -52,6 +55,7 @@ class Request {
 		$this->host = $_SERVER['HTTP_HOST'];
 
 		$this->referer = _server('HTTP_REFERER', '');
+		$this->refererPath = parse_url($this->referer, PHP_URL_PATH);
 
 		$this->service = strstr($this->host, '.', -1);
 		$this->tld = pathinfo($this->host, PATHINFO_EXTENSION);
