@@ -183,7 +183,7 @@ class Service {
 					$this->call->uri .= '?' . $params;
 				}
 			break;
-			
+
 			case 'put':
 			case 'post':
 				$opt = CURLOPT_POST;
@@ -260,20 +260,20 @@ class Service {
 		$this->parseResults();
 
 		if ($this->result->error = curl_error($c))
-		    throw new Exception($this->result->error . "\n"
+		    throw new Exception("{$this->call->info->http_code} - {$this->result->error} - "
 				. json_encode(array('options' => $options, 'call' => $this->call)));
 
 		curl_close($c);
 
 		if ($this->result->data === false)
-			throw new Exception("HTTP service error, no data: {$this->call->method} {$this->call->uri}",
+			throw new Exception("{$this->call->info->http_code}: HTTP service error, no data - {$this->call->method} {$this->call->uri}",
 				$this->call->info->http_code);
 
 		// TODO - handle 300-class returns?
 
 		if ($this->call->info->http_code >= 400) {
 			$dump = ($this->options->debug) ? json_encode($this->result)  : json_encode($this->result->data);
-			throw new Exception("HTTP service error in {$this->call->method} for {$this->call->uri} - $dump", $this->call->info->http_code);
+			throw new Exception("{$this->call->info->http_code} - HTTP service error in '{$this->call->method}' for '{$this->call->uri}' - $dump", $this->call->info->http_code);
 		}
 
 		return $this->data();
