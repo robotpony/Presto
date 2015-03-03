@@ -8,7 +8,8 @@ $p = null;
 try {
 
 	$p = new Presto();
-} catch (Exception $e) {
+
+} catch (\Exception $e) {
 	/* Last chance exception handler
 		Attempts to produce sane RESTful output if other error mechanisms have failed. Limited to JSON responses.
 	*/
@@ -26,7 +27,8 @@ try {
 	if ($via) $payload['error'] = array('message' => $via->getMessage(), 'code' => $via->getCode());
 
 	if (PRESTO_TRACE) $payload[PRESTO_TRACE_KEY] = Presto::trace_info();
-	if (PRESTO_DEBUG) error_log(json_encode($payload)); // also send to syslog
+
+	error_log(json_encode($payload)); // also send to syslog
 
 	header("HTTP/1.0 $n API error");
 	header("Content-Type: application/json");
